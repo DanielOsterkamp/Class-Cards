@@ -20,54 +20,27 @@ import java.util.List;
 
 public class EstudarDeckViewModel extends ViewModel {
 
-    // =========================
-    // REPOSITORIES / FSRS
-    // =========================
-
-    private final MutableLiveData<Boolean> avaliacaoConcluida =
-            new MutableLiveData<>(false);
-    private final DeckRepository deckRepository =
-            new DeckRepository();
+    private final MutableLiveData<Boolean> avaliacaoConcluida = new MutableLiveData<>(false);
+    private final DeckRepository deckRepository = new DeckRepository();
 
     public LiveData<Boolean> getAvaliacaoConcluida() {
         return avaliacaoConcluida;
     }
 
-    private final ProgressoRepository progressoRepository =
-            new ProgressoRepository();
+    private final ProgressoRepository progressoRepository = new ProgressoRepository();
 
-    private final FsrsScheduler fsrsScheduler =
-            new FsrsScheduler();
+    private final FsrsScheduler fsrsScheduler = new FsrsScheduler();
 
+    private final MutableLiveData<Deck> deck = new MutableLiveData<>();
 
-    // =========================
-    // DADOS DO DECK
-    // =========================
+    private final MutableLiveData<List<Flashcard>> flashcards = new MutableLiveData<>(new ArrayList<>());
 
-    private final MutableLiveData<Deck> deck =
-            new MutableLiveData<>();
-
-    private final MutableLiveData<List<Flashcard>> flashcards =
-            new MutableLiveData<>(new ArrayList<>());
-
-    private final MutableLiveData<String> erro =
-            new MutableLiveData<>();
+    private final MutableLiveData<String> erro = new MutableLiveData<>();
 
 
-    // =========================
-    // PROGRESSO FSRS
-    // =========================
+    private final MutableLiveData<ProgressoFlashcard> progressoAtual = new MutableLiveData<>();
 
-    private final MutableLiveData<ProgressoFlashcard> progressoAtual =
-            new MutableLiveData<>();
-
-    private final MutableLiveData<Boolean> salvandoProgresso =
-            new MutableLiveData<>(false);
-
-
-    // =========================
-    // ESTADO DA SESSÃO
-    // =========================
+    private final MutableLiveData<Boolean> salvandoProgresso = new MutableLiveData<>(false);
 
     private String deckIdAtual;
 
@@ -75,10 +48,6 @@ public class EstudarDeckViewModel extends ViewModel {
 
     private boolean mostrandoResposta = false;
 
-
-    // =========================
-    // GETTERS
-    // =========================
 
     public LiveData<Deck> getDeck() {
         return deck;
@@ -109,11 +78,6 @@ public class EstudarDeckViewModel extends ViewModel {
     public boolean isMostrandoResposta() {
         return mostrandoResposta;
     }
-
-
-    // =========================
-    // CARREGAR DECK
-    // =========================
 
     public void carregarDeck(String deckId) {
 
@@ -169,11 +133,6 @@ public class EstudarDeckViewModel extends ViewModel {
         );
     }
 
-
-    // =========================
-    // FLASHCARD ATUAL
-    // =========================
-
     public Flashcard getFlashcardAtual() {
 
         List<Flashcard> lista =
@@ -192,18 +151,9 @@ public class EstudarDeckViewModel extends ViewModel {
     }
 
 
-    // =========================
-    // VIRAR FLASHCARD
-    // =========================
-
     public void alternarLado() {
         mostrandoResposta = !mostrandoResposta;
     }
-
-
-    // =========================
-    // PRÓXIMO FLASHCARD
-    // =========================
 
     public boolean proximoFlashcard() {
 
@@ -228,11 +178,6 @@ public class EstudarDeckViewModel extends ViewModel {
         return true;
     }
 
-
-    // =========================
-    // CARREGAR PROGRESSO FSRS
-    // =========================
-
     public void carregarProgressoAtual() {
 
         Flashcard flashcard =
@@ -243,11 +188,6 @@ public class EstudarDeckViewModel extends ViewModel {
             return;
         }
 
-        Log.d(
-                "ESTUDO",
-                "Carregando progresso do flashcard: "
-                        + flashcard.getId()
-        );
 
         String userId =
                 FirebaseAuth.getInstance()
@@ -263,13 +203,6 @@ public class EstudarDeckViewModel extends ViewModel {
             return;
         }
 
-        Log.d(
-                "ESTUDO",
-                "Buscando progresso. userId="
-                        + userId
-                        + " flashcardId="
-                        + flashcard.getId()
-        );
 
         progressoRepository.buscarProgresso(
                 userId,
@@ -281,39 +214,15 @@ public class EstudarDeckViewModel extends ViewModel {
                             ProgressoFlashcard progresso
                     ) {
 
-                        Log.d(
-                                "ESTUDO",
-                                "buscarProgresso onSuccess. Existe? "
-                                        + (progresso != null)
-                        );
-
                         if (progresso == null) {
-
-                            Log.d(
-                                    "ESTUDO",
-                                    "Criando progresso NEW"
-                            );
-
-                            progresso =
-                                    new ProgressoFlashcard(
-                                            userId,
-                                            deckIdAtual,
-                                            flashcard.getId()
-                                    );
+                            progresso = new ProgressoFlashcard(userId, deckIdAtual, flashcard.getId());
                         }
 
                         progressoAtual.setValue(progresso);
-
-                        Log.d(
-                                "ESTUDO",
-                                "progressoAtual definido"
-                        );
                     }
 
                     @Override
-                    public void onError(
-                            Exception exception
-                    ) {
+                    public void onError(Exception exception) {
 
                         Log.e(
                                 "ESTUDO",
@@ -333,22 +242,11 @@ public class EstudarDeckViewModel extends ViewModel {
         avaliacaoConcluida.setValue(false);
     }
 
-
-    // =========================
-    // AVALIAR FLASHCARD
-    // =========================
-
     public void avaliarFlashcard(Rating rating) {
-
-        Log.d("ESTUDO", "avaliarFlashcard chamado: " + rating);
 
         ProgressoFlashcard progresso =
                 progressoAtual.getValue();
 
-        Log.d(
-                "ESTUDO",
-                "progressoAtual = " + progresso
-        );
 
         if (progresso == null) {
 
@@ -364,35 +262,14 @@ public class EstudarDeckViewModel extends ViewModel {
             return;
         }
 
-        if (Boolean.TRUE.equals(
-                salvandoProgresso.getValue()
-        )) {
-
-            Log.d(
-                    "ESTUDO",
-                    "Já existe salvamento em andamento"
-            );
-
+        if (Boolean.TRUE.equals(salvandoProgresso.getValue())) {
             return;
         }
 
         avaliacaoConcluida.setValue(false);
         salvandoProgresso.setValue(true);
 
-        Log.d(
-                "ESTUDO",
-                "Chamando FsrsScheduler.revisar()"
-        );
-
-        fsrsScheduler.revisar(
-                progresso,
-                rating
-        );
-
-        Log.d(
-                "ESTUDO",
-                "FSRS concluído. Salvando no Firestore..."
-        );
+        fsrsScheduler.revisar(progresso, rating);
 
         progressoRepository.salvarProgresso(
                 progresso,
@@ -400,12 +277,6 @@ public class EstudarDeckViewModel extends ViewModel {
 
                     @Override
                     public void onSuccess() {
-
-                        Log.d(
-                                "ESTUDO",
-                                "Progresso salvo no Firestore"
-                        );
-
                         progressoAtual.setValue(progresso);
                         salvandoProgresso.setValue(false);
                         avaliacaoConcluida.setValue(true);

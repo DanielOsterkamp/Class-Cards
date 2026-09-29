@@ -22,7 +22,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.classcardsaplicao.R;
 import com.example.classcardsaplicao.model.Flashcard;
-import com.example.classcardsaplicao.ui.deck.FlashcardAdapter;
+import com.example.classcardsaplicao.ui.deck.create.FlashcardAdapter;
 import com.example.classcardsaplicao.ui.deck.FlashcardDialogHelper;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.switchmaterial.SwitchMaterial;
@@ -38,62 +38,47 @@ public class CriarDeckFragment extends Fragment {
     }
 
     @Override
-    public void onViewCreated(
-            @NonNull View view,
-            @Nullable Bundle savedInstanceState
-    ) {
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
         EditText inputNumeroCards = view.findViewById(R.id.inputNumeroCards);
         EditText inputDescricaoIA = view.findViewById(R.id.inputDescricaoIA);
 
-        MaterialButton btnGerarFlashcards =
-                view.findViewById(R.id.btnGerarFlashcards);
+        MaterialButton btnGerarFlashcards = view.findViewById(R.id.btnGerarFlashcards);
 
         EditText inputNomeDeck = view.findViewById(R.id.inputNomeDeck);
         EditText inputMateriaDeck = view.findViewById(R.id.inputMateriaDeck);
 
-        MaterialButton btnSalvarDeck =
-                view.findViewById(R.id.btnSalvarDeck);
+        MaterialButton btnSalvarDeck = view.findViewById(R.id.btnSalvarDeck);
 
-        CriarDeckViewModel viewModel =
-                new ViewModelProvider(this).get(CriarDeckViewModel.class);
+        CriarDeckViewModel viewModel = new ViewModelProvider(this).get(CriarDeckViewModel.class);
 
         ImageButton btnMenu = view.findViewById(R.id.btnMenu);
 
-        SwitchMaterial switchModoCriacao =
-                view.findViewById(R.id.switchModoCriacao);
+        SwitchMaterial switchModoCriacao = view.findViewById(R.id.switchModoCriacao);
 
-        LinearLayout containerManual =
-                view.findViewById(R.id.containerManual);
+        LinearLayout containerManual = view.findViewById(R.id.containerManual);
 
-        LinearLayout containerAutomatico =
-                view.findViewById(R.id.containerAutomatico);
+        LinearLayout containerAutomatico = view.findViewById(R.id.containerAutomatico);
 
-        TextView txtManual =
-                view.findViewById(R.id.txtManual);
+        TextView txtManual = view.findViewById(R.id.txtManual);
 
-        TextView txtAutomatico =
-                view.findViewById(R.id.txtAutomatico);
+        TextView txtAutomatico = view.findViewById(R.id.txtAutomatico);
 
         EditText inputPergunta = view.findViewById(R.id.inputPergunta);
         EditText inputResposta = view.findViewById(R.id.inputResposta);
 
-        MaterialButton btnCriarFlashcard =
-                view.findViewById(R.id.btnCriarFlashcard);
+        MaterialButton btnCriarFlashcard = view.findViewById(R.id.btnCriarFlashcard);
 
-        RecyclerView recyclerFlashcards =
-                view.findViewById(R.id.recyclerFlashcards);
+        RecyclerView recyclerFlashcards = view.findViewById(R.id.recyclerFlashcards);
 
         FlashcardAdapter flashcardAdapter = new FlashcardAdapter();
 
-        recyclerFlashcards.setLayoutManager(
-                new LinearLayoutManager(requireContext())
-        );
+        recyclerFlashcards.setLayoutManager(new LinearLayoutManager(requireContext()));
 
         recyclerFlashcards.setAdapter(flashcardAdapter);
 
-        viewModel.getFlashcards().observe(
+        viewModel.getFlashcards().observe( // sempre que um flash card novo aparecer, ele mostra na tela
                 getViewLifecycleOwner(),
                 flashcards -> flashcardAdapter.atualizarFlashcards(flashcards)
         );
@@ -145,7 +130,7 @@ public class CriarDeckFragment extends Fragment {
 
         flashcardAdapter.setOnEditarFlashcardListener(
                 (position, flashcard) ->
-                        FlashcardDialogHelper.abrirDialogEditar(
+                        FlashcardDialogHelper.abrirDialogEditar( // aqui abre aquela telinha de editar deck
                                 requireContext(),
                                 flashcard,
                                 (pergunta, resposta) ->
@@ -160,28 +145,21 @@ public class CriarDeckFragment extends Fragment {
 
         // Menu lateral
         btnMenu.setOnClickListener(v -> {
-            DrawerLayout drawerLayout =
-                    requireActivity().findViewById(R.id.drawerLayout);
+            DrawerLayout drawerLayout = requireActivity().findViewById(R.id.drawerLayout);
 
             drawerLayout.openDrawer(GravityCompat.START);
         });
 
         btnGerarFlashcards.setOnClickListener(v -> {
 
-            String materia =
-                    inputMateriaDeck.getText().toString().trim();
+            String materia = inputMateriaDeck.getText().toString().trim();
 
             String descricao =
                     inputDescricaoIA.getText().toString().trim();
 
-            String quantidade =
-                    inputNumeroCards.getText().toString().trim();
+            String quantidade = inputNumeroCards.getText().toString().trim();
 
-            viewModel.gerarFlashcards(
-                    materia,
-                    descricao,
-                    quantidade
-            );
+            viewModel.gerarFlashcards(materia, descricao, quantidade); // usa o gerarFlashcards do ViewModel
         });
 
 
@@ -204,11 +182,7 @@ public class CriarDeckFragment extends Fragment {
 
             btnSalvarDeck.setEnabled(false);
 
-            viewModel.salvarDeck(
-                    usuario.getUid(),
-                    nome,
-                    materia
-            );
+            viewModel.salvarDeck(usuario.getUid(), nome, materia);
         });
 
         viewModel.getGerandoFlashcards().observe(
@@ -217,7 +191,7 @@ public class CriarDeckFragment extends Fragment {
 
                     btnGerarFlashcards.setEnabled(!gerando);
 
-                    btnGerarFlashcards.setText(
+                    btnGerarFlashcards.setText( // se estiver gerando o texto é "gerando", se não é o gerar flash cards
                             gerando
                                     ? "Gerando..."
                                     : "Gerar Flash Cards"
@@ -302,44 +276,31 @@ public class CriarDeckFragment extends Fragment {
         );
     }
 
-    private void abrirDialogEditarFlashcard(
-            int position,
-            Flashcard flashcard,
-            CriarDeckViewModel viewModel
-    ) {
+    private void abrirDialogEditarFlashcard(int position, Flashcard flashcard, CriarDeckViewModel viewModel) {
 
-        View dialogView = LayoutInflater
-                .from(requireContext())
-                .inflate(R.layout.dialog_editar_flashcard, null);
+        View dialogView = LayoutInflater.from(requireContext()).inflate(R.layout.dialog_editar_flashcard, null);
 
-        EditText inputPergunta =
-                dialogView.findViewById(R.id.inputEditarPergunta);
+        EditText inputPergunta = dialogView.findViewById(R.id.inputEditarPergunta);
 
-        EditText inputResposta =
-                dialogView.findViewById(R.id.inputEditarResposta);
+        EditText inputResposta = dialogView.findViewById(R.id.inputEditarResposta);
 
         inputPergunta.setText(flashcard.getPergunta());
         inputResposta.setText(flashcard.getResposta());
 
-        MaterialButton btnCancelar =
-                dialogView.findViewById(R.id.btnCancelarEdicao);
+        MaterialButton btnCancelar = dialogView.findViewById(R.id.btnCancelarEdicao);
 
-        MaterialButton btnSalvar =
-                dialogView.findViewById(R.id.btnSalvarEdicao);
+        MaterialButton btnSalvar = dialogView.findViewById(R.id.btnSalvarEdicao);
 
-        AlertDialog dialog = new AlertDialog.Builder(requireContext())
-                .setView(dialogView)
-                .create();
+        // cria a tela de dialogo para editar flash card
+        AlertDialog dialog = new AlertDialog.Builder(requireContext()).setView(dialogView).create();
 
         btnCancelar.setOnClickListener(v -> dialog.dismiss());
 
         btnSalvar.setOnClickListener(v -> {
 
-            String pergunta =
-                    inputPergunta.getText().toString().trim();
+            String pergunta = inputPergunta.getText().toString().trim();
 
-            String resposta =
-                    inputResposta.getText().toString().trim();
+            String resposta = inputResposta.getText().toString().trim();
 
             if (pergunta.isEmpty()) {
                 inputPergunta.setError("Informe a pergunta.");
@@ -351,16 +312,12 @@ public class CriarDeckFragment extends Fragment {
                 return;
             }
 
-            viewModel.editarFlashcard(
-                    position,
-                    pergunta,
-                    resposta
-            );
+            viewModel.editarFlashcard(position, pergunta, resposta);
 
             dialog.dismiss();
         });
 
-        dialog.show();
+        dialog.show(); // mostra a tela de editar
 
         if (dialog.getWindow() != null) {
             dialog.getWindow().setBackgroundDrawableResource(
@@ -377,11 +334,9 @@ public class CriarDeckFragment extends Fragment {
             dialog.getButton(AlertDialog.BUTTON_POSITIVE)
                     .setOnClickListener(v -> {
 
-                        String pergunta =
-                                inputPergunta.getText().toString().trim();
+                        String pergunta = inputPergunta.getText().toString().trim();
 
-                        String resposta =
-                                inputResposta.getText().toString().trim();
+                        String resposta = inputResposta.getText().toString().trim();
 
                         if (pergunta.isEmpty()) {
                             inputPergunta.setError("Informe a pergunta.");
@@ -393,11 +348,7 @@ public class CriarDeckFragment extends Fragment {
                             return;
                         }
 
-                        viewModel.editarFlashcard(
-                                position,
-                                pergunta,
-                                resposta
-                        );
+                        viewModel.editarFlashcard(position, pergunta, resposta);
 
                         dialog.dismiss();
                     });

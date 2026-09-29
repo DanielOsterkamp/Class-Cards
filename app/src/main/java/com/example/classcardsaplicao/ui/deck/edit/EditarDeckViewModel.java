@@ -15,8 +15,7 @@ import java.util.List;
 
 public class EditarDeckViewModel extends ViewModel {
 
-    private final MutableLiveData<Boolean> salvo =
-            new MutableLiveData<>(false);
+    private final MutableLiveData<Boolean> salvo = new MutableLiveData<>(false);
 
     public LiveData<Boolean> getSalvo() {
         return salvo;
@@ -26,11 +25,9 @@ public class EditarDeckViewModel extends ViewModel {
 
     private final MutableLiveData<Deck> deck = new MutableLiveData<>();
 
-    private final MutableLiveData<List<Flashcard>> flashcards =
-            new MutableLiveData<>(new ArrayList<>());
+    private final MutableLiveData<List<Flashcard>> flashcards = new MutableLiveData<>(new ArrayList<>());
 
-    private final MutableLiveData<String> erro =
-            new MutableLiveData<>();
+    private final MutableLiveData<String> erro = new MutableLiveData<>();
 
     public LiveData<Deck> getDeck() {
         return deck;
@@ -109,16 +106,11 @@ public class EditarDeckViewModel extends ViewModel {
         flashcards.setValue(novaLista);
     }
 
-    public void editarFlashcard(
-            int position,
-            String pergunta,
-            String resposta
-    ) {
+    public void editarFlashcard(int position, String pergunta, String resposta) {
+
         List<Flashcard> listaAtual = flashcards.getValue();
 
-        if (listaAtual == null
-                || position < 0
-                || position >= listaAtual.size()) {
+        if (listaAtual == null || position < 0 || position >= listaAtual.size()) {
             return;
         }
 
@@ -131,10 +123,8 @@ public class EditarDeckViewModel extends ViewModel {
         flashcards.setValue(novaLista);
     }
 
-    public void salvarAlteracoes(
-            String titulo,
-            String materia
-    ) {
+    public void salvarAlteracoes(String titulo, String materia) {
+
         Deck deckAtual = deck.getValue();
         List<Flashcard> lista = flashcards.getValue();
 
@@ -182,9 +172,7 @@ public class EditarDeckViewModel extends ViewModel {
     public void removerFlashcard(int position) {
         List<Flashcard> listaAtual = flashcards.getValue();
 
-        if (listaAtual == null
-                || position < 0
-                || position >= listaAtual.size()) {
+        if (listaAtual == null || position < 0 || position >= listaAtual.size()) {
             return;
         }
 

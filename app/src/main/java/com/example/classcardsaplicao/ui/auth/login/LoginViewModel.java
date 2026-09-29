@@ -16,6 +16,10 @@ public class LoginViewModel extends ViewModel {
 
     private final UserRepository userRepository;
 
+
+    // usamos Live data aqui para sempre que esses valores serem mudados, os codigos dos observers sejam executados
+    // a diferença do mutable live data para o live data é que o mutable pode ser alterado por nós
+
     private final MutableLiveData<Boolean> carregando = new MutableLiveData<>(false);
     private final MutableLiveData<Boolean> loginSucesso = new MutableLiveData<>(false);
     private final MutableLiveData<String> erro = new MutableLiveData<>();

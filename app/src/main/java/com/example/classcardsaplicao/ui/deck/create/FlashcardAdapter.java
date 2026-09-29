@@ -1,4 +1,4 @@
-package com.example.classcardsaplicao.ui.deck;
+package com.example.classcardsaplicao.ui.deck.create;
 
 import android.view.LayoutInflater;
 import android.view.View;

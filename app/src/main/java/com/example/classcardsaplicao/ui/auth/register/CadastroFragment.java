@@ -42,8 +42,7 @@ public class CadastroFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        CadastroViewModel cadastroViewModel = new ViewModelProvider(this)
-                .get(CadastroViewModel.class);
+        CadastroViewModel cadastroViewModel = new ViewModelProvider(this).get(CadastroViewModel.class);
 
          inputNome = view.findViewById(R.id.inputNome);
          inputEmail = view.findViewById(R.id.inputEmail);
@@ -75,10 +74,10 @@ public class CadastroFragment extends Fragment {
         Button btnVoltar = view.findViewById(R.id.btnVoltar);
 
         btnVoltar.setOnClickListener(v -> {
-            NavHostFragment.findNavController(this).popBackStack();
+            NavHostFragment.findNavController(this).popBackStack(); // isso daqui volta para a ultima tela
         });
 
-        cadastroViewModel.getCadastroSucesso().observe(
+        cadastroViewModel.getCadastroSucesso().observe( // sempre que o valor de cadastro sucesso mudar de valor, executa aqui
                 getViewLifecycleOwner(),
                 sucesso -> {
                     if (Boolean.TRUE.equals(sucesso)) {

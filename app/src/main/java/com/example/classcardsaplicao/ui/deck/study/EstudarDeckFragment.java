@@ -30,49 +30,34 @@ public class EstudarDeckFragment extends Fragment {
     }
 
     @Override
-    public void onViewCreated(
-            @NonNull View view,
-            @Nullable Bundle savedInstanceState
-    ) {
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+
         super.onViewCreated(view, savedInstanceState);
 
-        LinearLayout layoutAvaliacoes =
-                view.findViewById(R.id.layoutAvaliacoes);
+        LinearLayout layoutAvaliacoes = view.findViewById(R.id.layoutAvaliacoes);
 
-        MaterialButton btnErrei =
-                view.findViewById(R.id.btnErrei);
+        MaterialButton btnErrei = view.findViewById(R.id.btnErrei);
 
-        MaterialButton btnDificil =
-                view.findViewById(R.id.btnDificil);
+        MaterialButton btnDificil = view.findViewById(R.id.btnDificil);
 
-        MaterialButton btnBom =
-                view.findViewById(R.id.btnBom);
+        MaterialButton btnBom = view.findViewById(R.id.btnBom);
 
-        MaterialButton btnFacil =
-                view.findViewById(R.id.btnFacil);
+        MaterialButton btnFacil = view.findViewById(R.id.btnFacil);
 
-        MaterialCardView cardFlashcard =
-                view.findViewById(R.id.cardFlashcard);
+        MaterialCardView cardFlashcard = view.findViewById(R.id.cardFlashcard);
 
-        TextView txtInstrucao =
-                view.findViewById(R.id.txtInstrucao);
+        TextView txtInstrucao = view.findViewById(R.id.txtInstrucao);
 
-        EstudarDeckViewModel viewModel =
-                new ViewModelProvider(this)
-                        .get(EstudarDeckViewModel.class);
+        EstudarDeckViewModel viewModel = new ViewModelProvider(this).get(EstudarDeckViewModel.class);
 
-        TextView txtNomeDeck =
-                view.findViewById(R.id.txtNomeDeck);
+        TextView txtNomeDeck = view.findViewById(R.id.txtNomeDeck);
 
-        TextView txtConteudoFlashcard =
-                view.findViewById(R.id.txtConteudoFlashcard);
+        TextView txtConteudoFlashcard = view.findViewById(R.id.txtConteudoFlashcard);
 
-        TextView txtProgresso =
-                view.findViewById(R.id.txtProgresso);
+        TextView txtProgresso = view.findViewById(R.id.txtProgresso);
 
 
-        Button btnVoltar =
-                view.findViewById(R.id.btnVoltar);
+        Button btnVoltar = view.findViewById(R.id.btnVoltar);
 
         String deckId = requireArguments().getString("deckId");
 
@@ -94,8 +79,7 @@ public class EstudarDeckFragment extends Fragment {
 
         cardFlashcard.setOnClickListener(v -> {
 
-            Flashcard flashcard =
-                    viewModel.getFlashcardAtual();
+            Flashcard flashcard = viewModel.getFlashcardAtual();
 
             if (flashcard == null) {
                 return;
@@ -109,21 +93,15 @@ public class EstudarDeckFragment extends Fragment {
                         flashcard.getResposta()
                 );
 
-                txtInstrucao.setText(
-                        "Como foi lembrar deste conteúdo?"
-                );
+                txtInstrucao.setText("Como foi lembrar deste conteúdo?");
 
                 layoutAvaliacoes.setVisibility(View.VISIBLE);
 
             } else {
 
-                txtConteudoFlashcard.setText(
-                        flashcard.getPergunta()
-                );
+                txtConteudoFlashcard.setText(flashcard.getPergunta());
 
-                txtInstrucao.setText(
-                        "Toque no card para ver a resposta"
-                );
+                txtInstrucao.setText("Toque no card para ver a resposta");
 
                 layoutAvaliacoes.setVisibility(View.GONE);
             }
@@ -136,8 +114,7 @@ public class EstudarDeckFragment extends Fragment {
                     Toast.LENGTH_SHORT
             ).show();
 
-            NavHostFragment.findNavController(this)
-                    .popBackStack();
+            NavHostFragment.findNavController(this).popBackStack();
 
             return;
         }
@@ -163,25 +140,18 @@ public class EstudarDeckFragment extends Fragment {
 
                     if (flashcards == null || flashcards.isEmpty()) {
 
-                        txtConteudoFlashcard.setText(
-                                "Este deck não possui flashcards."
-                        );
+                        txtConteudoFlashcard.setText("Este deck não possui flashcards.");
 
                         txtProgresso.setText("0 / 0");
 
                         return;
                     }
 
-                    Flashcard primeiroFlashcard =
-                            flashcards.get(0);
+                    Flashcard primeiroFlashcard = flashcards.get(0);
 
-                    txtConteudoFlashcard.setText(
-                            primeiroFlashcard.getPergunta()
-                    );
+                    txtConteudoFlashcard.setText(primeiroFlashcard.getPergunta());
 
-                    txtProgresso.setText(
-                            "1 / " + flashcards.size()
-                    );
+                    txtProgresso.setText("1 / " + flashcards.size());
                 }
         );
 
@@ -189,32 +159,13 @@ public class EstudarDeckFragment extends Fragment {
                 getViewLifecycleOwner(),
                 concluida -> {
 
-                    Log.d(
-                            "ESTUDO",
-                            "avaliacaoConcluida = " + concluida
-                    );
-
                     if (!Boolean.TRUE.equals(concluida)) {
                         return;
                     }
 
                     viewModel.consumirAvaliacaoConcluida();
 
-                    Log.d(
-                            "ESTUDO",
-                            "Índice ANTES = "
-                                    + viewModel.getIndiceAtual()
-                    );
-
-                    boolean avancou =
-                            viewModel.proximoFlashcard();
-
-                    Log.d(
-                            "ESTUDO",
-                            "Avançou = " + avancou
-                                    + " | Índice DEPOIS = "
-                                    + viewModel.getIndiceAtual()
-                    );
+                    boolean avancou = viewModel.proximoFlashcard();
 
                     if (!avancou) {
 
@@ -231,41 +182,23 @@ public class EstudarDeckFragment extends Fragment {
                         return;
                     }
 
-                    Flashcard flashcard =
-                            viewModel.getFlashcardAtual();
-
-                    Log.d(
-                            "ESTUDO",
-                            "Próximo flashcard = "
-                                    + (flashcard != null
-                                    ? flashcard.getPergunta()
-                                    : "NULL")
-                    );
+                    Flashcard flashcard = viewModel.getFlashcardAtual();
 
                     if (flashcard == null) {
                         return;
                     }
 
-                    txtConteudoFlashcard.setText(
-                            flashcard.getPergunta()
-                    );
+                    txtConteudoFlashcard.setText(flashcard.getPergunta());
 
-                    txtInstrucao.setText(
-                            "Toque no card para ver a resposta"
-                    );
+                    txtInstrucao.setText("Toque no card para ver a resposta");
 
                     layoutAvaliacoes.setVisibility(View.GONE);
 
-                    List<Flashcard> lista =
-                            viewModel.getFlashcards().getValue();
+                    List<Flashcard> lista = viewModel.getFlashcards().getValue();
 
                     if (lista != null) {
 
-                        txtProgresso.setText(
-                                (viewModel.getIndiceAtual() + 1)
-                                        + " / "
-                                        + lista.size()
-                        );
+                        txtProgresso.setText((viewModel.getIndiceAtual() + 1) + " / " + lista.size());
                     }
                 }
         );

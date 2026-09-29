@@ -17,7 +17,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.classcardsaplicao.R;
 import com.example.classcardsaplicao.model.Flashcard;
-import com.example.classcardsaplicao.ui.deck.FlashcardAdapter;
+import com.example.classcardsaplicao.ui.deck.create.FlashcardAdapter;
 import com.example.classcardsaplicao.ui.deck.FlashcardDialogHelper;
 import com.google.android.material.button.MaterialButton;
 
@@ -31,39 +31,27 @@ public class EditarDeckFragment extends Fragment {
     }
 
     @Override
-    public void onViewCreated(
-            @NonNull View view,
-            @Nullable Bundle savedInstanceState
-    ) {
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        MaterialButton btnSalvarAlteracoes =
-                view.findViewById(R.id.btnSalvarDeck);
+        MaterialButton btnSalvarAlteracoes = view.findViewById(R.id.btnSalvarDeck);
 
         EditText inputPergunta = view.findViewById(R.id.inputPergunta);
         EditText inputResposta = view.findViewById(R.id.inputResposta);
 
-        MaterialButton btnCriarFlashcard =
-                view.findViewById(R.id.btnCriarFlashcard);
+        MaterialButton btnCriarFlashcard = view.findViewById(R.id.btnCriarFlashcard);
 
-        EditarDeckViewModel viewModel =
-                new ViewModelProvider(this).get(EditarDeckViewModel.class);
+        EditarDeckViewModel viewModel = new ViewModelProvider(this).get(EditarDeckViewModel.class);
 
-        EditText inputNomeDeck =
-                view.findViewById(R.id.inputNomeDeck);
+        EditText inputNomeDeck = view.findViewById(R.id.inputNomeDeck);
 
-        EditText inputMateriaDeck =
-                view.findViewById(R.id.inputMateriaDeck);
+        EditText inputMateriaDeck = view.findViewById(R.id.inputMateriaDeck);
 
-        RecyclerView recyclerFlashcards =
-                view.findViewById(R.id.recyclerFlashcards);
+        RecyclerView recyclerFlashcards = view.findViewById(R.id.recyclerFlashcards);
 
-        FlashcardAdapter flashcardAdapter =
-                new FlashcardAdapter();
+        FlashcardAdapter flashcardAdapter = new FlashcardAdapter();
 
-        recyclerFlashcards.setLayoutManager(
-                new LinearLayoutManager(requireContext())
-        );
+        recyclerFlashcards.setLayoutManager(new LinearLayoutManager(requireContext()));
 
         recyclerFlashcards.setAdapter(flashcardAdapter);
 
@@ -104,11 +92,9 @@ public class EditarDeckFragment extends Fragment {
 
         btnSalvarAlteracoes.setOnClickListener(v -> {
 
-            String titulo =
-                    inputNomeDeck.getText().toString().trim();
+            String titulo = inputNomeDeck.getText().toString().trim();
 
-            String materia =
-                    inputMateriaDeck.getText().toString().trim();
+            String materia = inputMateriaDeck.getText().toString().trim();
 
             btnSalvarAlteracoes.setEnabled(false);
 
@@ -193,20 +179,16 @@ public class EditarDeckFragment extends Fragment {
                 .from(requireContext())
                 .inflate(R.layout.dialog_editar_flashcard, null);
 
-        EditText inputPergunta =
-                dialogView.findViewById(R.id.inputEditarPergunta);
+        EditText inputPergunta = dialogView.findViewById(R.id.inputEditarPergunta);
 
-        EditText inputResposta =
-                dialogView.findViewById(R.id.inputEditarResposta);
+        EditText inputResposta = dialogView.findViewById(R.id.inputEditarResposta);
 
         inputPergunta.setText(flashcard.getPergunta());
         inputResposta.setText(flashcard.getResposta());
 
-        MaterialButton btnCancelar =
-                dialogView.findViewById(R.id.btnCancelarEdicao);
+        MaterialButton btnCancelar = dialogView.findViewById(R.id.btnCancelarEdicao);
 
-        MaterialButton btnSalvar =
-                dialogView.findViewById(R.id.btnSalvarEdicao);
+        MaterialButton btnSalvar = dialogView.findViewById(R.id.btnSalvarEdicao);
 
         AlertDialog dialog = new AlertDialog.Builder(requireContext())
                 .setView(dialogView)
@@ -216,11 +198,9 @@ public class EditarDeckFragment extends Fragment {
 
         btnSalvar.setOnClickListener(v -> {
 
-            String pergunta =
-                    inputPergunta.getText().toString().trim();
+            String pergunta = inputPergunta.getText().toString().trim();
 
-            String resposta =
-                    inputResposta.getText().toString().trim();
+            String resposta = inputResposta.getText().toString().trim();
 
             if (pergunta.isEmpty()) {
                 inputPergunta.setError("Informe a pergunta.");
@@ -258,11 +238,9 @@ public class EditarDeckFragment extends Fragment {
             dialog.getButton(AlertDialog.BUTTON_POSITIVE)
                     .setOnClickListener(v -> {
 
-                        String pergunta =
-                                inputPergunta.getText().toString().trim();
+                        String pergunta = inputPergunta.getText().toString().trim();
 
-                        String resposta =
-                                inputResposta.getText().toString().trim();
+                        String resposta = inputResposta.getText().toString().trim();
 
                         if (pergunta.isEmpty()) {
                             inputPergunta.setError("Informe a pergunta.");

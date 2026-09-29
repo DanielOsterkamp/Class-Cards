@@ -52,8 +52,7 @@ public class DeckSelecionadoFragment extends Fragment {
 
         MaterialButton btnEditarDeck = view.findViewById(R.id.btnEditarDeck);
 
-        DeckSelecionadoViewModel viewModel =
-                new ViewModelProvider(this).get(DeckSelecionadoViewModel.class);
+        DeckSelecionadoViewModel viewModel = new ViewModelProvider(this).get(DeckSelecionadoViewModel.class);
 
         AuthRepository authRepository = new AuthRepository();
 

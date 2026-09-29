@@ -16,16 +16,15 @@ import java.util.List;
 
 public class DeckAdapter extends RecyclerView.Adapter<DeckAdapter.DeckViewHolder> {
 
+    // esse codigo serve para adapitar a lista de decks para poder representar em uma tabela
+
     private final List<Deck> decks = new ArrayList<>();
 
     private OnDeckClickListener onDeckClickListener;
 
     @NonNull
     @Override
-    public DeckViewHolder onCreateViewHolder(
-            @NonNull ViewGroup parent,
-            int viewType
-    ) {
+    public DeckViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater
                 .from(parent.getContext())
                 .inflate(R.layout.item_deck, parent, false);
@@ -33,11 +32,9 @@ public class DeckAdapter extends RecyclerView.Adapter<DeckAdapter.DeckViewHolder
         return new DeckViewHolder(view);
     }
 
+    // codigo obrigatorio de adapter para quando é criado o item, aqui configuramos como será o layout do deck
     @Override
-    public void onBindViewHolder(
-            @NonNull DeckViewHolder holder,
-            int position
-    ) {
+    public void onBindViewHolder(@NonNull DeckViewHolder holder, int position) {
         Deck deck = decks.get(position);
 
         holder.txtTituloDeck.setText(deck.getTitulo());
@@ -57,11 +54,13 @@ public class DeckAdapter extends RecyclerView.Adapter<DeckAdapter.DeckViewHolder
         });
     }
 
+    // codigo obrigatorio de adapter para a quantidade de itens na lista
     @Override
     public int getItemCount() {
         return decks.size();
     }
 
+    // codigo obrigatorio de adapter para o evento de click
     public interface OnDeckClickListener {
         void onDeckClick(Deck deck);
     }
