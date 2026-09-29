@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/startupFragment">
+
+    <fragment
+        android:id="@+id/loginFragment"
+        android:name="com.example.classcardsaplicao.ui.auth.login.LoginFragment"
+        android:label="Login">
+
+        <action
+            android:id="@+id/action_loginFragment_to_cadastroFragment"
+            app:destination="@id/cadastroFragment"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right" />
+
+        <action
+            android:id="@+id/action_loginFragment_to_homeFragment"
+            app:destination="@id/homeFragment"
+            app:popUpTo="@id/loginFragment"
+            app:popUpToInclusive="true"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left" />
+
+    </fragment>
+
+    <fragment
+        android:id="@+id/estudarDeckFragment"
+        android:name="com.example.classcardsaplicao.ui.deck.study.EstudarDeckFragment"
+        android:label="Estudar Deck">
+
+        <argument
+            android:name="deckId"
+            app:argType="string" />
+
+    </fragment>
+
+    <fragment
+        android:id="@+id/cadastroFragment"
+        android:name="com.example.classcardsaplicao.ui.auth.register.CadastroFragment"
+        android:label="Cadastro">
+        <action
+            android:id="@+id/action_cadastroFragment_to_homeFragment"
+            app:destination="@id/homeFragment"
+            app:popUpTo="@id/loginFragment"
+            app:popUpToInclusive="true"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/homeFragment"
+        android:name="com.example.classcardsaplicao.ui.home.HomeFragment"
+        android:label="Home">
+
+        <action
+            android:id="@+id/action_homeFragment_to_loginFragment"
+            app:destination="@id/loginFragment"
+            app:popUpTo="@id/homeFragment"
+            app:popUpToInclusive="true" />
+
+        <action
+            android:id="@+id/action_homeFragment_to_criarDeckFragment"
+            app:destination="@id/criarDeckFragment" />
+
+    </fragment>
+
+    <fragment
+        android:id="@+id/startupFragment"
+        android:name="com.example.classcardsaplicao.ui.startup.StartupFragment"
+        android:label="Startup">
+
+        <action
+            android:id="@+id/action_startupFragment_to_loginFragment"
+            app:destination="@id/loginFragment"
+            app:popUpTo="@id/startupFragment"
+            app:popUpToInclusive="true" />
+
+        <action
+            android:id="@+id/action_startupFragment_to_homeFragment"
+            app:destination="@id/homeFragment"
+            app:popUpTo="@id/startupFragment"
+            app:popUpToInclusive="true" />
+
+
+
+    </fragment>
+
+    <fragment
+        android:id="@+id/perfilFragment"
+        android:name="com.example.classcardsaplicao.ui.profile.PerfilFragment"
+        android:label="Perfil" />
+
+
+    <fragment
+        android:id="@+id/criarDeckFragment"
+        android:name="com.example.classcardsaplicao.ui.deck.create.CriarDeckFragment"
+        android:label="Criar Deck">
+
+        <action
+            android:id="@+id/action_criarDeckFragment_to_homeFragment"
+            app:destination="@id/homeFragment"
+            app:popUpTo="@id/homeFragment"
+            app:popUpToInclusive="false" />
+
+    </fragment>
+
+    <fragment
+        android:id="@+id/deckSelecionadoFragment"
+        android:name="com.example.classcardsaplicao.ui.deck.details.DeckSelecionadoFragment"
+        android:label="Deck">
+
+        <action
+            android:id="@+id/action_deckSelecionadoFragment_to_estudarDeckFragment"
+            app:destination="@id/estudarDeckFragment" />
+
+        <action
+            android:id="@+id/action_deckSelecionadoFragment_to_editarDeckFragment"
+            app:destination="@id/editarDeckFragment" />
+
+        <argument
+            android:name="deckId"
+            app:argType="string" />
+
+    </fragment>
+
+    <fragment
+        android:id="@+id/editarDeckFragment"
+        android:name="com.example.classcardsaplicao.ui.deck.edit.EditarDeckFragment"
+        android:label="Editar Deck">
+
+        <argument
+            android:name="deckId"
+            app:argType="string" />
+
+    </fragment>
+
+</navigation>

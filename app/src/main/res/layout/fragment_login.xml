@@ -1,0 +1,206 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/background"
+    android:backgroundTint="@color/button_secundary"
+    android:fillViewport="true"
+    tools:context=".ui.auth.register.CadastroFragment">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/background">
+
+        <TextView
+            android:id="@+id/textView4"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Não possui conta?"
+            android:textAlignment="center"
+            android:textColor="@color/text_secondary"
+            android:textSize="@dimen/text_emphasis"
+            app:layout_constraintBottom_toTopOf="@+id/cadastrar"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
+
+        <TextView
+            android:id="@+id/cadastrar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="157dp"
+            android:layout_marginEnd="158dp"
+            android:layout_marginBottom="48dp"
+            android:text="Cadastre-se"
+            android:textAlignment="center"
+            android:textColor="@color/text_secondary"
+            android:textSize="@dimen/text_emphasis"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
+
+        <TextView
+            android:id="@+id/textView3"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="32dp"
+            android:text="Senha"
+            android:textAlignment="center"
+            android:textColor="@color/text_secondary"
+            android:textSize="@dimen/text_secondary"
+            app:layout_constraintBottom_toTopOf="@+id/inputSenhaLogin"
+            app:layout_constraintStart_toStartOf="parent" />
+
+        <EditText
+            android:id="@+id/inputEmailLogin"
+            android:layout_width="0dp"
+            android:layout_height="@dimen/input_height"
+            android:layout_marginStart="@dimen/spacing_xl"
+            android:layout_marginEnd="@dimen/spacing_xl"
+            android:background="@drawable/button_preto_background"
+            android:ems="10"
+            android:hint="Email"
+            android:inputType="text"
+            android:textAlignment="center"
+            android:textColor="@color/text_apagado"
+            android:textColorHint="@color/text_apagado"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/textView" />
+
+        <TextView
+            android:id="@+id/textView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="36dp"
+            android:layout_marginTop="50dp"
+            android:text="Email"
+            android:textAlignment="center"
+            android:textColor="@color/text_secondary"
+            android:textSize="@dimen/text_secondary"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/textView2" />
+
+        <EditText
+            android:id="@+id/inputSenhaLogin"
+            android:layout_width="0dp"
+            android:layout_height="@dimen/input_height"
+            android:layout_marginStart="@dimen/spacing_xl"
+            android:layout_marginEnd="@dimen/spacing_xl"
+            android:background="@drawable/button_preto_background"
+            android:ems="10"
+            android:hint="Senha"
+            android:inputType="text"
+            android:textAlignment="center"
+            android:textColor="@color/text_apagado"
+            android:textColorHint="@color/text_apagado"
+            app:layout_constraintBottom_toTopOf="@+id/btnEntrar"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/inputEmailLogin" />
+
+        <TextView
+            android:id="@+id/Titulo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="72dp"
+            android:layout_marginTop="@dimen/spacing_xl"
+            android:layout_marginEnd="73dp"
+            android:text="Class Cards"
+            android:textAlignment="center"
+            android:textColor="@color/text_primary"
+            android:textSize="@dimen/text_title"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/textView2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="111dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginEnd="111dp"
+            android:text="Entre na sua conta."
+            android:textAlignment="center"
+            android:textColor="@color/text_secondary"
+            android:textSize="@dimen/text_section_title"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/imageView" />
+
+        <ImageView
+            android:id="@+id/imageView"
+            android:layout_width="129dp"
+            android:layout_height="96dp"
+            android:layout_marginStart="141dp"
+            android:layout_marginTop="20dp"
+            android:layout_marginEnd="141dp"
+            android:background="#00FFFFFF"
+            android:src="@drawable/logo"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.49"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/Titulo" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnEntrar"
+            android:layout_width="0dp"
+            android:layout_height="@dimen/input_height"
+            android:layout_marginStart="@dimen/spacing_xl"
+            android:layout_marginEnd="@dimen/spacing_xl"
+            android:background="@drawable/button_preto_background"
+            android:text="Entrar"
+            android:textAlignment="center"
+            android:textColor="@color/text_apagado"
+            app:backgroundTint="@color/button_secundary"
+            app:layout_constraintBottom_toTopOf="@+id/btnGoogle"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/inputSenhaLogin" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnMoodle"
+            android:layout_width="0dp"
+            android:layout_height="@dimen/input_height"
+            android:layout_marginStart="@dimen/spacing_xl"
+            android:layout_marginEnd="@dimen/spacing_xl"
+            android:layout_marginBottom="50dp"
+            android:background="@drawable/button_preto_background"
+            android:text="Entrar com o Moodle"
+            android:textAlignment="center"
+            android:textColor="@color/text_apagado"
+            app:backgroundTint="@color/button_secundary"
+            app:layout_constraintBottom_toTopOf="@+id/textView4"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="1.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/btnGoogle" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnGoogle"
+            android:layout_width="0dp"
+            android:layout_height="@dimen/input_height"
+            android:layout_marginStart="@dimen/spacing_xl"
+            android:layout_marginEnd="@dimen/spacing_xl"
+            android:background="@drawable/button_preto_background"
+            android:text="Entrar com o Google"
+            android:textAlignment="center"
+            android:textColor="@color/text_apagado"
+            app:backgroundTint="@color/button_secundary"
+            app:layout_constraintBottom_toTopOf="@+id/btnMoodle"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/btnEntrar" />
+
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</androidx.core.widget.NestedScrollView>
