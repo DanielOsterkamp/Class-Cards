@@ -18,6 +18,7 @@ import com.google.firebase.FirebaseApp;
 import com.google.firebase.appcheck.FirebaseAppCheck;
 import com.google.firebase.appcheck.debug.DebugAppCheckProviderFactory;
 
+
 import com.example.classcardsaplicao.data.AuthRepository;
 import com.google.android.material.navigation.NavigationView;
 

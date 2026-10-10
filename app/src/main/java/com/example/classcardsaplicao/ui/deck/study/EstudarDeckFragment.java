@@ -134,27 +134,57 @@ public class EstudarDeckFragment extends Fragment {
                 }
         );
 
+        viewModel.getSessaoConcluida().observe(
+                getViewLifecycleOwner(),
+                concluida -> {
+
+                    if (!Boolean.TRUE.equals(concluida)) {
+                        return;
+                    }
+
+                    txtConteudoFlashcard.setText(
+                            "Sessão de estudo concluída!"
+                    );
+
+                    txtProgresso.setText("Revisões concluídas");
+
+                    layoutAvaliacoes.setVisibility(View.GONE);
+
+                    cardFlashcard.setEnabled(false);
+                }
+        );
+
         viewModel.getFlashcards().observe(
                 getViewLifecycleOwner(),
                 flashcards -> {
 
                     if (flashcards == null || flashcards.isEmpty()) {
 
-                        txtConteudoFlashcard.setText("Este deck não possui flashcards.");
+                        txtConteudoFlashcard.setText(
+                                "Você não possui flashcards para revisar agora."
+                        );
 
-                        txtProgresso.setText("0 / 0");
+                        txtProgresso.setText("Revisões concluídas");
+
+                        layoutAvaliacoes.setVisibility(View.GONE);
+                        cardFlashcard.setEnabled(false);
 
                         return;
                     }
 
+                    cardFlashcard.setEnabled(true);
+
                     Flashcard primeiroFlashcard = flashcards.get(0);
 
-                    txtConteudoFlashcard.setText(primeiroFlashcard.getPergunta());
+                    txtConteudoFlashcard.setText(
+                            primeiroFlashcard.getPergunta()
+                    );
 
-                    txtProgresso.setText("1 / " + flashcards.size());
+                    txtProgresso.setText(
+                            "1 / " + flashcards.size()
+                    );
                 }
         );
-
         viewModel.getAvaliacaoConcluida().observe(
                 getViewLifecycleOwner(),
                 concluida -> {

@@ -58,7 +58,7 @@ public class AiRepository {
         // aqui pega qual modelo de IA estamos usando
 
         GenerativeModel generativeModel = FirebaseAI.getInstance(GenerativeBackend.googleAI())
-                        .generativeModel("gemini-3.8-flash", generationConfig);
+                        .generativeModel("gemini-3.5-flash", generationConfig);
 
         model = GenerativeModelFutures.from(generativeModel);
 
@@ -141,11 +141,14 @@ public class AiRepository {
                     @Override
                     public void onFailure(Throwable throwable) {
 
+                        android.util.Log.e(
+                                "AI_ERROR",
+                                "Erro ao gerar flashcards",
+                                throwable
+                        );
+
                         callback.onError(
-                                new Exception(
-                                        "Erro ao gerar flashcards.",
-                                        throwable
-                                )
+                                tratarErroAi(throwable)
                         );
                     }
                 },
@@ -153,7 +156,49 @@ public class AiRepository {
         );
     }
 
+    private Exception tratarErroAi(Throwable throwable) {
+
+        String mensagem = throwable.getMessage();
+
+        if (mensagem == null) {
+            return new Exception(
+                    "Não foi possível gerar os flashcards. Tente novamente."
+            );
+        }
+
+        String mensagemLower = mensagem.toLowerCase();
+
+        // Modelo temporariamente sobrecarregado
+        if (mensagemLower.contains("overloaded")
+                || mensagemLower.contains("prefill_queue_overloaded")
+                || mensagemLower.contains("high demand")) {
+
+            return new Exception(
+                    "A IA está temporariamente sobrecarregada. " +
+                            "Tente novamente em alguns instantes."
+            );
+        }
+
+        // Cota / limite de requisições atingido
+        if (mensagemLower.contains("quota exceeded")
+                || mensagemLower.contains("exceeded your current quota")
+                || mensagemLower.contains("resource_exhausted")) {
+
+            return new Exception(
+                    "O limite de uso da IA foi atingido. " +
+                            "Aguarde alguns instantes e tente novamente."
+            );
+        }
+
+        // Erro genérico
+        return new Exception(
+                "Não foi possível gerar os flashcards. Tente novamente."
+        );
+    }
+
     // então sempre que der certo ele vai retornar uma lista de flashcards, e se der errado, passa a exeption
+
+
 
     public interface AiCallback {
 

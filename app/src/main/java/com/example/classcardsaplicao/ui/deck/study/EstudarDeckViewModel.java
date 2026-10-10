@@ -16,9 +16,14 @@ import com.google.firebase.auth.FirebaseAuth;
 import android.util.Log;
 
 import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class EstudarDeckViewModel extends ViewModel {
+
+    private static final int LIMITE_NOVOS_POR_SESSAO = 20;
 
     private final MutableLiveData<Boolean> avaliacaoConcluida = new MutableLiveData<>(false);
     private final DeckRepository deckRepository = new DeckRepository();
@@ -26,6 +31,8 @@ public class EstudarDeckViewModel extends ViewModel {
     public LiveData<Boolean> getAvaliacaoConcluida() {
         return avaliacaoConcluida;
     }
+
+    private final MutableLiveData<Boolean> sessaoConcluida = new MutableLiveData<>(false);
 
     private final ProgressoRepository progressoRepository = new ProgressoRepository();
 
@@ -73,6 +80,9 @@ public class EstudarDeckViewModel extends ViewModel {
         return indiceAtual;
     }
 
+    public LiveData<Boolean> getSessaoConcluida() {
+        return sessaoConcluida;
+    }
 
 
     public boolean isMostrandoResposta() {
@@ -113,10 +123,24 @@ public class EstudarDeckViewModel extends ViewModel {
                     @Override
                     public void onSuccess(List<Flashcard> lista) {
 
-                        flashcards.setValue(lista);
+                        String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
 
-                        indiceAtual = 0;
-                        mostrandoResposta = false;
+                        progressoRepository.buscarProgressosDoDeck(
+                                userId,
+                                deckIdAtual,
+                                new ProgressoRepository.BuscarProgressosDeckCallback() {
+
+                                    @Override
+                                    public void onSuccess(List<ProgressoFlashcard> progressos) {
+                                        montarSessaoDeEstudo(lista, progressos);
+                                    }
+
+                                    @Override
+                                    public void onError(Exception exception) {
+                                        erro.setValue("Erro ao carregar o progresso dos flashcards.");
+                                    }
+                                }
+                        );
 
                         if (!lista.isEmpty()) {
                             carregarProgressoAtual();
@@ -155,27 +179,26 @@ public class EstudarDeckViewModel extends ViewModel {
         mostrandoResposta = !mostrandoResposta;
     }
 
-    public boolean proximoFlashcard() {
+    boolean proximoFlashcard() {
 
-        List<Flashcard> lista =
-                flashcards.getValue();
+        List<Flashcard> lista = flashcards.getValue();
 
         if (lista == null || lista.isEmpty()) {
+            sessaoConcluida.setValue(true);
             return false;
         }
 
         if (indiceAtual + 1 >= lista.size()) {
+            sessaoConcluida.setValue(true);
             return false;
         }
 
         indiceAtual++;
+
         mostrandoResposta = false;
 
-        progressoAtual.setValue(null);
-
         carregarProgressoAtual();
-
-        return true;
+        return false;
     }
 
     public void carregarProgressoAtual() {
@@ -236,6 +259,75 @@ public class EstudarDeckViewModel extends ViewModel {
                     }
                 }
         );
+    }
+
+    private void montarSessaoDeEstudo(List<Flashcard> todosFlashcards, List<ProgressoFlashcard> progressos) {
+
+        List<Flashcard> flashcardsVencidos = new ArrayList<>();
+        List<Flashcard> flashcardsNovos = new ArrayList<>();
+
+        Map<String, ProgressoFlashcard> mapaProgressos = new HashMap<>();
+
+        for (ProgressoFlashcard progresso : progressos) {
+            mapaProgressos.put(
+                    progresso.getFlashcardId(),
+                    progresso
+            );
+        }
+
+        long agora = System.currentTimeMillis();
+
+        for (Flashcard flashcard : todosFlashcards) {
+
+            ProgressoFlashcard progresso =
+                    mapaProgressos.get(flashcard.getId());
+
+            // Nunca estudado
+            if (progresso == null) {
+                flashcardsNovos.add(flashcard);
+                continue;
+            }
+
+            // Revisão já está disponível
+            if (progresso.getProximaRevisao() <= agora) {
+                flashcardsVencidos.add(flashcard);
+            }
+        }
+
+        // Mais atrasados primeiro
+        flashcardsVencidos.sort(
+                Comparator.comparingLong(
+                        flashcard ->
+                                mapaProgressos
+                                        .get(flashcard.getId())
+                                        .getProximaRevisao()
+                )
+        );
+
+        List<Flashcard> sessao = new ArrayList<>();
+
+        // Todas as revisões vencidas entram na sessão
+                sessao.addAll(flashcardsVencidos);
+
+        // Limita apenas os cards novos
+        int quantidadeNovos = Math.min(
+                flashcardsNovos.size(),
+                LIMITE_NOVOS_POR_SESSAO
+        );
+
+        sessao.addAll(
+                flashcardsNovos.subList(0, quantidadeNovos)
+        );
+
+        flashcards.setValue(sessao);
+
+        indiceAtual = 0;
+        mostrandoResposta = false;
+        sessaoConcluida.setValue(false);
+
+        if (!sessao.isEmpty()) {
+            carregarProgressoAtual();
+        }
     }
 
     public void consumirAvaliacaoConcluida() {

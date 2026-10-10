@@ -4,6 +4,8 @@ import com.example.classcardsaplicao.model.ProgressoFlashcard;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 
+import java.util.List;
+
 public class ProgressoRepository {
 
     private final FirebaseFirestore firestore;
@@ -46,6 +48,29 @@ public class ProgressoRepository {
                 .addOnFailureListener(
                         callback::onError
                 );
+    }
+
+    public void buscarProgressosDoDeck(String userId, String deckId, BuscarProgressosDeckCallback callback) {
+
+        firestore.collection("users")
+                .document(userId)
+                .collection("progressoFlashcards")
+                .whereEqualTo("deckId", deckId)
+                .get()
+                .addOnSuccessListener(querySnapshot -> {
+
+                    List<ProgressoFlashcard> progressos = querySnapshot.toObjects(ProgressoFlashcard.class);
+
+                    callback.onSuccess(progressos);
+                })
+                .addOnFailureListener(callback::onError);
+    }
+
+    public interface BuscarProgressosDeckCallback {
+
+        void onSuccess(List<ProgressoFlashcard> progressos);
+
+        void onError(Exception exception);
     }
 
     public interface SalvarProgressoCallback {
