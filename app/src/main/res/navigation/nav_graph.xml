@@ -138,4 +138,12 @@
 
     </fragment>
 
+
+    <fragment android:id="@+id/ofensivaConquistadaFragment"
+        android:name="com.example.classcardsaplicao.ui.deck.study.OfensivaConquistadaFragment"
+        android:label="@string/sessao_concluida">
+        <argument android:name="ofensivaAtual" app:argType="integer" />
+        <argument android:name="conquistou" app:argType="boolean" />
+        <argument android:name="flashcardsEstudados" app:argType="integer" />
+    </fragment>
 </navigation>

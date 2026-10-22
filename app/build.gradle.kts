@@ -33,7 +33,11 @@ android {
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
+
+        isCoreLibraryDesugaringEnabled = true
     }
+
+
 }
 
 dependencies {
@@ -60,12 +64,14 @@ dependencies {
     implementation(platform("com.google.firebase:firebase-bom:34.19.0"))
     implementation("com.google.firebase:firebase-auth")
     implementation("com.google.firebase:firebase-firestore")
+    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.5")
     implementation(libs.legacy.support.v4)
     implementation(libs.lifecycle.livedata.ktx)
     implementation(libs.lifecycle.viewmodel.ktx)
     implementation(libs.navigation.fragment.ktx)
     implementation(libs.navigation.ui.ktx)
     testImplementation(libs.junit)
+    testImplementation("org.mockito:mockito-core:5.23.0")
     implementation("com.google.firebase:firebase-analytics")
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)

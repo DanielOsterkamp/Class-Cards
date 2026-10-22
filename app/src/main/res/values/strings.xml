@@ -1,3 +1,22 @@
 <resources>
     <string name="app_name">ClassCardsAplicação</string>
+
+    <string name="ofensiva_conquistada">Ofensiva conquistada!</string>
+    <string name="sessao_concluida">Sessão concluída!</string>
+    <string name="ofensiva_confirmada">Você concluiu sua sessão e conquistou a ofensiva de hoje.</string>
+    <string name="ofensiva_ja_conquistada">A ofensiva de hoje já está garantida. Seus flashcards foram registrados.</string>
+    <string name="continuar">Continuar</string>
+    <string name="tentar_novamente">Tentar novamente</string>
+    <string name="sem_revisoes">Você não possui flashcards para revisar agora.</string>
+    <string name="progresso_estudo">%1$d / %2$d</string>
+    <string name="avaliar_lembranca">Como foi lembrar deste conteúdo?</string>
+    <string name="revelar_resposta">Toque no card para ver a resposta</string>
+    <plurals name="dias_ofensiva">
+        <item quantity="one">%d dia de ofensiva</item>
+        <item quantity="other">%d dias de ofensiva</item>
+    </plurals>
+    <plurals name="cards_estudados">
+        <item quantity="one">%d flashcard estudado nesta sessão</item>
+        <item quantity="other">%d flashcards estudados nesta sessão</item>
+    </plurals>
 </resources>

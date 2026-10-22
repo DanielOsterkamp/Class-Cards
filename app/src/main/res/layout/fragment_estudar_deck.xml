@@ -73,7 +73,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHeight_percent="0.55"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/txtProgresso">
+        app:layout_constraintTop_toBottomOf="@id/btnTentarNovamente">
 
         <TextView
             android:id="@+id/txtConteudoFlashcard"
@@ -147,4 +147,26 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 
+
+    <TextView
+        android:id="@+id/txtErroEstudo"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:padding="8dp"
+        android:gravity="center"
+        android:textColor="@color/text_primary"
+        android:accessibilityLiveRegion="polite"
+        android:visibility="gone"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/txtProgresso" />
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnTentarNovamente"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/tentar_novamente"
+        android:visibility="gone"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/txtErroEstudo" />
 </androidx.constraintlayout.widget.ConstraintLayout>

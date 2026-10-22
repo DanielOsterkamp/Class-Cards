@@ -1,255 +1,89 @@
 package com.example.classcardsaplicao.ui.deck.study;
 
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
-import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.navigation.NavController;
+import androidx.navigation.NavOptions;
 import androidx.navigation.fragment.NavHostFragment;
-
 import com.example.classcardsaplicao.R;
 import com.example.classcardsaplicao.model.Flashcard;
 import com.example.classcardsaplicao.model.Rating;
-import com.google.android.material.button.MaterialButton;
 import com.google.android.material.card.MaterialCardView;
 
-import java.util.List;
-
 public class EstudarDeckFragment extends Fragment {
+    public EstudarDeckFragment() { super(R.layout.fragment_estudar_deck); }
 
-    public EstudarDeckFragment() {
-        super(R.layout.fragment_estudar_deck);
-    }
-
-    @Override
-    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-
+    @Override public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-
-        LinearLayout layoutAvaliacoes = view.findViewById(R.id.layoutAvaliacoes);
-
-        MaterialButton btnErrei = view.findViewById(R.id.btnErrei);
-
-        MaterialButton btnDificil = view.findViewById(R.id.btnDificil);
-
-        MaterialButton btnBom = view.findViewById(R.id.btnBom);
-
-        MaterialButton btnFacil = view.findViewById(R.id.btnFacil);
-
-        MaterialCardView cardFlashcard = view.findViewById(R.id.cardFlashcard);
-
-        TextView txtInstrucao = view.findViewById(R.id.txtInstrucao);
-
-        EstudarDeckViewModel viewModel = new ViewModelProvider(this).get(EstudarDeckViewModel.class);
-
-        TextView txtNomeDeck = view.findViewById(R.id.txtNomeDeck);
-
-        TextView txtConteudoFlashcard = view.findViewById(R.id.txtConteudoFlashcard);
-
-        TextView txtProgresso = view.findViewById(R.id.txtProgresso);
-
-
-        Button btnVoltar = view.findViewById(R.id.btnVoltar);
-
+        EstudarDeckViewModel vm = new ViewModelProvider(this).get(EstudarDeckViewModel.class);
         String deckId = requireArguments().getString("deckId");
-
-        btnErrei.setOnClickListener(v ->
-                viewModel.avaliarFlashcard(Rating.AGAIN)
-        );
-
-        btnDificil.setOnClickListener(v ->
-                viewModel.avaliarFlashcard(Rating.HARD)
-        );
-
-        btnBom.setOnClickListener(v ->
-                viewModel.avaliarFlashcard(Rating.GOOD)
-        );
-
-        btnFacil.setOnClickListener(v ->
-                viewModel.avaliarFlashcard(Rating.EASY)
-        );
-
-        cardFlashcard.setOnClickListener(v -> {
-
-            Flashcard flashcard = viewModel.getFlashcardAtual();
-
-            if (flashcard == null) {
+        LinearLayout avaliacoes = view.findViewById(R.id.layoutAvaliacoes);
+        MaterialCardView card = view.findViewById(R.id.cardFlashcard);
+        TextView conteudo = view.findViewById(R.id.txtConteudoFlashcard);
+        TextView instrucao = view.findViewById(R.id.txtInstrucao);
+        TextView progresso = view.findViewById(R.id.txtProgresso);
+        TextView nome = view.findViewById(R.id.txtNomeDeck);
+        TextView erro = view.findViewById(R.id.txtErroEstudo);
+        Button tentar = view.findViewById(R.id.btnTentarNovamente);
+        Button[] botoes = {view.findViewById(R.id.btnErrei), view.findViewById(R.id.btnDificil),
+                view.findViewById(R.id.btnBom), view.findViewById(R.id.btnFacil)};
+        Rating[] ratings = {Rating.AGAIN, Rating.HARD, Rating.GOOD, Rating.EASY};
+        for (int i = 0; i < botoes.length; i++) {
+            Rating rating = ratings[i];
+            botoes[i].setOnClickListener(v -> vm.avaliarFlashcard(rating));
+        }
+        view.findViewById(R.id.btnVoltar).setOnClickListener(v ->
+                NavHostFragment.findNavController(this).popBackStack());
+        tentar.setOnClickListener(v -> vm.tentarNovamente(deckId));
+        card.setOnClickListener(v -> vm.alternarLado());
+        vm.getDeck().observe(getViewLifecycleOwner(), deck -> {
+            if (deck != null) nome.setText(deck.getTitulo());
+        });
+        vm.getFlashcards().observe(getViewLifecycleOwner(), fila -> {
+            Flashcard atual = vm.getFlashcardAtual();
+            boolean ativo = atual != null && vm.getResultado().getValue() == null;
+            card.setEnabled(ativo && !Boolean.TRUE.equals(vm.getSalvandoProgresso().getValue()));
+            avaliacoes.setVisibility(ativo && vm.isMostrandoResposta() ? View.VISIBLE : View.GONE);
+            if (!ativo) {
+                conteudo.setText(R.string.sem_revisoes);
+                progresso.setText("");
+                instrucao.setText("");
                 return;
             }
-
-            viewModel.alternarLado();
-
-            if (viewModel.isMostrandoResposta()) {
-
-                txtConteudoFlashcard.setText(
-                        flashcard.getResposta()
-                );
-
-                txtInstrucao.setText("Como foi lembrar deste conteúdo?");
-
-                layoutAvaliacoes.setVisibility(View.VISIBLE);
-
-            } else {
-
-                txtConteudoFlashcard.setText(flashcard.getPergunta());
-
-                txtInstrucao.setText("Toque no card para ver a resposta");
-
-                layoutAvaliacoes.setVisibility(View.GONE);
-            }
+            conteudo.setText(vm.isMostrandoResposta() ? atual.getResposta() : atual.getPergunta());
+            progresso.setText(getString(R.string.progresso_estudo, vm.getIndiceAtual() + 1, fila.size()));
+            instrucao.setText(vm.isMostrandoResposta() ? R.string.avaliar_lembranca : R.string.revelar_resposta);
         });
-
-        if (deckId == null || deckId.isEmpty()) {
-            Toast.makeText(
-                    requireContext(),
-                    "Deck inválido.",
-                    Toast.LENGTH_SHORT
-            ).show();
-
-            NavHostFragment.findNavController(this).popBackStack();
-
-            return;
-        }
-
-        btnVoltar.setOnClickListener(v ->
-                NavHostFragment.findNavController(this)
-                        .popBackStack()
-        );
-
-        viewModel.getDeck().observe(
-                getViewLifecycleOwner(),
-                deck -> {
-
-                    if (deck != null) {
-                        txtNomeDeck.setText(deck.getTitulo());
-                    }
-                }
-        );
-
-        viewModel.getSessaoConcluida().observe(
-                getViewLifecycleOwner(),
-                concluida -> {
-
-                    if (!Boolean.TRUE.equals(concluida)) {
-                        return;
-                    }
-
-                    txtConteudoFlashcard.setText(
-                            "Sessão de estudo concluída!"
-                    );
-
-                    txtProgresso.setText("Revisões concluídas");
-
-                    layoutAvaliacoes.setVisibility(View.GONE);
-
-                    cardFlashcard.setEnabled(false);
-                }
-        );
-
-        viewModel.getFlashcards().observe(
-                getViewLifecycleOwner(),
-                flashcards -> {
-
-                    if (flashcards == null || flashcards.isEmpty()) {
-
-                        txtConteudoFlashcard.setText(
-                                "Você não possui flashcards para revisar agora."
-                        );
-
-                        txtProgresso.setText("Revisões concluídas");
-
-                        layoutAvaliacoes.setVisibility(View.GONE);
-                        cardFlashcard.setEnabled(false);
-
-                        return;
-                    }
-
-                    cardFlashcard.setEnabled(true);
-
-                    Flashcard primeiroFlashcard = flashcards.get(0);
-
-                    txtConteudoFlashcard.setText(
-                            primeiroFlashcard.getPergunta()
-                    );
-
-                    txtProgresso.setText(
-                            "1 / " + flashcards.size()
-                    );
-                }
-        );
-        viewModel.getAvaliacaoConcluida().observe(
-                getViewLifecycleOwner(),
-                concluida -> {
-
-                    if (!Boolean.TRUE.equals(concluida)) {
-                        return;
-                    }
-
-                    viewModel.consumirAvaliacaoConcluida();
-
-                    boolean avancou = viewModel.proximoFlashcard();
-
-                    if (!avancou) {
-
-                        Toast.makeText(
-                                requireContext(),
-                                "Você concluiu este deck!",
-                                Toast.LENGTH_SHORT
-                        ).show();
-
-                        NavHostFragment
-                                .findNavController(this)
-                                .popBackStack();
-
-                        return;
-                    }
-
-                    Flashcard flashcard = viewModel.getFlashcardAtual();
-
-                    if (flashcard == null) {
-                        return;
-                    }
-
-                    txtConteudoFlashcard.setText(flashcard.getPergunta());
-
-                    txtInstrucao.setText("Toque no card para ver a resposta");
-
-                    layoutAvaliacoes.setVisibility(View.GONE);
-
-                    List<Flashcard> lista = viewModel.getFlashcards().getValue();
-
-                    if (lista != null) {
-
-                        txtProgresso.setText((viewModel.getIndiceAtual() + 1) + " / " + lista.size());
-                    }
-                }
-        );
-
-        viewModel.getSalvandoProgresso().observe(
-                getViewLifecycleOwner(),
-                salvando -> {
-
-                    boolean habilitado =
-                            !Boolean.TRUE.equals(salvando);
-
-                    btnErrei.setEnabled(habilitado);
-                    btnDificil.setEnabled(habilitado);
-                    btnBom.setEnabled(habilitado);
-                    btnFacil.setEnabled(habilitado);
-                }
-        );
-
-
-        viewModel.carregarDeck(deckId);
-
-
+        vm.getSalvandoProgresso().observe(getViewLifecycleOwner(), salvando -> {
+            boolean livre = !Boolean.TRUE.equals(salvando);
+            for (Button botao : botoes) botao.setEnabled(livre && vm.getFlashcardAtual() != null);
+            card.setEnabled(livre && vm.getFlashcardAtual() != null && vm.getResultado().getValue() == null);
+            tentar.setEnabled(livre);
+        });
+        vm.getErro().observe(getViewLifecycleOwner(), mensagem -> {
+            erro.setText(mensagem);
+            erro.setVisibility(mensagem == null ? View.GONE : View.VISIBLE);
+            tentar.setVisibility(mensagem == null ? View.GONE : View.VISIBLE);
+        });
+        vm.getResultado().observe(getViewLifecycleOwner(), resultado -> {
+            if (resultado == null) return;
+            NavController nav = NavHostFragment.findNavController(this);
+            if (nav.getCurrentDestination() == null
+                    || nav.getCurrentDestination().getId() != R.id.estudarDeckFragment) return;
+            Bundle args = new Bundle();
+            args.putInt("ofensivaAtual", resultado.getOfensivaAtual());
+            args.putBoolean("conquistou", resultado.isOfensivaAlterada());
+            args.putInt("flashcardsEstudados", vm.getIndiceAtual());
+            nav.navigate(R.id.ofensivaConquistadaFragment, args,
+                    new NavOptions.Builder().setPopUpTo(R.id.estudarDeckFragment, true).build());
+        });
+        vm.carregarDeck(deckId);
     }
 }

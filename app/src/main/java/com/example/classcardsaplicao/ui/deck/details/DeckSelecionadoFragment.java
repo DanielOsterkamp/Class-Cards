@@ -38,12 +38,8 @@ public class DeckSelecionadoFragment extends Fragment {
         Button btnEstudar = view.findViewById(R.id.btnEstudar);
 
 
-        btnMenu.setOnClickListener(v -> {
-            DrawerLayout drawerLayout =
-                    requireActivity().findViewById(R.id.drawerLayout);
-
+        btnMenu.setOnClickListener(v -> {DrawerLayout drawerLayout = requireActivity().findViewById(R.id.drawerLayout);
             drawerLayout.openDrawer(GravityCompat.START);
-
         });
 
         TextView txtNomeDeck = view.findViewById(R.id.txtNomeDeck);
@@ -58,30 +54,23 @@ public class DeckSelecionadoFragment extends Fragment {
 
         String deckId = requireArguments().getString("deckId");
 
-        viewModel.getDeck().observe(
-                getViewLifecycleOwner(),
-                deck -> {
+        viewModel.getDeck().observe(getViewLifecycleOwner(), deck -> {
 
                     txtNomeDeck.setText(deck.getTitulo());
                     txtMateriaDeck.setText(deck.getMateria());
 
                     int quantidade = deck.getQuantidadeCards();
 
-                    txtQuantidadeCards.setText(
-                            quantidade == 1
+                    txtQuantidadeCards.setText(quantidade == 1
                                     ? "1 card"
                                     : quantidade + " cards"
                     );
 
-                    FirebaseUser usuario =
-                            authRepository.getUsuarioAtual();
+                    FirebaseUser usuario = authRepository.getUsuarioAtual();
 
-                    boolean usuarioEhDono =
-                            usuario != null
-                                    && usuario.getUid().equals(deck.getOwnerId());
+                    boolean usuarioEhDono = usuario != null && usuario.getUid().equals(deck.getOwnerId());
 
-                    btnEditarDeck.setVisibility(
-                            usuarioEhDono
+                    btnEditarDeck.setVisibility(usuarioEhDono
                                     ? View.VISIBLE
                                     : View.GONE
                     );
