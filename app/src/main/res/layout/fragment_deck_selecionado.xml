@@ -129,7 +129,7 @@
         <!-- EDITAR -->
 
         <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnEditarDeck"
+            android:id="@+id/btnDissertativo"
             android:layout_width="match_parent"
             android:layout_height="@dimen/button_height"
             android:layout_marginTop="@dimen/spacing_md"

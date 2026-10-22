@@ -50,7 +50,7 @@ public class DeckSelecionadoFragment extends Fragment {
         TextView txtMateriaDeck = view.findViewById(R.id.txtMateriaDeck);
         TextView txtQuantidadeCards = view.findViewById(R.id.txtQuantidadeCards);
 
-        MaterialButton btnEditarDeck = view.findViewById(R.id.btnEditarDeck);
+        MaterialButton btnEditarDeck = view.findViewById(R.id.btnDissertativo);
 
         DeckSelecionadoViewModel viewModel = new ViewModelProvider(this).get(DeckSelecionadoViewModel.class);
 
@@ -95,7 +95,7 @@ public class DeckSelecionadoFragment extends Fragment {
 
             NavHostFragment.findNavController(this)
                     .navigate(
-                            R.id.action_deckSelecionadoFragment_to_estudarDeckFragment,
+                            R.id.action_deckSelecionadoFragment_to_SelecionarModoDeEstudo,
                             bundle
                     );
         });

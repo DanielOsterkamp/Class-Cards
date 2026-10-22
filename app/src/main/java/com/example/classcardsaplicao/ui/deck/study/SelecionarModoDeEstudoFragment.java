@@ -29,6 +29,26 @@ public class SelecionarModoDeEstudoFragment extends Fragment {
     }
 
     @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        String deckId = getArguments() == null ? null : getArguments().getString("deckId");
+        if (deckId == null || deckId.trim().isEmpty()) {
+            android.widget.Toast.makeText(requireContext(), "Deck inválido.",
+                    android.widget.Toast.LENGTH_SHORT).show();
+            androidx.navigation.fragment.NavHostFragment.findNavController(this).popBackStack();
+            return;
+        }
+        Bundle args = new Bundle();
+        args.putString("deckId", deckId);
+        view.findViewById(R.id.btnTradicional).setOnClickListener(v ->
+                androidx.navigation.fragment.NavHostFragment.findNavController(this).navigate(
+                        R.id.action_SelecionarModoDeEstudo_to_estudarDeckFragment, args));
+        view.findViewById(R.id.btnDissertativo).setOnClickListener(v ->
+                androidx.navigation.fragment.NavHostFragment.findNavController(this).navigate(
+                        R.id.action_SelecionarModoDeEstudo_to_estudarDeckDissertativoFragment, args));
+    }
+
+    @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         mViewModel = new ViewModelProvider(this).get(SelecionarModoDeEstudoViewModel.class);

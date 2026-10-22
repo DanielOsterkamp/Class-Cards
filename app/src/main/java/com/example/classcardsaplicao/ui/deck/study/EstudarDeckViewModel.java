@@ -89,6 +89,14 @@ public class EstudarDeckViewModel extends ViewModel {
         return mostrandoResposta;
     }
 
+    // Usado pelo modo dissertativo para preservar a sessão ao recriar a tela.
+    public void carregarDeckSeNecessario(String deckId) {
+        if (deckId != null && deckId.equals(deckIdAtual)) {
+            return;
+        }
+        carregarDeck(deckId);
+    }
+
     public void carregarDeck(String deckId) {
 
         if (deckId == null || deckId.isEmpty()) {

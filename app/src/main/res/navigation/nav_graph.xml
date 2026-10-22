@@ -36,6 +36,39 @@
             android:name="deckId"
             app:argType="string" />
 
+
+
+    </fragment>
+
+    <fragment
+        android:id="@+id/estudarDeckDissertativoFragment"
+        android:name="com.example.classcardsaplicao.ui.deck.study.EstudarDeckDissertativoFragment"
+        android:label="Estudo dissertativo">
+
+        <argument
+            android:name="deckId"
+            app:argType="string" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/SelecionarModoDeEstudoFragment"
+        android:name="com.example.classcardsaplicao.ui.deck.study.SelecionarModoDeEstudoFragment"
+        android:label="Selecionar Modo de Estudo">
+
+        <action
+            android:id="@+id/action_SelecionarModoDeEstudo_to_estudarDeckFragment"
+            app:destination="@id/estudarDeckFragment" />
+
+        <action
+            android:id="@+id/action_SelecionarModoDeEstudo_to_estudarDeckDissertativoFragment"
+            app:destination="@id/estudarDeckDissertativoFragment" />
+
+    <argument
+        android:name="deckId"
+        app:argType="string" />
+        <action
+            android:id="@+id/action_SelecionarModoDeEstudoFragment_to_estudarDeckFragment"
+            app:destination="@id/estudarDeckFragment" />
     </fragment>
 
     <fragment
@@ -114,8 +147,8 @@
         android:label="Deck">
 
         <action
-            android:id="@+id/action_deckSelecionadoFragment_to_estudarDeckFragment"
-            app:destination="@id/estudarDeckFragment" />
+            android:id="@+id/action_deckSelecionadoFragment_to_SelecionarModoDeEstudo"
+            app:destination="@id/SelecionarModoDeEstudoFragment" />
 
         <action
             android:id="@+id/action_deckSelecionadoFragment_to_editarDeckFragment"
