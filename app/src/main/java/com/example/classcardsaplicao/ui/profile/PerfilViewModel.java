@@ -11,8 +11,23 @@ import com.example.classcardsaplicao.model.Deck;
 import com.google.firebase.auth.FirebaseUser;
 
 import java.util.List;
+import java.util.TimeZone;
+import com.example.classcardsaplicao.data.GamificacaoRepository;
+import com.example.classcardsaplicao.model.RegrasGamificacao;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.ListenerRegistration;
 
 public class PerfilViewModel extends ViewModel {
+
+    private final MutableLiveData<Long> xp = new MutableLiveData<>();
+    private final MutableLiveData<Long> ofensiva = new MutableLiveData<>();
+    private final MutableLiveData<Long> cardsEstudados = new MutableLiveData<>();
+    private ListenerRegistration listenerGamificacao;
+    private ListenerRegistration listenerCards;
+
+    public LiveData<Long> getXp() { return xp; }
+    public LiveData<Long> getOfensiva() { return ofensiva; }
+    public LiveData<Long> getCardsEstudados() { return cardsEstudados; }
 
     private final AuthRepository authRepository;
     private final UserRepository userRepository;
@@ -51,11 +66,16 @@ public class PerfilViewModel extends ViewModel {
     public void carregarPerfil() {
         FirebaseUser usuario = authRepository.getUsuarioAtual();
 
+        removerListeners();
+        xp.setValue(null);
+        ofensiva.setValue(null);
+        cardsEstudados.setValue(null);
         if (usuario == null) {
             erro.setValue("Usuário não autenticado.");
             return;
         }
 
+        observarGamificacao(usuario.getUid());
         if (usuario.getPhotoUrl() != null) {
             fotoUrl.setValue(usuario.getPhotoUrl().toString());
         }
@@ -97,4 +117,51 @@ public class PerfilViewModel extends ViewModel {
                 }
         );
     }
+
+    private void observarGamificacao(String uid) {
+        com.google.firebase.firestore.DocumentReference usuario = FirebaseFirestore.getInstance()
+                .collection("users").document(uid);
+        listenerGamificacao = usuario.collection("gamificacao").document("resumo")
+                .addSnapshotListener((doc, exception) -> {
+                    if (authRepository.getUsuarioAtual() == null
+                            || !uid.equals(authRepository.getUsuarioAtual().getUid())) return;
+                    if (exception != null) {
+                        xp.setValue(null);
+                        ofensiva.setValue(null);
+                        erro.setValue("Não foi possível carregar XP e ofensiva.");
+                        return;
+                    }
+                    if (doc == null) return;
+                    xp.setValue(GamificacaoRepository.numero(doc, "xp"));
+                    long agora = System.currentTimeMillis();
+                    TimeZone zona = TimeZone.getDefault();
+                    ofensiva.setValue(RegrasGamificacao.ofensivaVisivel(
+                            GamificacaoRepository.numero(doc, "ofensiva"), doc.getString("ultimoDiaEstudo"),
+                            RegrasGamificacao.dia(agora, zona, 0), RegrasGamificacao.dia(agora, zona, -1)));
+                });
+        // A contagem inclui cards distintos já revisados nos dois modos.
+        listenerCards = usuario.collection("progressoFlashcards").addSnapshotListener((snapshot, exception) -> {
+            if (authRepository.getUsuarioAtual() == null
+                    || !uid.equals(authRepository.getUsuarioAtual().getUid())) return;
+            if (exception != null) {
+                cardsEstudados.setValue(null);
+                erro.setValue("Não foi possível carregar os cards estudados.");
+                return;
+            }
+            if (snapshot == null) return;
+            long quantidade = 0;
+            for (com.google.firebase.firestore.DocumentSnapshot card : snapshot.getDocuments()) {
+                if (GamificacaoRepository.numero(card, "repeticoes") > 0
+                        || GamificacaoRepository.numero(card, "ultimaRevisao") > 0) quantidade++;
+            }
+            cardsEstudados.setValue(quantidade);
+        });
+    }
+
+    private void removerListeners() {
+        if (listenerGamificacao != null) listenerGamificacao.remove();
+        if (listenerCards != null) listenerCards.remove();
+    }
+
+    @Override protected void onCleared() { removerListeners(); }
 }

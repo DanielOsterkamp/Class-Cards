@@ -99,6 +99,24 @@ public class PerfilFragment extends Fragment {
             Toast.makeText(requireContext(), erro, Toast.LENGTH_SHORT).show();
         });
 
-        viewModel.carregarPerfil();
+        java.text.NumberFormat numeros = java.text.NumberFormat.getIntegerInstance(
+                java.util.Locale.forLanguageTag("pt-BR"));
+        TextView txtOfensiva = view.findViewById(R.id.txtOfensiva);
+        TextView txtEstudados = view.findViewById(R.id.txtQuantidadeEstudados);
+        TextView txtXp = view.findViewById(R.id.txtXp);
+        viewModel.getOfensiva().observe(getViewLifecycleOwner(), valor -> {
+            txtOfensiva.setText(valor == null ? "—" : numeros.format(valor));
+            txtOfensiva.setContentDescription(valor == null ? "Ofensiva indisponível"
+                    : numeros.format(valor) + " dias de ofensiva");
+        });
+        viewModel.getCardsEstudados().observe(getViewLifecycleOwner(), valor ->
+                txtEstudados.setText(valor == null ? "—" : numeros.format(valor)));
+        viewModel.getXp().observe(getViewLifecycleOwner(), valor ->
+                txtXp.setText(valor == null ? "—" : numeros.format(valor)));
+    }
+    @Override public void onResume() {
+        super.onResume();
+        // Recalcula a ofensiva ao voltar ao perfil, inclusive após a mudança do dia.
+        new ViewModelProvider(this).get(PerfilViewModel.class).carregarPerfil();
     }
 }

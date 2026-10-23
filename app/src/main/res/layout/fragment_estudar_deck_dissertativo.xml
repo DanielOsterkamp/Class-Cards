@@ -17,9 +17,22 @@
         <!-- Cabeçalho -->
 
         <!-- Pergunta -->
+
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
+
+            <TextView
+                android:id="@+id/txtContadorFlashcards"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:text="Carregando flashcards..."
+                android:textColor="@color/text_secondary"
+                android:textAlignment="center"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/btnVoltar2" />
 
             <TextView
                 android:id="@+id/txtNomeDeck2"
@@ -44,7 +57,8 @@
                 android:layout_height="44dp"
                 android:background="@drawable/button_preto_background"
                 android:elevation="50dp"
-                android:text="{"
+                android:text="‹"
+                android:contentDescription="Voltar"
                 android:textColor="#FFFFFF"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
@@ -68,6 +82,22 @@
                 android:textAlignment="center"
                 android:textColor="@color/button_text" />
         </com.google.android.material.card.MaterialCardView>
+
+        <TextView
+            android:id="@+id/txtErroEstudo"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:accessibilityLiveRegion="polite"
+            android:textColor="@color/text_primary"
+            android:visibility="gone" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnTentarNovamente"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Tentar novamente"
+            android:visibility="gone" />
 
         <!-- Resposta escrita -->
         <LinearLayout
@@ -107,6 +137,7 @@
                     android:gravity="top|start"
                     android:hint="Digite sua resposta aqui..."
                     android:inputType="textMultiLine|textCapSentences"
+                    android:maxLength="6000"
                     android:maxLines="10"
                     android:minLines="5"
                     android:padding="16dp"
@@ -154,6 +185,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
+                android:id="@+id/txtStatusAvaliacao"
                 android:text="A IA está avaliando sua resposta..."
                 android:textColor="@android:color/white"
                 android:textSize="14sp" />

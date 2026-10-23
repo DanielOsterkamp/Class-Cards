@@ -62,49 +62,151 @@
             app:layout_constraintTop_toBottomOf="@id/imgPerfil"
             tools:text="Rodrigo Remor" />
 
-        <!-- Estatística -->
-
-        <com.google.android.material.card.MaterialCardView
-            android:id="@+id/cardEstudados"
+        <!-- Estatísticas do usuário -->
+        <LinearLayout
+            android:id="@+id/layoutGamificacao"
             android:layout_width="0dp"
-            android:layout_height="110dp"
+            android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/screen_horizontal_margin"
-            android:layout_marginTop="@dimen/spacing_lg"
             android:layout_marginEnd="@dimen/screen_horizontal_margin"
-            app:cardBackgroundColor="@color/card_background"
-            app:cardCornerRadius="@dimen/radius_card"
-            app:cardElevation="0dp"
-            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_marginTop="@dimen/spacing_lg"
+            android:baselineAligned="false"
+            android:orientation="horizontal"
             app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toBottomOf="@id/txtNomeUsuario">
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:background="@drawable/button_preto_background"
-                android:gravity="center"
-                android:orientation="vertical">
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/cardOfensiva"
+                android:layout_width="0dp"
+                android:layout_height="150dp"
+                android:layout_weight="1"
+                app:cardBackgroundColor="@color/card_background"
+                app:cardCornerRadius="@dimen/radius_card"
+                app:cardElevation="0dp">
 
-                <TextView
-                    android:id="@+id/txtQuantidadeEstudados"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:fontFamily="sans-serif-medium"
-                    android:textColor="@color/text_primary"
-                    android:textSize="@dimen/text_title"
-                    tools:text="102" />
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="@drawable/button_preto_background"
+                    android:gravity="center"
+                    android:orientation="vertical"
+                    android:padding="6dp">
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/spacing_xs"
-                    android:text="Cards estudados"
-                    android:textColor="@color/text_secondary"
-                    android:textSize="@dimen/text_secondary" />
+                    <androidx.appcompat.widget.AppCompatTextView
+                        android:id="@+id/txtOfensiva"
+                        android:layout_width="match_parent"
+                        android:layout_height="40dp"
+                        android:fontFamily="sans-serif-medium"
+                        android:gravity="center"
+                        android:maxLines="1"
+                        android:text="—"
+                        android:textColor="@color/text_primary"
+                        android:textSize="@dimen/text_title"
+                        app:autoSizeMaxTextSize="32sp"
+                        app:autoSizeMinTextSize="12sp"
+                        app:autoSizeStepGranularity="1sp"
+                        app:autoSizeTextType="uniform" />
 
-            </LinearLayout>
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="40dp"
+                        android:layout_marginTop="@dimen/spacing_xs"
+                        android:gravity="top|center_horizontal"
+                        android:text="Ofensiva"
+                        android:textColor="@color/text_secondary"
+                        android:textSize="12sp" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
 
-        </com.google.android.material.card.MaterialCardView>
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/cardEstudados"
+                android:layout_width="0dp"
+                android:layout_height="150dp"
+                android:layout_marginStart="8dp"
+                android:layout_weight="1"
+                app:cardBackgroundColor="@color/card_background"
+                app:cardCornerRadius="@dimen/radius_card"
+                app:cardElevation="0dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="@drawable/button_preto_background"
+                    android:gravity="center"
+                    android:orientation="vertical"
+                    android:padding="6dp">
+
+                    <androidx.appcompat.widget.AppCompatTextView
+                        android:id="@+id/txtQuantidadeEstudados"
+                        android:layout_width="match_parent"
+                        android:layout_height="40dp"
+                        android:fontFamily="sans-serif-medium"
+                        android:gravity="center"
+                        android:maxLines="1"
+                        android:text="—"
+                        android:textColor="@color/text_primary"
+                        android:textSize="@dimen/text_title"
+                        app:autoSizeMaxTextSize="32sp"
+                        app:autoSizeMinTextSize="12sp"
+                        app:autoSizeStepGranularity="1sp"
+                        app:autoSizeTextType="uniform" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="40dp"
+                        android:layout_marginTop="@dimen/spacing_xs"
+                        android:gravity="top|center_horizontal"
+                        android:text="Cards estudados"
+                        android:textColor="@color/text_secondary"
+                        android:textSize="12sp" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/cardXp"
+                android:layout_width="0dp"
+                android:layout_height="150dp"
+                android:layout_marginStart="8dp"
+                android:layout_weight="1"
+                app:cardBackgroundColor="@color/card_background"
+                app:cardCornerRadius="@dimen/radius_card"
+                app:cardElevation="0dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="@drawable/button_preto_background"
+                    android:gravity="center"
+                    android:orientation="vertical"
+                    android:padding="6dp">
+
+                    <androidx.appcompat.widget.AppCompatTextView
+                        android:id="@+id/txtXp"
+                        android:layout_width="match_parent"
+                        android:layout_height="40dp"
+                        android:fontFamily="sans-serif-medium"
+                        android:gravity="center"
+                        android:maxLines="1"
+                        android:text="—"
+                        android:textColor="@color/text_primary"
+                        android:textSize="@dimen/text_title"
+                        app:autoSizeMaxTextSize="32sp"
+                        app:autoSizeMinTextSize="12sp"
+                        app:autoSizeStepGranularity="1sp"
+                        app:autoSizeTextType="uniform" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="40dp"
+                        android:layout_marginTop="@dimen/spacing_xs"
+                        android:gravity="top|center_horizontal"
+                        android:text="Pontos"
+                        android:textColor="@color/text_secondary"
+                        android:textSize="12sp" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+        </LinearLayout>
 
         <!-- Decks criados -->
 
@@ -121,7 +223,7 @@
             android:textSize="@dimen/text_section_title"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/cardEstudados" />
+            app:layout_constraintTop_toBottomOf="@id/layoutGamificacao" />
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recyclerDecksUsuario"
