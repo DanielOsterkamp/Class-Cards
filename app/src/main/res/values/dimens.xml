@@ -39,4 +39,8 @@
     <dimen name="input_width">335dp</dimen>
     <dimen name="input_radius">12dp</dimen>
 
+    <!-- Cabeçalhos: medidas da tela de editar deck. -->
+    <dimen name="header_inset">16dp</dimen>
+    <dimen name="header_action_size">48dp</dimen>
+    <dimen name="header_title_size">28sp</dimen>
 </resources>

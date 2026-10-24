@@ -6,31 +6,25 @@
     android:layout_height="match_parent"
     android:background="@color/background">
 
-    <ImageButton
-        android:id="@+id/btnMenu"
-        android:layout_width="48dp"
-        android:layout_height="48dp"
-        android:layout_marginStart="@dimen/spacing_md"
-        android:layout_marginTop="@dimen/spacing_md"
-        android:background="@android:color/transparent"
-        android:contentDescription="Menu"
-        android:padding="@dimen/spacing_smd"
-        android:scaleType="centerCrop"
-        android:src="@drawable/menu_hamburguer"
+    <androidx.appcompat.widget.AppCompatImageButton
+        style="@style/Widget.ClassCards.BackButton"
+        android:id="@+id/btnVoltar"
+        android:layout_marginStart="@dimen/header_inset"
+        android:layout_marginTop="@dimen/header_inset"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
         android:id="@+id/txtTitulo"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:text="Editar Deck"
-        android:textColor="@color/text_primary"
-        android:textSize="28sp"
-        android:textStyle="bold"
-        app:layout_constraintBottom_toBottomOf="@id/btnMenu"
-        app:layout_constraintStart_toEndOf="@id/btnMenu"
-        app:layout_constraintTop_toTopOf="@id/btnMenu" />
+        app:layout_constraintBottom_toBottomOf="@id/btnVoltar"
+        app:layout_constraintStart_toEndOf="@id/btnVoltar"
+        app:layout_constraintTop_toTopOf="@id/btnVoltar"
+        style="@style/Widget.ClassCards.HeaderTitle"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginEnd="@dimen/header_inset" />
 
     <androidx.core.widget.NestedScrollView
         android:layout_width="0dp"
@@ -39,7 +33,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/btnMenu">
+        app:layout_constraintTop_toBottomOf="@id/btnVoltar">
 
         <LinearLayout
             android:layout_width="match_parent"

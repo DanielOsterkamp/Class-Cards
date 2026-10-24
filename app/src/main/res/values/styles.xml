@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Visual compartilhado com o botão de volta dos detalhes do deck. -->
+    <style name="Widget.ClassCards.BackButton" parent="Widget.AppCompat.ImageButton">
+        <item name="android:layout_width">@dimen/header_action_size</item>
+        <item name="android:layout_height">@dimen/header_action_size</item>
+        <item name="android:background">?attr/selectableItemBackgroundBorderless</item>
+        <item name="android:padding">@dimen/spacing_smd</item>
+        <item name="android:scaleType">centerCrop</item>
+        <item name="android:src">@drawable/back_button</item>
+        <item name="tint">@color/text_primary</item>
+        <item name="android:contentDescription">@string/voltar</item>
+    </style>
+    <!-- A mesma tipografia para títulos estáticos e nomes de decks no topo. -->
+    <style name="Widget.ClassCards.HeaderTitle" parent="Widget.AppCompat.TextView">
+        <item name="android:fontFamily">sans-serif</item>
+        <item name="android:textSize">@dimen/header_title_size</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textColor">@color/text_primary</item>
+        <item name="android:gravity">center_vertical</item>
+        <item name="android:layout_marginStart">0dp</item>
+        <item name="android:maxLines">1</item>
+        <item name="android:ellipsize">end</item>
+    </style>
+
+    <style name="Widget.ClassCards.HeaderRow" parent="">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:minHeight">@dimen/header_action_size</item>
+        <item name="android:orientation">horizontal</item>
+        <item name="android:gravity">center_vertical</item>
+    </style>
+</resources>

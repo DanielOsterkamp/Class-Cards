@@ -8,8 +8,6 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.core.view.GravityCompat;
-import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.fragment.NavHostFragment;
@@ -36,7 +34,7 @@ public class PerfilFragment extends Fragment {
 
         ShapeableImageView imgPerfil = view.findViewById(R.id.imgPerfil);
 
-        ImageButton btnMenu = view.findViewById(R.id.btnMenu);
+        ImageButton btnVoltar = view.findViewById(R.id.btnVoltar);
 
         RecyclerView recyclerDecksUsuario =
                 view.findViewById(R.id.recyclerDecksUsuario);
@@ -53,12 +51,8 @@ public class PerfilFragment extends Fragment {
 
         recyclerDecksUsuario.setAdapter(deckAdapter);
 
-        btnMenu.setOnClickListener(v -> {
-            DrawerLayout drawerLayout =
-                    requireActivity().findViewById(R.id.drawerLayout);
-
-            drawerLayout.openDrawer(GravityCompat.START);
-        });
+        btnVoltar.setOnClickListener(v ->
+                NavHostFragment.findNavController(this).popBackStack());
 
         TextView txtNomeUsuario = view.findViewById(R.id.txtNomeUsuario);
 

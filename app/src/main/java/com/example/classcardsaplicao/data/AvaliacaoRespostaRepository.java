@@ -20,6 +20,9 @@ import com.google.firebase.ai.type.Schema;
 import org.json.JSONObject;
 
 import java.util.Map;
+import java.util.List;
+import java.util.Locale;
+import java.util.concurrent.TimeoutException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -35,7 +38,8 @@ public class AvaliacaoRespostaRepository {
 
         GenerationConfig.Builder config = new GenerationConfig.Builder();
         config.responseMimeType = "application/json";
-        config.responseSchema = Schema.obj(Map.of("explicacao", Schema.str(), "sugestao", Schema.str()));
+        config.responseSchema = Schema.obj(Map.of("explicacao", Schema.str(),
+                "sugestao", Schema.enumeration(List.of("AGAIN", "HARD", "GOOD", "EASY"))));
 
         GenerativeModelFutures modelo = GenerativeModelFutures.from(
                 FirebaseAI.getInstance(GenerativeBackend.googleAI())
@@ -66,14 +70,7 @@ public class AvaliacaoRespostaRepository {
             @Override
             public void onSuccess(GenerateContentResponse response) {
                 try {
-                    String text = response == null ? null : response.getText();
-                    if (text == null || text.trim().isEmpty())
-                        throw new IllegalArgumentException();
-
-                    // transforma a resposta em um objeto de avaliação dissetativa
-                    JSONObject json = new JSONObject(text);
-                    callback.onSuccess(new AvaliacaoDissertativa(json.getString("explicacao"),
-                            Rating.valueOf(json.getString("sugestao"))));
+                    callback.onSuccess(interpretarResposta(response == null ? null : response.getText()));
                 } catch (Exception erro) {
                     callback.onError("A IA retornou uma avaliação inválida. Tente novamente.");
                 }
@@ -81,12 +78,49 @@ public class AvaliacaoRespostaRepository {
 
             @Override
             public void onFailure(Throwable erro) {
-                callback.onError("Não foi possível avaliar a resposta. Verifique sua conexão e tente novamente.");
+                callback.onError(mensagemFalha(erro));
             }
         }, tarefa -> principal.post(tarefa));
 
 
         return requisicao;
+    }
+
+    // Separada da chamada de rede para testar JSON inválido e classificações desconhecidas.
+    static AvaliacaoDissertativa interpretarResposta(String text) throws Exception {
+        if (text == null || text.trim().isEmpty()) {
+            throw new IllegalArgumentException("A IA não retornou uma avaliação.");
+        }
+        JSONObject json = new JSONObject(text);
+        return new AvaliacaoDissertativa(json.getString("explicacao"),
+                Rating.valueOf(json.getString("sugestao")));
+    }
+
+    // Não confunde falhas de configuração do Firebase com uma simples falta de internet.
+    static String mensagemFalha(Throwable erro) {
+        if (erro instanceof TimeoutException) {
+            return "A avaliação demorou demais. Tente novamente.";
+        }
+        StringBuilder detalhes = new StringBuilder();
+        for (Throwable causa = erro; causa != null; causa = causa.getCause()) {
+            detalhes.append(causa.getClass().getSimpleName()).append(' ').append(causa.getMessage()).append(' ');
+        }
+        String mensagem = detalhes.toString().toLowerCase(Locale.ROOT);
+        if (mensagem.contains("app check") || mensagem.contains("appcheck")
+                || mensagem.contains("attestation")) {
+            return "O Firebase App Check não autorizou este aplicativo para usar a IA.";
+        }
+        if (mensagem.contains("quota") || mensagem.contains("resource_exhausted")
+                || mensagem.contains("429")) {
+            return "O limite de uso da IA foi atingido. Tente novamente mais tarde.";
+        }
+        if (mensagem.contains("not_found") || mensagem.contains("not found") || mensagem.contains("404")) {
+            return "O modelo de IA não está disponível para este projeto Firebase.";
+        }
+        if (mensagem.contains("permission") || mensagem.contains("403") || mensagem.contains("api key")) {
+            return "O projeto Firebase não autorizou a avaliação por IA. Verifique a configuração do serviço.";
+        }
+        return "Não foi possível avaliar a resposta. Verifique sua conexão e tente novamente.";
     }
 
     public interface Callback {

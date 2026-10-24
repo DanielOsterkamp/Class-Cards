@@ -19,7 +19,16 @@ public class CriarDeckViewModel extends ViewModel {
     private final MutableLiveData<String> deckCriado = new MutableLiveData<>();
     private final MutableLiveData<String> erro = new MutableLiveData<>();
 
-    private final AiRepository aiRepository = new AiRepository();
+    private final AiRepository aiRepository;
+
+    public CriarDeckViewModel() {
+        this(new AiRepository());
+    }
+
+    // Permite testar os estados de carregamento sem enviar requisições à IA.
+    CriarDeckViewModel(AiRepository aiRepository) {
+        this.aiRepository = aiRepository;
+    }
 
     private final MutableLiveData<Boolean> gerandoFlashcards =
             new MutableLiveData<>(false);
@@ -48,6 +57,11 @@ public class CriarDeckViewModel extends ViewModel {
             String nome,
             String materia
     ) {
+        if (Boolean.TRUE.equals(gerandoFlashcards.getValue())) {
+            erro.setValue("Aguarde a criação dos flashcards antes de salvar o deck.");
+            return;
+        }
+
         if (nome == null || nome.trim().isEmpty()) {
             erro.setValue("Informe o nome do deck.");
             return;
@@ -123,6 +137,10 @@ public class CriarDeckViewModel extends ViewModel {
             String descricao,
             String quantidadeTexto
     ) {
+        if (Boolean.TRUE.equals(gerandoFlashcards.getValue())) {
+            return;
+        }
+
         if (materia == null || materia.trim().isEmpty()) {
             erro.setValue("Informe a matéria.");
             return;
@@ -149,7 +167,8 @@ public class CriarDeckViewModel extends ViewModel {
 
         gerandoFlashcards.setValue(true);
 
-        aiRepository.gerarFlashcards(
+        try {
+            aiRepository.gerarFlashcards(
                 materia.trim(),
                 descricao.trim(),
                 quantidade,
@@ -178,7 +197,11 @@ public class CriarDeckViewModel extends ViewModel {
                         );
                     }
                 }
-        );
+            );
+        } catch (Exception exception) {
+            gerandoFlashcards.setValue(false);
+            erro.setValue("Não foi possível iniciar a criação dos flashcards. Tente novamente.");
+        }
     }
 
     public void adicionarFlashcard(String pergunta, String resposta) {

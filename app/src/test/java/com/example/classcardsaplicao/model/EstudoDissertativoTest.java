@@ -81,7 +81,10 @@ public class EstudoDissertativoTest {
         assertEquals("2026-03-08", RegrasGamificacao.dia(local.parse("2026-03-09 00:30").getTime(), zona, -1));
     }
     @Test public void xpPorRevisaoSegueRegraConfirmada() {
-        assertEquals(10, RegrasGamificacao.XP_POR_REVISAO);
+        assertEquals(1, RegrasGamificacao.xpPorRevisao(Rating.AGAIN));
+        assertEquals(2, RegrasGamificacao.xpPorRevisao(Rating.HARD));
+        assertEquals(3, RegrasGamificacao.xpPorRevisao(Rating.GOOD));
+        assertEquals(5, RegrasGamificacao.xpPorRevisao(Rating.EASY));
     }
     @Test(expected = IllegalArgumentException.class) public void avaliacaoVaziaNaoPodeSerExibidaComoSucesso() {
         new AvaliacaoDissertativa(" ", Rating.GOOD);

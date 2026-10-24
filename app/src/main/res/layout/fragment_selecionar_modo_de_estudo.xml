@@ -156,10 +156,10 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:paddingStart="@dimen/screen_horizontal_margin"
-        android:paddingTop="@dimen/spacing_md"
-        android:paddingEnd="@dimen/screen_horizontal_margin"
-        android:paddingBottom="@dimen/spacing_xl"
+        android:paddingStart="@dimen/header_inset"
+        android:paddingTop="@dimen/header_inset"
+        android:paddingEnd="@dimen/header_inset"
+        android:paddingBottom="0dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
@@ -167,30 +167,18 @@
         <!-- TOPO -->
 
         <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center_vertical"
-            android:orientation="horizontal">
+            style="@style/Widget.ClassCards.HeaderRow">
 
-            <ImageButton
-                android:id="@+id/btnMenu"
-                android:layout_width="48dp"
-                android:layout_height="48dp"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:contentDescription="Abrir menu"
-                android:padding="@dimen/spacing_smd"
-                android:scaleType="centerCrop"
-                android:src="@drawable/menu_hamburguer"
-                app:tint="@color/text_primary" />
+            <androidx.appcompat.widget.AppCompatImageButton
+                style="@style/Widget.ClassCards.BackButton"
+                android:id="@+id/btnVoltar" />
 
             <TextView
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="@dimen/spacing_md"
-                android:fontFamily="sans-serif-medium"
                 android:text="Deck"
-                android:textColor="@color/text_primary"
-                android:textSize="@dimen/text_section_title" />
+                style="@style/Widget.ClassCards.HeaderTitle"
+                android:layout_weight="1" />
 
         </LinearLayout>
 
@@ -213,7 +201,7 @@
 
     <TextView
         android:id="@+id/textView13"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="64dp"
         android:layout_marginEnd="63dp"

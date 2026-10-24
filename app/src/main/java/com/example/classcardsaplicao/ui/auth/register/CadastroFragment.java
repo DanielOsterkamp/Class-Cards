@@ -13,6 +13,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.EditText;
 import android.widget.Toast;
 
@@ -71,7 +72,7 @@ public class CadastroFragment extends Fragment {
             cadastroViewModel.cadastrar(nome, email, senha);
         });
 
-        Button btnVoltar = view.findViewById(R.id.btnVoltar);
+        ImageButton btnVoltar = view.findViewById(R.id.btnVoltar);
 
         btnVoltar.setOnClickListener(v -> {
             NavHostFragment.findNavController(this).popBackStack(); // isso daqui volta para a ultima tela

@@ -9,8 +9,6 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.core.view.GravityCompat;
-import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.fragment.NavHostFragment;
@@ -33,18 +31,13 @@ public class DeckSelecionadoFragment extends Fragment {
     ) {
         super.onViewCreated(view, savedInstanceState);
 
-        ImageButton btnMenu = view.findViewById(R.id.btnMenu);
+        ImageButton btnVoltar = view.findViewById(R.id.btnVoltar);
 
         Button btnEstudar = view.findViewById(R.id.btnEstudar);
 
 
-        btnMenu.setOnClickListener(v -> {
-            DrawerLayout drawerLayout =
-                    requireActivity().findViewById(R.id.drawerLayout);
-
-            drawerLayout.openDrawer(GravityCompat.START);
-
-        });
+        btnVoltar.setOnClickListener(v ->
+                NavHostFragment.findNavController(this).popBackStack());
 
         TextView txtNomeDeck = view.findViewById(R.id.txtNomeDeck);
         TextView txtMateriaDeck = view.findViewById(R.id.txtMateriaDeck);

@@ -5,11 +5,11 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
 import com.example.classcardsaplicao.data.DeckRepository;
+import com.example.classcardsaplicao.data.GamificacaoRepository;
 import com.example.classcardsaplicao.data.ProgressoRepository;
 import com.example.classcardsaplicao.model.Deck;
 import com.example.classcardsaplicao.model.Flashcard;
 import com.example.classcardsaplicao.model.ProgressoFlashcard;
-import com.example.classcardsaplicao.model.FsrsScheduler;
 import com.example.classcardsaplicao.model.Rating;
 import com.google.firebase.auth.FirebaseAuth;
 
@@ -20,6 +20,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 public class EstudarDeckViewModel extends ViewModel {
 
@@ -36,7 +37,10 @@ public class EstudarDeckViewModel extends ViewModel {
 
     private final ProgressoRepository progressoRepository = new ProgressoRepository();
 
-    private final FsrsScheduler fsrsScheduler = new FsrsScheduler();
+    private final GamificacaoRepository gamificacaoRepository = new GamificacaoRepository();
+
+    // Reutilizado em novas tentativas de salvar o mesmo card nesta sessão.
+    private String tentativaIdAtual = UUID.randomUUID().toString();
 
     private final MutableLiveData<Deck> deck = new MutableLiveData<>();
 
@@ -89,7 +93,7 @@ public class EstudarDeckViewModel extends ViewModel {
         return mostrandoResposta;
     }
 
-    // Usado pelo modo dissertativo para preservar a sessão ao recriar a tela.
+    // Evita reiniciar a sessão quando a view do estudo é recriada.
     public void carregarDeckSeNecessario(String deckId) {
         if (deckId != null && deckId.equals(deckIdAtual)) {
             return;
@@ -131,7 +135,11 @@ public class EstudarDeckViewModel extends ViewModel {
                     @Override
                     public void onSuccess(List<Flashcard> lista) {
 
-                        String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+                        String userId = FirebaseAuth.getInstance().getUid();
+                        if (userId == null) {
+                            erro.setValue("Usuário não autenticado.");
+                            return;
+                        }
 
                         progressoRepository.buscarProgressosDoDeck(
                                 userId,
@@ -150,9 +158,6 @@ public class EstudarDeckViewModel extends ViewModel {
                                 }
                         );
 
-                        if (!lista.isEmpty()) {
-                            carregarProgressoAtual();
-                        }
                     }
 
                     @Override
@@ -202,14 +207,18 @@ public class EstudarDeckViewModel extends ViewModel {
         }
 
         indiceAtual++;
-
+        tentativaIdAtual = UUID.randomUUID().toString();
         mostrandoResposta = false;
 
         carregarProgressoAtual();
-        return false;
+        // false significa fim da sessão; enquanto houver próximo card, precisa retornar true.
+        return true;
     }
 
     public void carregarProgressoAtual() {
+
+        // O progresso do card anterior não pode ser usado enquanto o próximo ainda carrega.
+        progressoAtual.setValue(null);
 
         Flashcard flashcard =
                 getFlashcardAtual();
@@ -245,6 +254,10 @@ public class EstudarDeckViewModel extends ViewModel {
                             ProgressoFlashcard progresso
                     ) {
 
+                        Flashcard atual = getFlashcardAtual();
+                        if (atual == null || !flashcard.getId().equals(atual.getId())) {
+                            return;
+                        }
                         if (progresso == null) {
                             progresso = new ProgressoFlashcard(userId, deckIdAtual, flashcard.getId());
                         }
@@ -327,11 +340,12 @@ public class EstudarDeckViewModel extends ViewModel {
                 flashcardsNovos.subList(0, quantidadeNovos)
         );
 
-        flashcards.setValue(sessao);
-
         indiceAtual = 0;
+        tentativaIdAtual = UUID.randomUUID().toString();
         mostrandoResposta = false;
         sessaoConcluida.setValue(false);
+        progressoAtual.setValue(null);
+        flashcards.setValue(sessao);
 
         if (!sessao.isEmpty()) {
             carregarProgressoAtual();
@@ -366,18 +380,25 @@ public class EstudarDeckViewModel extends ViewModel {
             return;
         }
 
+        Flashcard atual = getFlashcardAtual();
+        if (rating == null || atual == null || !atual.getId().equals(progresso.getFlashcardId())
+                || !progresso.getUserId().equals(FirebaseAuth.getInstance().getUid())) {
+            erro.setValue("O progresso não corresponde ao card ou à conta atual.");
+            return;
+        }
+
         avaliacaoConcluida.setValue(false);
         salvandoProgresso.setValue(true);
 
-        fsrsScheduler.revisar(progresso, rating);
-
-        progressoRepository.salvarProgresso(
-                progresso,
-                new ProgressoRepository.SalvarProgressoCallback() {
+        // O mesmo caminho de transação aplica agendamento, XP e ofensiva nos dois modos.
+        gamificacaoRepository.confirmarRevisaoTradicional(
+                progresso.getUserId(), progresso.getDeckId(), progresso.getFlashcardId(),
+                tentativaIdAtual, rating,
+                new GamificacaoRepository.Callback() {
 
                     @Override
                     public void onSuccess() {
-                        progressoAtual.setValue(progresso);
+                        progressoAtual.setValue(null);
                         salvandoProgresso.setValue(false);
                         avaliacaoConcluida.setValue(true);
                     }

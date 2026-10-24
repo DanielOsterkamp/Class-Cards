@@ -12,8 +12,8 @@
         android:id="@+id/btnMenu"
         android:layout_width="48dp"
         android:layout_height="48dp"
-        android:layout_marginStart="@dimen/screen_horizontal_margin"
-        android:layout_marginTop="@dimen/spacing_md"
+        android:layout_marginStart="@dimen/header_inset"
+        android:layout_marginTop="@dimen/header_inset"
         android:background="?attr/selectableItemBackgroundBorderless"
         android:contentDescription="Abrir menu"
         android:padding="@dimen/spacing_smd"
@@ -25,15 +25,15 @@
 
     <TextView
         android:id="@+id/txtTituloHome"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="@dimen/spacing_md"
         android:text="Class Cards"
-        android:textColor="@color/text_primary"
-        android:textSize="@dimen/text_section_title"
         app:layout_constraintBottom_toBottomOf="@id/btnMenu"
         app:layout_constraintStart_toEndOf="@id/btnMenu"
-        app:layout_constraintTop_toTopOf="@id/btnMenu" />
+        app:layout_constraintTop_toTopOf="@id/btnMenu"
+        style="@style/Widget.ClassCards.HeaderTitle"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginEnd="@dimen/header_inset" />
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/btnCriarDeck"

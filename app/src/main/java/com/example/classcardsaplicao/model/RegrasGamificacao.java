@@ -7,7 +7,19 @@ import java.util.TimeZone;
 
 
 public final class RegrasGamificacao {
-    public static final long XP_POR_REVISAO = 10;
+    // O XP depende da classificação final escolhida pelo estudante, não da sugestão da IA.
+    public static long xpPorRevisao(Rating rating) {
+        if (rating == null) {
+            throw new IllegalArgumentException("Informe a classificação da revisão.");
+        }
+        switch (rating) {
+            case AGAIN: return 1;
+            case HARD: return 2;
+            case GOOD: return 3;
+            case EASY: return 5;
+            default: throw new IllegalArgumentException("Classificação inválida.");
+        }
+    }
 
     public static String dia(long instante, TimeZone zona, int deslocamento) {
         Calendar calendario = Calendar.getInstance(zona);

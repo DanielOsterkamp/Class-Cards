@@ -12,8 +12,6 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.core.view.GravityCompat;
-import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.fragment.NavHostFragment;
@@ -53,7 +51,7 @@ public class CriarDeckFragment extends Fragment {
 
         CriarDeckViewModel viewModel = new ViewModelProvider(this).get(CriarDeckViewModel.class);
 
-        ImageButton btnMenu = view.findViewById(R.id.btnMenu);
+        ImageButton btnVoltar = view.findViewById(R.id.btnVoltar);
 
         SwitchMaterial switchModoCriacao = view.findViewById(R.id.switchModoCriacao);
 
@@ -91,7 +89,7 @@ public class CriarDeckFragment extends Fragment {
                         return;
                     }
 
-                    btnSalvarDeck.setEnabled(true);
+                    btnSalvarDeck.setEnabled(!Boolean.TRUE.equals(viewModel.getGerandoFlashcards().getValue()));
 
                     Toast.makeText(
                             requireContext(),
@@ -109,7 +107,7 @@ public class CriarDeckFragment extends Fragment {
                         return;
                     }
 
-                    btnSalvarDeck.setEnabled(true);
+                    btnSalvarDeck.setEnabled(!Boolean.TRUE.equals(viewModel.getGerandoFlashcards().getValue()));
 
                     Toast.makeText(
                             requireContext(),
@@ -143,12 +141,9 @@ public class CriarDeckFragment extends Fragment {
         );
 
 
-        // Menu lateral
-        btnMenu.setOnClickListener(v -> {
-            DrawerLayout drawerLayout = requireActivity().findViewById(R.id.drawerLayout);
-
-            drawerLayout.openDrawer(GravityCompat.START);
-        });
+        // Voltar à tela anterior
+        btnVoltar.setOnClickListener(v ->
+                NavHostFragment.findNavController(this).popBackStack());
 
         btnGerarFlashcards.setOnClickListener(v -> {
 
@@ -189,7 +184,20 @@ public class CriarDeckFragment extends Fragment {
                 getViewLifecycleOwner(),
                 gerando -> {
 
-                    btnGerarFlashcards.setEnabled(!gerando);
+                    boolean carregando = Boolean.TRUE.equals(gerando);
+                    view.findViewById(R.id.containerCarregamentoCriacao)
+                            .setVisibility(carregando ? View.VISIBLE : View.GONE);
+                    btnGerarFlashcards.setEnabled(!carregando);
+                    btnSalvarDeck.setEnabled(!carregando);
+                    inputDescricaoIA.setEnabled(!carregando);
+                    inputNumeroCards.setEnabled(!carregando);
+                    inputMateriaDeck.setEnabled(!carregando);
+                    switchModoCriacao.setEnabled(!carregando);
+                    if (carregando) {
+                        switchModoCriacao.setChecked(true);
+                        containerAutomatico.setVisibility(View.VISIBLE);
+                        containerManual.setVisibility(View.GONE);
+                    }
 
                     btnGerarFlashcards.setText( // se estiver gerando o texto é "gerando", se não é o gerar flash cards
                             gerando

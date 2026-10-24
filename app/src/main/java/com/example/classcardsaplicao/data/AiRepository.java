@@ -21,8 +21,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 public class AiRepository {
+
+    private static final ScheduledExecutorService TIMEOUT = Executors.newSingleThreadScheduledExecutor();
 
     // esse codigo serve para organizar os metodos referentes a IA
 
@@ -91,7 +96,7 @@ public class AiRepository {
                 .build();
 
         ListenableFuture<GenerateContentResponse> response =
-                model.generateContent(content);
+                Futures.withTimeout(model.generateContent(content), 90, TimeUnit.SECONDS, TIMEOUT);
 
         // aqui pegamos as informações que foram passadas, transformamos em objetos de Flashcards e tratamos possiveis erros
 
@@ -158,6 +163,9 @@ public class AiRepository {
 
     private Exception tratarErroAi(Throwable throwable) {
 
+        if (throwable instanceof TimeoutException) {
+            return new Exception("A criação dos flashcards demorou demais. Tente novamente.");
+        }
         String mensagem = throwable.getMessage();
 
         if (mensagem == null) {

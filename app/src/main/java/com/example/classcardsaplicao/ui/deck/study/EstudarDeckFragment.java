@@ -3,7 +3,6 @@ package com.example.classcardsaplicao.ui.deck.study;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -57,7 +56,7 @@ public class EstudarDeckFragment extends Fragment {
         TextView txtProgresso = view.findViewById(R.id.txtProgresso);
 
 
-        Button btnVoltar = view.findViewById(R.id.btnVoltar);
+        ImageButton btnVoltar = view.findViewById(R.id.btnVoltar);
 
         String deckId = requireArguments().getString("deckId");
 
@@ -81,7 +80,7 @@ public class EstudarDeckFragment extends Fragment {
 
             Flashcard flashcard = viewModel.getFlashcardAtual();
 
-            if (flashcard == null) {
+            if (flashcard == null || Boolean.TRUE.equals(viewModel.getSalvandoProgresso().getValue())) {
                 return;
             }
 
@@ -174,15 +173,14 @@ public class EstudarDeckFragment extends Fragment {
 
                     cardFlashcard.setEnabled(true);
 
-                    Flashcard primeiroFlashcard = flashcards.get(0);
-
-                    txtConteudoFlashcard.setText(
-                            primeiroFlashcard.getPergunta()
-                    );
-
-                    txtProgresso.setText(
-                            "1 / " + flashcards.size()
-                    );
+                    Flashcard atual = viewModel.getFlashcardAtual();
+                    if (atual == null) return;
+                    boolean mostrandoResposta = viewModel.isMostrandoResposta();
+                    txtConteudoFlashcard.setText(mostrandoResposta ? atual.getResposta() : atual.getPergunta());
+                    txtInstrucao.setText(mostrandoResposta
+                            ? "Como foi lembrar deste conteúdo?" : "Toque no card para ver a resposta");
+                    layoutAvaliacoes.setVisibility(mostrandoResposta ? View.VISIBLE : View.GONE);
+                    txtProgresso.setText((viewModel.getIndiceAtual() + 1) + " / " + flashcards.size());
                 }
         );
         viewModel.getAvaliacaoConcluida().observe(
@@ -238,7 +236,7 @@ public class EstudarDeckFragment extends Fragment {
                 salvando -> {
 
                     boolean habilitado =
-                            !Boolean.TRUE.equals(salvando);
+                            !Boolean.TRUE.equals(salvando) && viewModel.getProgressoAtual().getValue() != null;
 
                     btnErrei.setEnabled(habilitado);
                     btnDificil.setEnabled(habilitado);
@@ -248,7 +246,18 @@ public class EstudarDeckFragment extends Fragment {
         );
 
 
-        viewModel.carregarDeck(deckId);
+        viewModel.getProgressoAtual().observe(getViewLifecycleOwner(), progresso -> {
+            boolean habilitado = progresso != null
+                    && !Boolean.TRUE.equals(viewModel.getSalvandoProgresso().getValue());
+            btnErrei.setEnabled(habilitado);
+            btnDificil.setEnabled(habilitado);
+            btnBom.setEnabled(habilitado);
+            btnFacil.setEnabled(habilitado);
+        });
+        viewModel.getErro().observe(getViewLifecycleOwner(), mensagem -> {
+            if (mensagem != null) Toast.makeText(requireContext(), mensagem, Toast.LENGTH_LONG).show();
+        });
+        viewModel.carregarDeckSeNecessario(deckId);
 
 
     }

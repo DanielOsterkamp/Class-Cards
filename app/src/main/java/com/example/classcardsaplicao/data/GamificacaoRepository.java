@@ -21,8 +21,19 @@ public class GamificacaoRepository {
     public void confirmarRevisao(String uid, String deckId, String flashcardId,
             String tentativaId, Rating rating, Callback callback) {
 
+        confirmar(uid, deckId, flashcardId, tentativaId, rating, "revisoesDissertativas", callback);
+    }
+
+    public void confirmarRevisaoTradicional(String uid, String deckId, String flashcardId,
+            String tentativaId, Rating rating, Callback callback) {
+        confirmar(uid, deckId, flashcardId, tentativaId, rating, "revisoesTradicionais", callback);
+    }
+
+    private void confirmar(String uid, String deckId, String flashcardId, String tentativaId,
+            Rating rating, String colecaoEventos, Callback callback) {
+        long xpGanho = RegrasGamificacao.xpPorRevisao(rating);
         DocumentReference usuario = firestore.collection("users").document(uid);
-        DocumentReference evento = usuario.collection("revisoesDissertativas").document(tentativaId);
+        DocumentReference evento = usuario.collection(colecaoEventos).document(tentativaId);
         DocumentReference resumo = usuario.collection("gamificacao").document("resumo");
         DocumentReference progresso = usuario.collection("progressoFlashcards").document(flashcardId);
 
@@ -51,7 +62,7 @@ public class GamificacaoRepository {
                     stats.getString("ultimoDiaEstudo"), hoje, ontem);
 
             Map<String, Object> valores = new HashMap<>();
-            valores.put("xp", xp + RegrasGamificacao.XP_POR_REVISAO);
+            valores.put("xp", xp + xpGanho);
             valores.put("ofensiva", ofensiva);
 
             String ultimoDia = stats.getString("ultimoDiaEstudo");
@@ -61,7 +72,7 @@ public class GamificacaoRepository {
             registro.put("deckId", deckId);
             registro.put("flashcardId", flashcardId);
             registro.put("rating", rating.name());
-            registro.put("xp", RegrasGamificacao.XP_POR_REVISAO);
+            registro.put("xp", xpGanho);
             registro.put("createdAt", FieldValue.serverTimestamp());
 
             transaction.set(progresso, p);
@@ -69,7 +80,7 @@ public class GamificacaoRepository {
             transaction.set(evento, registro);
             return null;
         }).addOnSuccessListener(ignorado -> callback.onSuccess())
-        .addOnFailureListener(callback::onError);
+                .addOnFailureListener(callback::onError);
     }
 
     public static long numero(DocumentSnapshot doc, String campo) {

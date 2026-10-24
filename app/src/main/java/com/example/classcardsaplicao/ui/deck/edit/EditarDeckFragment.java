@@ -34,6 +34,9 @@ public class EditarDeckFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        view.findViewById(R.id.btnVoltar).setOnClickListener(v ->
+                NavHostFragment.findNavController(this).popBackStack());
+
         MaterialButton btnSalvarAlteracoes = view.findViewById(R.id.btnSalvarDeck);
 
         EditText inputPergunta = view.findViewById(R.id.inputPergunta);

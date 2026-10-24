@@ -7,6 +7,7 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.navigation.fragment.NavHostFragment;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -31,6 +32,9 @@ public class SelecionarModoDeEstudoFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
+        view.findViewById(R.id.btnVoltar).setOnClickListener(v ->
+                NavHostFragment.findNavController(this).popBackStack());
         String deckId = getArguments() == null ? null : getArguments().getString("deckId");
         if (deckId == null || deckId.trim().isEmpty()) {
             android.widget.Toast.makeText(requireContext(), "Deck inválido.",

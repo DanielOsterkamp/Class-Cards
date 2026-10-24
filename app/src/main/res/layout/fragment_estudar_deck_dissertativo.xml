@@ -12,7 +12,10 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="24dp">
+        android:paddingStart="@dimen/header_inset"
+        android:paddingTop="@dimen/header_inset"
+        android:paddingEnd="@dimen/header_inset"
+        android:paddingBottom="24dp">
 
         <!-- Cabeçalho -->
 
@@ -22,6 +25,32 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
+
+
+            <TextView
+                android:id="@+id/txtNomeDeck2"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:text="Nome do Deck"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@id/btnVoltar2"
+                app:layout_constraintTop_toTopOf="@id/btnVoltar2"
+                style="@style/Widget.ClassCards.HeaderTitle"
+                app:layout_constraintBottom_toBottomOf="@id/btnVoltar2" />
+
+            <androidx.appcompat.widget.AppCompatImageButton
+                style="@style/Widget.ClassCards.BackButton"
+                android:id="@+id/btnVoltar2"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingStart="8dp"
+            android:paddingEnd="8dp">
             <TextView
                 android:id="@+id/txtContadorFlashcards"
                 android:layout_width="match_parent"
@@ -29,40 +58,7 @@
                 android:layout_marginTop="10dp"
                 android:text="Carregando flashcards..."
                 android:textColor="@color/text_secondary"
-                android:textAlignment="center"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/btnVoltar2" />
-
-            <TextView
-                android:id="@+id/txtNomeDeck2"
-                android:layout_width="0dp"
-                android:layout_height="27dp"
-                android:layout_marginStart="28dp"
-                android:layout_marginTop="9dp"
-                android:layout_marginEnd="5dp"
-                android:ellipsize="end"
-                android:fontFamily="sans-serif-medium"
-                android:maxLines="1"
-                android:text="Nome do Deck"
-                android:textColor="@color/text_primary"
-                android:textSize="@dimen/text_section_title"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toEndOf="@+id/btnVoltar2"
-                app:layout_constraintTop_toTopOf="parent" />
-
-            <androidx.appcompat.widget.AppCompatButton
-                android:id="@+id/btnVoltar2"
-                android:layout_width="47dp"
-                android:layout_height="44dp"
-                android:background="@drawable/button_preto_background"
-                android:elevation="50dp"
-                android:text="‹"
-                android:contentDescription="Voltar"
-                android:textColor="#FFFFFF"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
-        </androidx.constraintlayout.widget.ConstraintLayout>
+                android:textAlignment="center" />
 
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
@@ -358,6 +354,8 @@
             </LinearLayout>
 
             </LinearLayout>
+
+        </LinearLayout>
 
         </LinearLayout>
 

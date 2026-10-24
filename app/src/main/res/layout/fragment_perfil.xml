@@ -15,22 +15,27 @@
         android:layout_height="wrap_content"
         android:minHeight="700dp">
 
-        <!-- Menu -->
+        <!-- Cabeçalho -->
 
-        <ImageButton
-            android:id="@+id/btnMenu"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:layout_marginStart="@dimen/screen_horizontal_margin"
-            android:layout_marginTop="@dimen/spacing_md"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:contentDescription="Abrir menu"
-            android:padding="@dimen/spacing_smd"
-            android:scaleType="centerCrop"
-            android:src="@drawable/menu_hamburguer"
+        <androidx.appcompat.widget.AppCompatImageButton
+            style="@style/Widget.ClassCards.BackButton"
+            android:id="@+id/btnVoltar"
+            android:layout_marginStart="@dimen/header_inset"
+            android:layout_marginTop="@dimen/header_inset"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:tint="@color/text_primary" />
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/txtTituloPerfil"
+            style="@style/Widget.ClassCards.HeaderTitle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="@dimen/header_inset"
+            android:text="@string/titulo_perfil"
+            app:layout_constraintStart_toEndOf="@id/btnVoltar"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@id/btnVoltar"
+            app:layout_constraintBottom_toBottomOf="@id/btnVoltar" />
 
         <!-- Foto -->
 
@@ -44,7 +49,7 @@
             app:shapeAppearanceOverlay="@style/CircleImage"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/btnMenu"
+            app:layout_constraintTop_toBottomOf="@id/btnVoltar"
             tools:src="@drawable/logo_transparente_pequeno" />
 
         <!-- Nome -->
