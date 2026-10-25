@@ -20,6 +20,8 @@ local.properties
 /ui-debug.log
 /.firebase/
 
+/app/google-services.json
+
 /firebase/rankings/firebase-debug.log
 /firebase/rankings/firestore-debug.log
 /firebase/rankings/ui-debug.log
