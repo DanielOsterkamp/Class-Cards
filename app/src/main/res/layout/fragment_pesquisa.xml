@@ -1,0 +1,300 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/background"
+    android:forceDarkAllowed="false"
+    tools:targetApi="q"
+    tools:context=".ui.pesquisa.PesquisaFragment">
+
+    <androidx.appcompat.widget.AppCompatImageButton
+        android:id="@+id/btnVoltarPesquisa"
+        style="@style/Widget.ClassCards.BackButton"
+        android:layout_marginStart="@dimen/header_inset"
+        android:layout_marginTop="@dimen/header_inset"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/txtTituloPesquisa"
+        style="@style/Widget.ClassCards.HeaderTitle"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="@dimen/header_inset"
+        android:text="@string/pesquisa_titulo"
+        app:layout_constraintStart_toEndOf="@id/btnVoltarPesquisa"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@id/btnVoltarPesquisa"
+        app:layout_constraintBottom_toBottomOf="@id/btnVoltarPesquisa" />
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/layoutCampoPesquisa"
+        style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/header_inset"
+        android:layout_marginEnd="@dimen/header_inset"
+        android:layout_marginTop="16dp"
+        android:hint="@string/pesquisa_hint"
+        android:textColorHint="@color/text_secondary"
+        app:boxBackgroundColor="@color/ranking_surface"
+        app:boxBackgroundMode="outline"
+        app:boxCornerRadiusTopStart="16dp"
+        app:boxCornerRadiusTopEnd="16dp"
+        app:boxCornerRadiusBottomStart="16dp"
+        app:boxCornerRadiusBottomEnd="16dp"
+        app:boxStrokeColor="@color/pesquisa_campo_borda"
+        app:endIconMode="clear_text"
+        app:endIconTint="@color/text_secondary"
+        app:hintTextColor="@color/ranking_accent"
+        app:startIconDrawable="@drawable/ic_pesquisa"
+        app:startIconTint="@color/ranking_accent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/btnVoltarPesquisa">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/campoPesquisa"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:minHeight="56dp"
+            android:imeOptions="actionSearch"
+            android:inputType="text|textCapSentences"
+            android:maxLength="80"
+            android:singleLine="true"
+            android:textColor="@color/text_primary"
+            android:textColorHint="@color/text_secondary"
+            android:textSize="16sp" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <TextView
+        android:id="@+id/txtAjudaPesquisa"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/header_inset"
+        android:layout_marginEnd="@dimen/header_inset"
+        android:layout_marginTop="8dp"
+        android:text="@string/pesquisa_ajuda"
+        android:textColor="@color/text_secondary"
+        android:textSize="12sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/layoutCampoPesquisa" />
+
+    <com.google.android.material.button.MaterialButtonToggleGroup
+        android:id="@+id/togglePesquisa"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/header_inset"
+        android:layout_marginEnd="@dimen/header_inset"
+        android:layout_marginTop="20dp"
+        app:checkedButton="@id/btnPesquisaFlashcards"
+        app:selectionRequired="true"
+        app:singleSelection="true"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/txtAjudaPesquisa">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnPesquisaFlashcards"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:minHeight="48dp"
+            android:insetTop="0dp"
+            android:insetBottom="0dp"
+            android:paddingStart="8dp"
+            android:paddingEnd="8dp"
+            android:text="@string/pesquisa_flashcards"
+            android:textAllCaps="false"
+            android:textColor="@color/text_primary"
+            android:textSize="14sp"
+            app:backgroundTint="@color/pesquisa_toggle_fundo"
+            app:cornerRadius="14dp"
+            app:rippleColor="#33FFFFFF"
+            app:strokeColor="@color/ranking_divider"
+            app:strokeWidth="1dp" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnPesquisaUsuarios"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:minHeight="48dp"
+            android:insetTop="0dp"
+            android:insetBottom="0dp"
+            android:paddingStart="8dp"
+            android:paddingEnd="8dp"
+            android:text="@string/pesquisa_usuarios"
+            android:textAllCaps="false"
+            android:textColor="@color/text_primary"
+            android:textSize="14sp"
+            app:backgroundTint="@color/pesquisa_toggle_fundo"
+            app:cornerRadius="14dp"
+            app:rippleColor="#33FFFFFF"
+            app:strokeColor="@color/ranking_divider"
+            app:strokeWidth="1dp" />
+    </com.google.android.material.button.MaterialButtonToggleGroup>
+
+    <TextView
+        android:id="@+id/txtQuantidadePesquisa"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/header_inset"
+        android:layout_marginEnd="@dimen/header_inset"
+        android:layout_marginTop="18dp"
+        android:accessibilityLiveRegion="polite"
+        android:text="@string/pesquisa_resultados_decks"
+        android:textColor="@color/text_secondary"
+        android:textSize="13sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/togglePesquisa" />
+
+    <FrameLayout
+        android:id="@+id/containerResultadosPesquisa"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginTop="8dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/txtQuantidadePesquisa"
+        app:layout_constraintBottom_toTopOf="@id/containerRodapePesquisa">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recyclerPesquisa"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:clipToPadding="false"
+            android:paddingStart="12dp"
+            android:paddingEnd="12dp"
+            android:paddingBottom="12dp"
+            android:scrollbars="vertical"
+            android:visibility="gone"
+            tools:listitem="@layout/item_deck" />
+
+        <LinearLayout
+            android:id="@+id/containerEstadoPesquisa"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:padding="24dp">
+
+            <ImageView
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:contentDescription="@null"
+                android:src="@drawable/ic_pesquisa"
+                app:tint="@color/ranking_accent" />
+
+            <TextView
+                android:id="@+id/txtEstadoPesquisa"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:gravity="center"
+                android:text="@string/pesquisa_comecar_titulo"
+                android:textColor="@color/text_primary"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/txtDescricaoEstadoPesquisa"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:gravity="center"
+                android:text="@string/pesquisa_comecar_descricao"
+                android:textColor="@color/text_secondary"
+                android:textSize="14sp" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnTentarPesquisa"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="@string/pesquisa_tentar_novamente"
+                android:textAllCaps="false"
+                android:textColor="@color/text_primary"
+                android:visibility="gone"
+                app:backgroundTint="@color/card_background"
+                app:cornerRadius="14dp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/containerCarregandoPesquisa"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:padding="24dp"
+            android:visibility="gone">
+
+            <ProgressBar
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:indeterminateTint="@color/ranking_accent" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="@string/pesquisa_carregando"
+                android:textColor="@color/text_secondary"
+                android:textSize="14sp" />
+        </LinearLayout>
+    </FrameLayout>
+
+    <LinearLayout
+        android:id="@+id/containerRodapePesquisa"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:paddingStart="@dimen/header_inset"
+        android:paddingEnd="@dimen/header_inset"
+        android:paddingBottom="12dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent">
+
+        <TextView
+            android:id="@+id/txtAvisoPesquisa"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:accessibilityLiveRegion="polite"
+            android:gravity="center"
+            android:textColor="@color/ranking_accent"
+            android:textSize="13sp"
+            android:visibility="gone" />
+
+        <ProgressBar
+            android:id="@+id/progressMaisPesquisa"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_marginTop="12dp"
+            android:layout_marginBottom="12dp"
+            android:indeterminateTint="@color/ranking_accent"
+            android:visibility="gone" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnCarregarMaisPesquisa"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/pesquisa_carregar_mais"
+            android:textAllCaps="false"
+            android:textColor="@color/text_primary"
+            android:visibility="gone"
+            app:backgroundTint="@color/ranking_surface"
+            app:cornerRadius="14dp"
+            app:strokeColor="@color/ranking_divider"
+            app:strokeWidth="1dp" />
+    </LinearLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

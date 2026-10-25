@@ -2,6 +2,7 @@ package com.example.classcardsaplicao.data;
 
 import android.util.Log;
 import com.example.classcardsaplicao.model.UsuarioRanking;
+import com.example.classcardsaplicao.model.TextoPesquisa;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.auth.FirebaseAuth;
@@ -116,6 +117,7 @@ public class RankingRepository {
 
                     publicacao.put("uid", uid);
                     publicacao.put("nome", nome);
+                    publicacao.put("nomeBusca", TextoPesquisa.normalizar(nome));
                     publicacao.put("fotoUrl", foto);
                     publicacao.put("xp", xp);
                     publicacao.put("ofensiva", ofensiva);

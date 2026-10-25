@@ -1,15 +1,20 @@
 package com.example.classcardsaplicao.data;
 
+import android.util.Log;
 import com.example.classcardsaplicao.model.Deck;
 import com.example.classcardsaplicao.model.Flashcard;
+import com.example.classcardsaplicao.model.TextoPesquisa;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.WriteBatch;
+import com.google.firebase.auth.FirebaseAuth;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 public class DeckRepository {
@@ -32,6 +37,7 @@ public class DeckRepository {
                     List<Deck> decks = querySnapshot.toObjects(Deck.class);
 
                     callback.onSuccess(decks);
+                    indexarDecksAntigos(userId, querySnapshot.getDocuments());
                 })
                 .addOnFailureListener(callback::onError);
 
@@ -82,7 +88,8 @@ public class DeckRepository {
         // o batch ele serve pra juntar varias informações pro firebase e evniar de uma vez, sem precisar vazer um milhão de card1Ref.set(card1)
 
         // aqui ele salva as o deck e seus atributos nessa referencia
-        batch.set(deckRef, deck);
+        // Metadados e índice usam uma única escrita dentro do mesmo lote dos flashcards.
+        batch.set(deckRef, dadosDeck(deck));
 
         // aqui salva os flashcards na subcoleção cards
 
@@ -145,6 +152,7 @@ public class DeckRepository {
                     batch.update(
                             deckRef,
                             "titulo", deck.getTitulo(),
+                            "tituloBusca", TextoPesquisa.normalizar(deck.getTitulo()),
                             "materia", deck.getMateria(),
                             "quantidadeCards", flashcards.size(),
                             "updatedAt", System.currentTimeMillis()
@@ -205,6 +213,52 @@ public class DeckRepository {
         void onSuccess();
 
         void onError(Exception exception);
+    }
+
+    private static Map<String, Object> dadosDeck(Deck deck) {
+        Map<String, Object> dados = new HashMap<>();
+        dados.put("id", deck.getId());
+        dados.put("ownerId", deck.getOwnerId());
+        dados.put("titulo", deck.getTitulo());
+        dados.put("tituloBusca", TextoPesquisa.normalizar(deck.getTitulo()));
+        dados.put("materia", deck.getMateria());
+        dados.put("descricao", deck.getDescricao());
+        dados.put("quantidadeCards", deck.getQuantidadeCards());
+        dados.put("createdAt", deck.getCreatedAt());
+        dados.put("updatedAt", deck.getUpdatedAt());
+        return dados;
+    }
+
+    /** Aproveita a consulta do próprio usuário e corrige somente os índices que estão desatualizados. */
+    private void indexarDecksAntigos(String uid, List<DocumentSnapshot> documentos) {
+        if (!uid.equals(FirebaseAuth.getInstance().getUid())) return;
+        List<DocumentReference> pendentes = new ArrayList<>();
+        for (DocumentSnapshot doc : documentos) {
+            String titulo = doc.get("titulo") instanceof String ? (String) doc.get("titulo") : "";
+            if (!TextoPesquisa.normalizar(titulo).equals(doc.get("tituloBusca"))) {
+                pendentes.add(doc.getReference());
+            }
+        }
+        for (int inicio = 0; inicio < pendentes.size(); inicio += 100) {
+            List<DocumentReference> lote = new ArrayList<>(pendentes.subList(inicio,
+                    Math.min(inicio + 100, pendentes.size())));
+            firestore.runTransaction(transaction -> {
+                if (!uid.equals(FirebaseAuth.getInstance().getUid())) return null;
+                List<DocumentSnapshot> atuais = new ArrayList<>();
+                // Relê os títulos para não publicar uma chave antiga se o deck foi editado nesse intervalo.
+                for (DocumentReference referencia : lote) atuais.add(transaction.get(referencia));
+                for (DocumentSnapshot atual : atuais) {
+                    if (!atual.exists() || !uid.equals(atual.getString("ownerId"))) continue;
+                    String titulo = atual.get("titulo") instanceof String ? (String) atual.get("titulo") : "";
+                    String chave = TextoPesquisa.normalizar(titulo);
+                    if (!chave.equals(atual.get("tituloBusca"))) {
+                        transaction.update(atual.getReference(), "tituloBusca", chave);
+                    }
+                }
+                return null;
+            }).addOnFailureListener(erro -> Log.w("PESQUISA", "Indexação pendente: "
+                    + erro.getClass().getSimpleName()));
+        }
     }
 
     public interface BuscarDeckCallback {

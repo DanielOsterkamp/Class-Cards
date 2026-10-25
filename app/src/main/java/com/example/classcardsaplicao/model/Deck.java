@@ -1,5 +1,8 @@
 package com.example.classcardsaplicao.model;
 
+import com.google.firebase.firestore.IgnoreExtraProperties;
+
+@IgnoreExtraProperties
 public class Deck {
 
     private String id;

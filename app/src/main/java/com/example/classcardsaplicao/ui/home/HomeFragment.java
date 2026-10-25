@@ -88,6 +88,13 @@ public class HomeFragment extends Fragment {
 
         recyclerSeusDecks.setAdapter(deckAdapter);
 
+        view.findViewById(R.id.imageView2).setOnClickListener(v -> {
+            Bundle argumentos = new Bundle();
+            argumentos.putBoolean("focar", true);
+            NavHostFragment.findNavController(this)
+                    .navigate(R.id.action_homeFragment_to_pesquisaFragment, argumentos);
+        });
+
 
         ImageButton btnMenu = view.findViewById(R.id.btnMenu);
 

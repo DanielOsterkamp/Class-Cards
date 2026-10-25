@@ -36,7 +36,9 @@ service cloud.firestore {
       let campos = ['uid', 'nome', 'fotoUrl', 'xp', 'ofensiva', 'cardsEstudados',
                     'ultimoDiaEstudo', 'fusoHorario', 'atualizadoEm'];
       return d.keys().hasAll(campos)
-        && d.keys().hasOnly(campos)
+        // Opcional para manter os clientes anteriores compatíveis; somente clientes novos o gravam.
+        && d.keys().hasOnly(campos.concat(['nomeBusca']))
+        && (!('nomeBusca' in d) || (d.nomeBusca is string && d.nomeBusca.size() <= 240))
         && d.uid == uid
         && d.nome is string && d.nome.size() > 0 && d.nome.size() <= 120
         && d.fotoUrl is string && d.fotoUrl.size() <= 4096

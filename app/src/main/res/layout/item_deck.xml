@@ -17,8 +17,9 @@
 
         <TextView
             android:id="@+id/txtTituloDeck"
-            android:layout_width="87dp"
-            android:layout_height="78dp"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_marginBottom="@dimen/spacing_sm"
             android:ellipsize="end"
             android:fontFamily="sans-serif-medium"
             android:maxLines="2"
@@ -26,16 +27,20 @@
             android:textSize="@dimen/text_emphasis"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintBottom_toTopOf="@id/txtQuantidadeCards"
             app:layout_constraintTop_toTopOf="parent"
             tools:text="Biologia" />
 
         <TextView
             android:id="@+id/txtQuantidadeCards"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:maxLines="1"
             android:textColor="@color/text_secondary"
             android:textSize="@dimen/text_secondary"
             app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             tools:text="24 cards" />
 

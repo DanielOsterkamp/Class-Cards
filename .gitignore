@@ -26,3 +26,9 @@ local.properties
 /firebase/rankings/firestore-debug.log
 /firebase/rankings/ui-debug.log
 /firebase/rankings/.firebase/
+
+/firebase/pesquisa/node_modules/
+/firebase/pesquisa/firebase-debug.log
+/firebase/pesquisa/firestore-debug.log
+/firebase/pesquisa/ui-debug.log
+/firebase/pesquisa/.firebase/

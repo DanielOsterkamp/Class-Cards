@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="pesquisa_titulo">Pesquisar</string>
+    <string name="pesquisa_abrir">Pesquisar decks e usuários</string>
+    <string name="pesquisa_hint">Título do deck ou nome</string>
+    <string name="pesquisa_ajuda">Busque pelo início do título ou do nome.</string>
+    <string name="pesquisa_flashcards">Flashcards</string>
+    <string name="pesquisa_usuarios">Usuários</string>
+    <string name="pesquisa_carregando">Buscando resultados…</string>
+    <string name="pesquisa_carregar_mais">Carregar mais</string>
+    <string name="pesquisa_tentar_novamente">Tentar novamente</string>
+    <string name="pesquisa_buscar_novamente">Buscar novamente</string>
+    <string name="pesquisa_comecar_titulo">Encontre algo para aprender</string>
+    <string name="pesquisa_comecar_descricao">Digite pelo menos 2 caracteres para encontrar decks e usuários.</string>
+    <string name="pesquisa_vazio_decks">Nenhum deck encontrado</string>
+    <string name="pesquisa_vazio_usuarios">Nenhum usuário encontrado</string>
+    <string name="pesquisa_vazio_descricao">Tente outro início de título ou nome.</string>
+    <string name="pesquisa_erro_titulo">Não foi possível buscar</string>
+    <string name="pesquisa_resultados_decks">Decks encontrados</string>
+    <string name="pesquisa_resultados_usuarios">Usuários encontrados</string>
+    <string name="pesquisa_usuario_descricao">Usuário do Class Cards</string>
+    <plurals name="pesquisa_quantidade_cards">
+        <item quantity="one">%d card</item>
+        <item quantity="other">%d cards</item>
+    </plurals>
+    <plurals name="pesquisa_decks_carregados">
+        <item quantity="one">%d deck carregado</item>
+        <item quantity="other">%d decks carregados</item>
+    </plurals>
+    <plurals name="pesquisa_usuarios_carregados">
+        <item quantity="one">%d usuário carregado</item>
+        <item quantity="other">%d usuários carregados</item>
+    </plurals>
+</resources>

@@ -99,6 +99,14 @@
             android:id="@+id/action_homeFragment_to_criarDeckFragment"
             app:destination="@id/criarDeckFragment" />
 
+        <action
+            android:id="@+id/action_homeFragment_to_pesquisaFragment"
+            app:destination="@id/pesquisaFragment"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right" />
+
     </fragment>
 
     <fragment
@@ -175,5 +183,21 @@
         android:id="@+id/rankingsFragment"
         android:name="com.example.classcardsaplicao.ui.rankings.RankingsFragment"
         android:label="@string/titulo_rankings" />
+
+    <fragment
+        android:id="@+id/pesquisaFragment"
+        android:name="com.example.classcardsaplicao.ui.pesquisa.PesquisaFragment"
+        android:label="@string/pesquisa_titulo">
+
+        <argument
+            android:name="termo"
+            app:argType="string"
+            android:defaultValue="" />
+
+        <argument
+            android:name="focar"
+            app:argType="boolean"
+            android:defaultValue="true" />
+    </fragment>
 
 </navigation>
