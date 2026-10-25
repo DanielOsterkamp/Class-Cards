@@ -3,18 +3,27 @@
 
     <item
         android:id="@+id/menuInicio"
+        android:icon="@drawable/ic_menu_inicio"
         android:title="Início" />
 
     <item
         android:id="@+id/menuPerfil"
+        android:icon="@drawable/ic_menu_perfil"
         android:title="Perfil" />
 
     <item
         android:id="@+id/menuConfiguracoes"
+        android:icon="@drawable/ic_menu_configuracoes"
         android:title="Configurações" />
 
     <item
+        android:id="@+id/menuRankings"
+        android:icon="@drawable/ic_ranking_pontos"
+        android:title="@string/titulo_rankings" />
+
+    <item
         android:id="@+id/menuSair"
+        android:icon="@drawable/ic_menu_sair"
         android:title="Sair" />
 
 </menu>

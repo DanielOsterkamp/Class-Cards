@@ -51,12 +51,14 @@ public class GamificacaoRepository {
 
             DocumentSnapshot stats = transaction.get(resumo);
             DocumentSnapshot anterior = transaction.get(progresso);
-            ProgressoFlashcard p = anterior.toObject(ProgressoFlashcard.class);
-            if (p == null)
-                p = new ProgressoFlashcard(uid, deckId, flashcardId);
+            ProgressoFlashcard progressoFlashcard = anterior.toObject(ProgressoFlashcard.class);
+            if (progressoFlashcard == null)
+                progressoFlashcard = new ProgressoFlashcard(uid, deckId, flashcardId);
+
+            boolean primeiroEstudo = progressoFlashcard.getRepeticoes() <= 0 && progressoFlashcard.getUltimaRevisao() <= 0;
 
             // recalcula a próxima revisão com a classificação confirmada pelo estudante.
-            new FsrsScheduler().revisar(p, rating);
+            new FsrsScheduler().revisar(progressoFlashcard, rating);
             long xp = numero(stats, "xp");
             long ofensiva = RegrasGamificacao.proximaOfensiva(numero(stats, "ofensiva"),
                     stats.getString("ultimoDiaEstudo"), hoje, ontem);
@@ -64,6 +66,9 @@ public class GamificacaoRepository {
             Map<String, Object> valores = new HashMap<>();
             valores.put("xp", xp + xpGanho);
             valores.put("ofensiva", ofensiva);
+            valores.put("fusoHorario", zona.getID());
+            valores.put("cardsEstudados", numero(stats, "cardsEstudados") + (primeiroEstudo ? 1 : 0)); // fazemos isso porque o firebase não entende booleano, temos que passar 1 ou 0
+            valores.put("versaoEstudos", numero(stats, "versaoEstudos") + 1);
 
             String ultimoDia = stats.getString("ultimoDiaEstudo");
             valores.put("ultimoDiaEstudo", ultimoDia != null && ultimoDia.compareTo(hoje) > 0 ? ultimoDia : hoje);
@@ -75,11 +80,14 @@ public class GamificacaoRepository {
             registro.put("xp", xpGanho);
             registro.put("createdAt", FieldValue.serverTimestamp());
 
-            transaction.set(progresso, p);
+            transaction.set(progresso, progressoFlashcard);
             transaction.set(resumo, valores, SetOptions.merge());
             transaction.set(evento, registro);
             return null;
-        }).addOnSuccessListener(ignorado -> callback.onSuccess())
+        }).addOnSuccessListener(ignorado -> {
+            RankingRepository.atualizarEmSegundoPlano();
+            callback.onSuccess();
+        })
                 .addOnFailureListener(callback::onError);
     }
 

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="ranking_surface">#1E172B</color>
+    <color name="ranking_highlight">#352242</color>
+    <color name="ranking_accent">#E3B9F4</color>
+    <color name="ranking_divider">#3A2B45</color>
+    <color name="ranking_gold">#FFD88A</color>
+    <color name="ranking_silver">#D7DCE8</color>
+    <color name="ranking_bronze">#E6B291</color>
+</resources>

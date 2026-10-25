@@ -161,201 +161,186 @@
         </LinearLayout>
 
         <!-- Carregamento da IA -->
-        <LinearLayout
-            android:id="@+id/containerCarregamento"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="24dp"
-            android:gravity="center"
-            android:orientation="vertical"
-            android:padding="16dp"
-            android:visibility="gone">
-
-            <ProgressBar
-                android:id="@+id/progressAvaliacao"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:indeterminateTint="#C9A1DD" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:id="@+id/txtStatusAvaliacao"
-                android:text="A IA está avaliando sua resposta..."
-                android:textColor="@android:color/white"
-                android:textSize="14sp" />
-
-        </LinearLayout>
-
-        <!-- Resultado da IA -->
-        <LinearLayout
-            android:id="@+id/containerResultado"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="24dp"
-            android:orientation="vertical"
-            android:visibility="gone">
-
-            <com.google.android.material.card.MaterialCardView
+            <LinearLayout
+                android:id="@+id/containerCarregamento"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:cardBackgroundColor="@color/card_background"
-                app:cardCornerRadius="@dimen/radius_card"
-                app:cardElevation="0dp"
-                app:strokeWidth="0dp">
+                android:layout_marginTop="24dp"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:padding="16dp"
+                android:visibility="gone">
+
+                <ProgressBar
+                    android:id="@+id/progressAvaliacao"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:indeterminateTint="#C9A1DD" />
+
+                <TextView
+                    android:id="@+id/txtStatusAvaliacao"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:text="A IA está avaliando sua resposta..."
+                    android:textColor="@android:color/white"
+                    android:textSize="14sp" />
+
+            </LinearLayout>
+
+        <!-- Resultado da IA -->
+            <LinearLayout
+                android:id="@+id/containerResultado"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:orientation="vertical"
+                android:visibility="gone">
+
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:cardBackgroundColor="@color/card_background"
+                    app:cardCornerRadius="@dimen/radius_card"
+                    app:cardElevation="0dp"
+                    app:strokeWidth="0dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="20dp">
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="Resposta esperada"
+                            android:textColor="@android:color/white"
+                            android:textSize="17sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/txtRespostaEsperada"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="12dp"
+                            android:textColor="@android:color/white"
+                            android:textSize="15sp" />
+
+                        <View
+                            android:layout_width="match_parent"
+                            android:layout_height="1dp"
+                            android:layout_marginTop="20dp"
+                            android:layout_marginBottom="20dp"
+                            android:background="#9B75B1" />
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="Análise da IA"
+                            android:textColor="@android:color/white"
+                            android:textSize="17sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/txtExplicacaoIA"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="12dp"
+                            android:textColor="@android:color/white"
+                            android:textSize="15sp" />
+
+                        <TextView
+                            android:id="@+id/txtSugestaoIA"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="20dp"
+                            android:textColor="#F0D4FF"
+                            android:textSize="16sp"
+                            android:textStyle="bold"
+                            android:visibility="gone" />
+
+                    </LinearLayout>
+
+                </com.google.android.material.card.MaterialCardView>
 
                 <LinearLayout
+                    android:id="@+id/containerAvaliacaoFinal"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    android:padding="20dp">
-
+                    android:visibility="gone">
+                    <!-- Avaliação final do estudante -->
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="Resposta esperada"
+                        android:layout_marginTop="28dp"
+                        android:gravity="center"
+                        android:text="Como você avalia sua resposta?"
                         android:textColor="@android:color/white"
                         android:textSize="17sp"
                         android:textStyle="bold" />
 
                     <TextView
-                        android:id="@+id/txtRespostaEsperada"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="12dp"
-                        android:textColor="@android:color/white"
-                        android:textSize="15sp" />
+                        android:layout_marginTop="8dp"
+                        android:gravity="center"
+                        android:text="Você pode aceitar ou alterar a sugestão da IA."
+                        android:textColor="#C9BED5"
+                        android:textSize="13sp" />
 
-                    <View
-                        android:layout_width="match_parent"
-                        android:layout_height="1dp"
-                        android:layout_marginTop="20dp"
-                        android:layout_marginBottom="20dp"
-                        android:background="#9B75B1" />
-
-                    <TextView
+                    <!-- Mesma ordem, cores e espaçamento do estudo tradicional. -->
+                    <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="Análise da IA"
-                        android:textColor="@android:color/white"
-                        android:textSize="17sp"
-                        android:textStyle="bold" />
+                        android:layout_marginTop="16dp"
+                        android:orientation="horizontal">
 
-                    <TextView
-                        android:id="@+id/txtExplicacaoIA"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="12dp"
-                        android:textColor="@android:color/white"
-                        android:textSize="15sp" />
+                        <com.google.android.material.button.MaterialButton
+                            style="@style/Widget.ClassCards.RatingButton"
+                            android:id="@+id/btnErrei"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="Errei"
+                            app:backgroundTint="#761111" />
 
-                    <TextView
-                        android:id="@+id/txtSugestaoIA"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="20dp"
-                        android:visibility="gone"
-                        android:textColor="#F0D4FF"
-                        android:textSize="16sp"
-                        android:textStyle="bold" />
+                        <com.google.android.material.button.MaterialButton
+                            style="@style/Widget.ClassCards.RatingButton"
+                            android:id="@+id/btnDificil"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="4dp"
+                            android:layout_weight="1"
+                            android:text="Difícil"
+                            app:backgroundTint="#B36402" />
+
+                        <com.google.android.material.button.MaterialButton
+                            style="@style/Widget.ClassCards.RatingButton"
+                            android:id="@+id/btnBom"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="4dp"
+                            android:layout_weight="1"
+                            android:text="Bom"
+                            app:backgroundTint="#1A8E39" />
+
+                        <com.google.android.material.button.MaterialButton
+                            style="@style/Widget.ClassCards.RatingButton"
+                            android:id="@+id/btnFacil"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="4dp"
+                            android:layout_weight="1"
+                            android:text="Fácil"
+                            app:backgroundTint="#0D9E93" />
+
+                    </LinearLayout>
 
                 </LinearLayout>
 
-            </com.google.android.material.card.MaterialCardView>
-
-            <LinearLayout
-                android:id="@+id/containerAvaliacaoFinal"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:visibility="gone">
-            <!-- Avaliação final do estudante -->
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="28dp"
-                android:gravity="center"
-                android:text="Como você avalia sua resposta?"
-                android:textColor="@android:color/white"
-                android:textSize="17sp"
-                android:textStyle="bold" />
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:gravity="center"
-                android:text="Você pode aceitar ou alterar a sugestão da IA."
-                android:textColor="#C9BED5"
-                android:textSize="13sp" />
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:orientation="horizontal">
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnErrei"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginEnd="6dp"
-                    android:layout_weight="1"
-                    android:text="Errei"
-                    android:textAllCaps="false"
-                    android:textColor="@android:color/white"
-                    app:backgroundTint="#8B354B"
-                    app:cornerRadius="12dp" />
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnDificil"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="6dp"
-                    android:layout_weight="1"
-                    android:text="Difícil"
-                    android:textAllCaps="false"
-                    android:textColor="@android:color/white"
-                    app:backgroundTint="#86512E"
-                    app:cornerRadius="12dp" />
-
             </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnBom"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginEnd="6dp"
-                    android:layout_weight="1"
-                    android:text="Bom"
-                    android:textAllCaps="false"
-                    android:textColor="@android:color/white"
-                    app:backgroundTint="#325F8B"
-                    app:cornerRadius="12dp" />
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnFacil"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="6dp"
-                    android:layout_weight="1"
-                    android:text="Fácil"
-                    android:textAllCaps="false"
-                    android:textColor="@android:color/white"
-                    app:backgroundTint="#286C53"
-                    app:cornerRadius="12dp" />
-
-            </LinearLayout>
-
-            </LinearLayout>
-
-        </LinearLayout>
 
         </LinearLayout>
 

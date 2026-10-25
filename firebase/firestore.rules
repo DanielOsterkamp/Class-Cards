@@ -1,0 +1,64 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Regras anteriores preservadas.
+    match /users/{userId} {
+      allow read, create, update: if request.auth != null && request.auth.uid == userId;
+      match /progressoFlashcards/{flashcardId} {
+        allow read, create, update, delete: if request.auth != null && request.auth.uid == userId;
+      }
+    }
+
+    match /users/{uid}/gamificacao/resumo {
+      allow read, create, update: if request.auth != null && request.auth.uid == uid;
+    }
+    match /users/{uid}/revisoesTradicionais/{revisaoId} {
+      allow get, create: if request.auth != null && request.auth.uid == uid;
+    }
+    match /users/{uid}/revisoesDissertativas/{revisaoId} {
+      allow get, create: if request.auth != null && request.auth.uid == uid;
+    }
+
+    match /decks/{deckId} {
+      allow create: if request.auth != null && request.resource.data.ownerId == request.auth.uid;
+      allow read: if request.auth != null;
+      allow update, delete: if request.auth != null && resource.data.ownerId == request.auth.uid;
+      match /cards/{cardId} {
+        allow read, create, update, delete: if request.auth != null;
+      }
+    }
+
+    // A projeção publica apenas o que aparece no ranking; nunca e-mail ou respostas.
+    function rankingPublicoValido(uid) {
+      let d = request.resource.data;
+      let resumo = getAfter(/databases/$(database)/documents/users/$(uid)/gamificacao/resumo).data;
+      let campos = ['uid', 'nome', 'fotoUrl', 'xp', 'ofensiva', 'cardsEstudados',
+                    'ultimoDiaEstudo', 'fusoHorario', 'atualizadoEm'];
+      return d.keys().hasAll(campos)
+        && d.keys().hasOnly(campos)
+        && d.uid == uid
+        && d.nome is string && d.nome.size() > 0 && d.nome.size() <= 120
+        && d.fotoUrl is string && d.fotoUrl.size() <= 4096
+        && (d.fotoUrl == '' || d.fotoUrl.matches('https://.*'))
+        && d.xp is int && d.xp >= 0
+        && d.ofensiva is int && d.ofensiva >= 0
+        && d.cardsEstudados is int && d.cardsEstudados >= 0
+        && d.ultimoDiaEstudo is string
+        && (d.ultimoDiaEstudo == '' || d.ultimoDiaEstudo.matches('[0-9]{4}-[0-9]{2}-[0-9]{2}'))
+        && d.fusoHorario is string && d.fusoHorario.size() > 0 && d.fusoHorario.size() <= 80
+        && d.xp == resumo.get('xp', 0)
+        && d.ofensiva == resumo.get('ofensiva', 0)
+        && d.cardsEstudados == resumo.get('cardsEstudados', 0)
+        && d.ultimoDiaEstudo == resumo.get('ultimoDiaEstudo', '')
+        && d.fusoHorario == resumo.get('fusoHorario', '')
+        && d.atualizadoEm is timestamp && d.atualizadoEm == request.time;
+    }
+
+    match /rankings/{uid} {
+      allow read: if request.auth != null;
+      allow create, update: if request.auth != null && request.auth.uid == uid
+                            && rankingPublicoValido(uid);
+    }
+  }
+}

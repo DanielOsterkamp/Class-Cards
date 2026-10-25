@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="titulo_rankings">Rankings</string>
+    <string name="rankings_descricao">Veja os 5 primeiros e acompanhe sua posição.</string>
+    <string name="rankings_atualizar">Atualizar rankings</string>
+    <string name="rankings_carregando">Buscando os destaques…</string>
+    <string name="rankings_tentar_novamente">Tentar novamente</string>
+    <string name="rankings_erro_generico">Não foi possível carregar os rankings.</string>
+    <string name="rankings_sem_participantes">Ainda não há participantes nesta categoria.</string>
+    <string name="ranking_ofensivas_titulo">Ofensivas</string>
+    <string name="ranking_ofensivas_descricao">Quem mantém o ritmo de estudo</string>
+    <string name="ranking_pontos_titulo">Pontos</string>
+    <string name="ranking_pontos_descricao">Cada revisão soma uma conquista</string>
+    <string name="ranking_cards_titulo">Cards estudados</string>
+    <string name="ranking_cards_descricao">Mais conhecimento em cada card</string>
+    <string name="ranking_unidade_dias">dias</string>
+    <string name="ranking_unidade_xp">XP</string>
+    <string name="ranking_unidade_cards">cards</string>
+    <string name="ranking_voce">Você</string>
+    <string name="ranking_sua_posicao">Sua posição</string>
+    <string name="ranking_posicao">%1$dº</string>
+    <string name="ranking_nome_indisponivel">Estudante</string>
+</resources>

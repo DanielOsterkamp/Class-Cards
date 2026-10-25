@@ -75,6 +75,15 @@ public class MainActivity extends AppCompatActivity {
                 return true;
             }
 
+            if (item.getItemId() == R.id.menuRankings) {
+                if (navController.getCurrentDestination() == null
+                        || navController.getCurrentDestination().getId() != R.id.rankingsFragment) {
+                    navController.navigate(R.id.rankingsFragment);
+                }
+                drawerLayout.closeDrawer(GravityCompat.START);
+                return true;
+            }
+
             if (item.getItemId() == R.id.menuSair) {
 
                 authRepository.logout();

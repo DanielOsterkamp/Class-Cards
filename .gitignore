@@ -13,3 +13,14 @@
 .externalNativeBuild
 .cxx
 local.properties
+
+/firebase/rankings/node_modules/
+/firebase-debug.log
+/firestore-debug.log
+/ui-debug.log
+/.firebase/
+
+/firebase/rankings/firebase-debug.log
+/firebase/rankings/firestore-debug.log
+/firebase/rankings/ui-debug.log
+/firebase/rankings/.firebase/

@@ -171,4 +171,9 @@
 
     </fragment>
 
+    <fragment
+        android:id="@+id/rankingsFragment"
+        android:name="com.example.classcardsaplicao.ui.rankings.RankingsFragment"
+        android:label="@string/titulo_rankings" />
+
 </navigation>

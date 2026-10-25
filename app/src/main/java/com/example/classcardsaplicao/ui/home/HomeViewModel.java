@@ -6,6 +6,7 @@ import androidx.lifecycle.ViewModel;
 
 import com.example.classcardsaplicao.data.AuthRepository;
 import com.example.classcardsaplicao.data.DeckRepository;
+import com.example.classcardsaplicao.data.RankingRepository;
 import com.example.classcardsaplicao.model.Deck;
 import com.google.firebase.auth.FirebaseUser;
 
@@ -40,6 +41,8 @@ public class HomeViewModel extends ViewModel {
             erro.setValue("Usuário não autenticado.");
             return;
         }
+
+        RankingRepository.atualizarEmSegundoPlano();
 
         deckRepository.buscarDecksDoUsuario(
                 usuario.getUid(),

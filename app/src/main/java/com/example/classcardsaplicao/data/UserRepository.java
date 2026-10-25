@@ -22,12 +22,11 @@ public class UserRepository {
 
         firestore.collection("users")
                 .document(uid)
-                .set(usuario);
-
-        firestore.collection("users")
-                .document(uid)
                 .set(usuario)
-                .addOnSuccessListener(unused -> callback.onSuccess())
+                .addOnSuccessListener(unused -> {
+                    RankingRepository.atualizarEmSegundoPlano();
+                    callback.onSuccess();
+                })
                 .addOnFailureListener(callback::onError);
     }
 

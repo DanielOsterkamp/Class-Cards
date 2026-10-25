@@ -91,35 +91,43 @@
         app:layout_constraintStart_toStartOf="parent">
 
         <com.google.android.material.button.MaterialButton
+            style="@style/Widget.ClassCards.RatingButton"
             android:id="@+id/btnErrei"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="Errei" />
+            android:text="Errei"
+            app:backgroundTint="#761111" />
 
         <com.google.android.material.button.MaterialButton
+            style="@style/Widget.ClassCards.RatingButton"
             android:id="@+id/btnDificil"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="4dp"
             android:layout_weight="1"
-            android:text="Difícil" />
+            android:text="Difícil"
+            app:backgroundTint="#B36402" />
 
         <com.google.android.material.button.MaterialButton
+            style="@style/Widget.ClassCards.RatingButton"
             android:id="@+id/btnBom"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="4dp"
             android:layout_weight="1"
-            android:text="Bom" />
+            android:text="Bom"
+            app:backgroundTint="#1A8E39" />
 
         <com.google.android.material.button.MaterialButton
+            style="@style/Widget.ClassCards.RatingButton"
             android:id="@+id/btnFacil"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="4dp"
             android:layout_weight="1"
-            android:text="Fácil" />
+            android:text="Fácil"
+            app:backgroundTint="#0D9E93" />
 
     </LinearLayout>
 
