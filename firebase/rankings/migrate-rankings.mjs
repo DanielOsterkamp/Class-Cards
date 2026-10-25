@@ -1,12 +1,3 @@
-#!/usr/bin/env node
-
-/**
- * Migração administrativa dos usuários legados para rankings/{uid}.
- *
- * Sem --apply, faz somente leituras e mostra totais agregados.
- * As credenciais são obtidas por Application Default Credentials (ADC),
- * nunca pelo google-services.json e nunca por uma chave embutida no código.
- */
 
 const MAX_ATTEMPTS = 3;
 const PAGE_SIZE = 200;
