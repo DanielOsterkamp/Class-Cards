@@ -24,6 +24,22 @@ import java.util.TimeZone;
 
 public class RankingRepository {
     private final FirebaseFirestore firestore = FirebaseFirestore.getInstance();
+
+    /** Lê apenas a projeção pública do usuário escolhido, sem acessar seu documento privado. */
+    public Task<UsuarioRanking> buscarUsuario(String uid) {
+        if (uid == null || uid.trim().isEmpty() || uid.contains("/")) {
+            return Tasks.forException(new IllegalArgumentException("Usuário inválido."));
+        }
+        return firestore.collection("rankings").document(uid).get().continueWith(task -> {
+            if (!task.isSuccessful()) throw Objects.requireNonNull(task.getException());
+            DocumentSnapshot doc = task.getResult();
+            if (!doc.exists()) throw new IllegalStateException("Perfil público não encontrado.");
+            return new UsuarioRanking(doc.getId(), texto(doc, "nome"), fotoValida(texto(doc, "fotoUrl")),
+                    numero(doc, "xp"), numero(doc, "ofensiva"), numero(doc, "cardsEstudados"),
+                    texto(doc, "ultimoDiaEstudo"), texto(doc, "fusoHorario"));
+        });
+    }
+
     public Task<List<UsuarioRanking>> buscarParticipantes() {
 
         return firestore.collection("rankings").get(Source.SERVER).continueWith(task -> {

@@ -13,8 +13,18 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.classcardsaplicao.R;
 import com.example.classcardsaplicao.model.ResultadoDeckPesquisa;
 
-/** Exibe os decks encontrados; a abertura do resultado será adicionada em outra etapa. */
+/** Exibe os decks encontrados e informa ao Fragment qual resultado foi selecionado. */
 public class PesquisaDeckAdapter extends ListAdapter<ResultadoDeckPesquisa, PesquisaDeckAdapter.DeckHolder> {
+
+    private OnDeckClickListener onDeckClickListener;
+
+    public interface OnDeckClickListener {
+        void onDeckClick(ResultadoDeckPesquisa deck);
+    }
+
+    public void setOnDeckClickListener(OnDeckClickListener listener) {
+        onDeckClickListener = listener;
+    }
 
     public PesquisaDeckAdapter() {
         super(new DiffUtil.ItemCallback<ResultadoDeckPesquisa>() {
@@ -50,7 +60,16 @@ public class PesquisaDeckAdapter extends ListAdapter<ResultadoDeckPesquisa, Pesq
             margens.setMarginEnd(espaco);
         }
         view.setLayoutParams(parametros);
-        return new DeckHolder(view);
+        DeckHolder holder = new DeckHolder(view);
+        view.setFocusable(true);
+        view.setOnClickListener(v -> {
+            // Consulta a posição atual: a lista pode ter mudado desde que o item foi desenhado.
+            int posicao = holder.getBindingAdapterPosition();
+            if (posicao != RecyclerView.NO_POSITION && onDeckClickListener != null) {
+                onDeckClickListener.onDeckClick(getItem(posicao));
+            }
+        });
+        return holder;
     }
 
     @Override

@@ -70,42 +70,28 @@
             android:textSize="16sp" />
     </com.google.android.material.textfield.TextInputLayout>
 
-    <TextView
-        android:id="@+id/txtAjudaPesquisa"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="@dimen/header_inset"
-        android:layout_marginEnd="@dimen/header_inset"
-        android:layout_marginTop="8dp"
-        android:text="@string/pesquisa_ajuda"
-        android:textColor="@color/text_secondary"
-        android:textSize="12sp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/layoutCampoPesquisa" />
-
     <com.google.android.material.button.MaterialButtonToggleGroup
         android:id="@+id/togglePesquisa"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/header_inset"
-        android:layout_marginEnd="@dimen/header_inset"
         android:layout_marginTop="20dp"
+        android:layout_marginEnd="@dimen/header_inset"
         app:checkedButton="@id/btnPesquisaFlashcards"
-        app:selectionRequired="true"
-        app:singleSelection="true"
-        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/txtAjudaPesquisa">
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/layoutCampoPesquisa"
+        app:selectionRequired="true"
+        app:singleSelection="true">
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnPesquisaFlashcards"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:minHeight="48dp"
             android:insetTop="0dp"
             android:insetBottom="0dp"
+            android:minHeight="48dp"
             android:paddingStart="8dp"
             android:paddingEnd="8dp"
             android:text="@string/pesquisa_flashcards"
@@ -123,9 +109,9 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:minHeight="48dp"
             android:insetTop="0dp"
             android:insetBottom="0dp"
+            android:minHeight="48dp"
             android:paddingStart="8dp"
             android:paddingEnd="8dp"
             android:text="@string/pesquisa_usuarios"
@@ -139,30 +125,15 @@
             app:strokeWidth="1dp" />
     </com.google.android.material.button.MaterialButtonToggleGroup>
 
-    <TextView
-        android:id="@+id/txtQuantidadePesquisa"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="@dimen/header_inset"
-        android:layout_marginEnd="@dimen/header_inset"
-        android:layout_marginTop="18dp"
-        android:accessibilityLiveRegion="polite"
-        android:text="@string/pesquisa_resultados_decks"
-        android:textColor="@color/text_secondary"
-        android:textSize="13sp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/togglePesquisa" />
-
     <FrameLayout
         android:id="@+id/containerResultadosPesquisa"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_marginTop="8dp"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/containerRodapePesquisa"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/txtQuantidadePesquisa"
-        app:layout_constraintBottom_toTopOf="@id/containerRodapePesquisa">
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/togglePesquisa">
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recyclerPesquisa"
@@ -202,16 +173,6 @@
                 android:textColor="@color/text_primary"
                 android:textSize="18sp"
                 android:textStyle="bold" />
-
-            <TextView
-                android:id="@+id/txtDescricaoEstadoPesquisa"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:gravity="center"
-                android:text="@string/pesquisa_comecar_descricao"
-                android:textColor="@color/text_secondary"
-                android:textSize="14sp" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnTentarPesquisa"

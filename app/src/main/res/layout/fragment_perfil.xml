@@ -223,12 +223,57 @@
             android:layout_marginTop="@dimen/spacing_xl"
             android:layout_marginEnd="@dimen/screen_horizontal_margin"
             android:fontFamily="sans-serif-medium"
-            android:text="Decks criados por você"
+            android:text="@string/perfil_decks_proprios"
             android:textColor="@color/text_primary"
             android:textSize="@dimen/text_section_title"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/layoutGamificacao" />
+
+        <LinearLayout
+            android:id="@+id/layoutEstadoPerfil"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/spacing_md"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:paddingStart="@dimen/screen_horizontal_margin"
+            android:paddingEnd="@dimen/screen_horizontal_margin"
+            android:visibility="gone"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/txtTituloDecks">
+
+            <ProgressBar
+                android:id="@+id/progressPerfil"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:contentDescription="@string/perfil_carregando"
+                android:indeterminateTint="@color/ranking_accent"
+                android:visibility="gone" />
+
+            <TextView
+                android:id="@+id/txtEstadoPerfil"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:accessibilityLiveRegion="polite"
+                android:gravity="center"
+                android:textColor="@color/text_secondary"
+                android:textSize="14sp"
+                android:visibility="gone" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnTentarPerfil"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/spacing_sm"
+                android:text="@string/pesquisa_tentar_novamente"
+                android:textAllCaps="false"
+                android:textColor="@color/text_primary"
+                android:visibility="gone"
+                app:backgroundTint="@color/card_background"
+                app:cornerRadius="14dp" />
+        </LinearLayout>
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recyclerDecksUsuario"
@@ -241,7 +286,7 @@
             android:paddingEnd="@dimen/screen_horizontal_margin"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/txtTituloDecks" />
+            app:layout_constraintTop_toBottomOf="@id/layoutEstadoPerfil" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

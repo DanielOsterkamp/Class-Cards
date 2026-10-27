@@ -149,8 +149,6 @@ public class PesquisaNavegacaoInstrumentedTest {
             view.findViewById(R.id.containerCarregandoPesquisa).setVisibility(View.GONE);
             view.findViewById(R.id.containerRodapePesquisa).setVisibility(View.GONE);
             recycler.setVisibility(View.VISIBLE);
-            ((TextView) view.findViewById(R.id.txtQuantidadePesquisa)).setText(usuarios
-                    ? "8 usuários carregados" : "6 decks carregados");
         });
         aguardar();
         scenario.onActivity(activity -> {

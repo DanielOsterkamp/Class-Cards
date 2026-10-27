@@ -34,7 +34,15 @@ public class DeckRepository {
                 .get()
                 .addOnSuccessListener(querySnapshot -> {
 
-                    List<Deck> decks = querySnapshot.toObjects(Deck.class);
+                    List<Deck> decks = new ArrayList<>();
+                    for (DocumentSnapshot documento : querySnapshot.getDocuments()) {
+                        Deck deck = documento.toObject(Deck.class);
+                        if (deck != null) {
+                            // O ID do documento também funciona para decks antigos sem o campo id.
+                            deck.setId(documento.getId());
+                            decks.add(deck);
+                        }
+                    }
 
                     callback.onSuccess(decks);
                     indexarDecksAntigos(userId, querySnapshot.getDocuments());

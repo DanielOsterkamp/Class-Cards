@@ -123,13 +123,13 @@
                 app:boxCornerRadiusTopEnd="16dp"
                 app:boxCornerRadiusTopStart="16dp"
                 app:boxStrokeColor="@color/border"
-                app:hintTextColor="@color/button_border">
+                app:hintEnabled="false">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/editResposta"
                     android:layout_width="match_parent"
-                    android:layout_height="167dp"
-                    android:background="@drawable/button_preto_background"
+                    android:layout_height="wrap_content"
+                    android:minHeight="167dp"
                     android:gravity="top|start"
                     android:hint="Digite sua resposta aqui..."
                     android:inputType="textMultiLine|textCapSentences"

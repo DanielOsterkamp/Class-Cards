@@ -71,7 +71,7 @@ public class PesquisaLayoutInstrumentedTest {
                     assertTrue(caso, terceiro.getRight() <= recycler.getWidth());
                     assertTrue(caso, quarta.getTop() >= primeiro.getBottom());
                     for (View item : new View[]{primeiro, segundo, terceiro}) {
-                        assertFalse("Resultado ainda não deve navegar", item.isClickable());
+                        assertTrue("O deck deve permitir seleção", item.isClickable());
                         TextView titulo = item.findViewById(R.id.txtTituloDeck);
                         TextView quantidade = item.findViewById(R.id.txtQuantidadeCards);
                         assertTrue(caso, titulo.getWidth() > 0);
@@ -103,7 +103,6 @@ public class PesquisaLayoutInstrumentedTest {
                     adapter.submitList(usuarios());
                     recycler.setLayoutManager(manager);
                     recycler.setAdapter(adapter);
-                    ((TextView) tela.findViewById(R.id.txtQuantidadePesquisa)).setText("9 usuários carregados");
                     medir(tela, largura, 800);
 
                     View primeiro = manager.findViewByPosition(0);
@@ -118,7 +117,7 @@ public class PesquisaLayoutInstrumentedTest {
                     assertEquals(foto.getWidth(), foto.getHeight());
                     assertTrue(limites(primeiro, foto).right <= limites(primeiro, nome).left);
                     assertTrue(limites(primeiro, nome).right <= primeiro.getWidth());
-                    assertFalse("Resultado ainda não deve navegar", primeiro.isClickable());
+                    assertTrue("O usuário deve permitir seleção", primeiro.isClickable());
                     if (largura == 360 && escala == 1f) salvar(tela, "pesquisa-usuarios-preview.png");
                     recycler.setAdapter(null);
                 }
@@ -164,7 +163,6 @@ public class PesquisaLayoutInstrumentedTest {
         // A captura é estática e não possui a janela de uma Activity para concluir a animação do hint.
         ((TextInputLayout) tela.findViewById(R.id.layoutCampoPesquisa)).setHintAnimationEnabled(false);
         ((TextView) tela.findViewById(R.id.campoPesquisa)).setText("História");
-        ((TextView) tela.findViewById(R.id.txtQuantidadePesquisa)).setText("12 decks carregados");
         tela.findViewById(R.id.containerEstadoPesquisa).setVisibility(View.GONE);
         RecyclerView recycler = tela.findViewById(R.id.recyclerPesquisa);
         recycler.setVisibility(View.VISIBLE);

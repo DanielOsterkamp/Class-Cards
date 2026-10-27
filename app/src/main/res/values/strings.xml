@@ -3,4 +3,8 @@
     <string name="gerando_flashcards_ia">A IA está criando seus flashcards...</string>
     <string name="voltar">Voltar</string>
     <string name="titulo_perfil">Perfil</string>
+    <string name="perfil_decks_proprios">Decks criados por você</string>
+    <string name="perfil_decks_usuario">Decks deste usuário</string>
+    <string name="perfil_sem_decks">Nenhum deck criado.</string>
+    <string name="perfil_carregando">Carregando perfil</string>
 </resources>

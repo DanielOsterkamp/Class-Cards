@@ -133,7 +133,13 @@
     <fragment
         android:id="@+id/perfilFragment"
         android:name="com.example.classcardsaplicao.ui.profile.PerfilFragment"
-        android:label="Perfil" />
+        android:label="Perfil">
+        <argument
+            android:name="uid"
+            app:argType="string"
+            app:nullable="true"
+            android:defaultValue="@null" />
+    </fragment>
 
 
     <fragment
@@ -188,6 +194,22 @@
         android:id="@+id/pesquisaFragment"
         android:name="com.example.classcardsaplicao.ui.pesquisa.PesquisaFragment"
         android:label="@string/pesquisa_titulo">
+
+        <action
+            android:id="@+id/action_pesquisaFragment_to_deckSelecionadoFragment"
+            app:destination="@id/deckSelecionadoFragment"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right" />
+
+        <action
+            android:id="@+id/action_pesquisaFragment_to_perfilFragment"
+            app:destination="@id/perfilFragment"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right" />
 
         <argument
             android:name="termo"

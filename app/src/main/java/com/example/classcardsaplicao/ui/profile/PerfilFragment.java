@@ -4,7 +4,6 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -18,6 +17,7 @@ import com.bumptech.glide.Glide;
 import com.example.classcardsaplicao.R;
 import com.example.classcardsaplicao.ui.deck.create.DeckAdapter;
 import com.google.android.material.imageview.ShapeableImageView;
+import com.google.firebase.auth.FirebaseAuth;
 
 public class PerfilFragment extends Fragment {
 
@@ -59,12 +59,26 @@ public class PerfilFragment extends Fragment {
         PerfilViewModel viewModel =
                 new ViewModelProvider(this).get(PerfilViewModel.class);
 
+        String uid = getArguments() == null ? null : getArguments().getString("uid");
+        boolean outroUsuario = uid != null && !uid.isEmpty()
+                && !uid.equals(FirebaseAuth.getInstance().getUid());
+        ((TextView) view.findViewById(R.id.txtTituloDecks)).setText(outroUsuario
+                ? R.string.perfil_decks_usuario : R.string.perfil_decks_proprios);
+        view.findViewById(R.id.btnTentarPerfil).setOnClickListener(v -> viewModel.carregarPerfil(uid));
+
         viewModel.getDecks().observe(
                 getViewLifecycleOwner(),
-                decks -> deckAdapter.atualizarDecks(decks)
+                decks -> {
+                    deckAdapter.atualizarDecks(decks);
+                    apresentarEstado(view, viewModel);
+                }
         );
 
         deckAdapter.setOnDeckClickListener(deck -> {
+
+            if (NavHostFragment.findNavController(this).getCurrentDestination() == null
+                    || NavHostFragment.findNavController(this).getCurrentDestination().getId()
+                    != R.id.perfilFragment) return;
 
             Bundle bundle = new Bundle();
             bundle.putString("deckId", deck.getId());
@@ -77,21 +91,21 @@ public class PerfilFragment extends Fragment {
         });
 
         viewModel.getFotoUrl().observe(getViewLifecycleOwner(), fotoUrl -> {
-
-            if (fotoUrl != null && !fotoUrl.isEmpty()) {
-                Glide.with(this)
-                        .load(fotoUrl)
-                        .into(imgPerfil);
-            }
+            Glide.with(this)
+                    .load(fotoUrl == null || fotoUrl.isEmpty() ? null : fotoUrl)
+                    .placeholder(R.drawable.ranking_avatar_placeholder)
+                    .error(R.drawable.ranking_avatar_placeholder)
+                    .fallback(R.drawable.ranking_avatar_placeholder)
+                    .circleCrop()
+                    .into(imgPerfil);
         });
 
         viewModel.getNome().observe(getViewLifecycleOwner(), nome -> {
             txtNomeUsuario.setText(nome);
         });
 
-        viewModel.getErro().observe(getViewLifecycleOwner(), erro -> {
-            Toast.makeText(requireContext(), erro, Toast.LENGTH_SHORT).show();
-        });
+        viewModel.getErro().observe(getViewLifecycleOwner(), erro -> apresentarEstado(view, viewModel));
+        viewModel.getCarregando().observe(getViewLifecycleOwner(), carregando -> apresentarEstado(view, viewModel));
 
         java.text.NumberFormat numeros = java.text.NumberFormat.getIntegerInstance(
                 java.util.Locale.forLanguageTag("pt-BR"));
@@ -108,9 +122,28 @@ public class PerfilFragment extends Fragment {
         viewModel.getXp().observe(getViewLifecycleOwner(), valor ->
                 txtXp.setText(valor == null ? "—" : numeros.format(valor)));
     }
+
+    private void apresentarEstado(View view, PerfilViewModel viewModel) {
+        boolean carregando = Boolean.TRUE.equals(viewModel.getCarregando().getValue());
+        String erro = viewModel.getErro().getValue();
+        boolean temErro = erro != null && !erro.isEmpty();
+        boolean vazio = viewModel.getDecks().getValue() != null
+                && viewModel.getDecks().getValue().isEmpty();
+        view.findViewById(R.id.layoutEstadoPerfil).setVisibility(
+                carregando || temErro || vazio ? View.VISIBLE : View.GONE);
+        view.findViewById(R.id.progressPerfil).setVisibility(carregando ? View.VISIBLE : View.GONE);
+        TextView mensagem = view.findViewById(R.id.txtEstadoPerfil);
+        mensagem.setVisibility(!carregando && (temErro || vazio) ? View.VISIBLE : View.GONE);
+        if (temErro) mensagem.setText(erro);
+        else mensagem.setText(R.string.perfil_sem_decks);
+        view.findViewById(R.id.btnTentarPerfil).setVisibility(
+                temErro && !carregando ? View.VISIBLE : View.GONE);
+    }
+
     @Override public void onResume() {
         super.onResume();
         // Recalcula a ofensiva ao voltar ao perfil, inclusive após a mudança do dia.
-        new ViewModelProvider(this).get(PerfilViewModel.class).carregarPerfil();
+        String uid = getArguments() == null ? null : getArguments().getString("uid");
+        new ViewModelProvider(this).get(PerfilViewModel.class).carregarPerfil(uid);
     }
 }

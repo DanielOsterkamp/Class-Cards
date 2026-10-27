@@ -19,6 +19,16 @@ import com.example.classcardsaplicao.model.ResultadoUsuarioPesquisa;
 /** Utiliza somente os dados públicos do participante: UID, nome e foto. */
 public class PesquisaUsuarioAdapter extends ListAdapter<ResultadoUsuarioPesquisa, PesquisaUsuarioAdapter.UsuarioHolder> {
 
+    private OnUsuarioClickListener onUsuarioClickListener;
+
+    public interface OnUsuarioClickListener {
+        void onUsuarioClick(ResultadoUsuarioPesquisa usuario);
+    }
+
+    public void setOnUsuarioClickListener(OnUsuarioClickListener listener) {
+        onUsuarioClickListener = listener;
+    }
+
     public PesquisaUsuarioAdapter() {
         super(new DiffUtil.ItemCallback<ResultadoUsuarioPesquisa>() {
             @Override
@@ -39,8 +49,17 @@ public class PesquisaUsuarioAdapter extends ListAdapter<ResultadoUsuarioPesquisa
     @NonNull
     @Override
     public UsuarioHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        return new UsuarioHolder(LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.item_pesquisa_usuario, parent, false));
+        View view = LayoutInflater.from(parent.getContext())
+                .inflate(R.layout.item_pesquisa_usuario, parent, false);
+        UsuarioHolder holder = new UsuarioHolder(view);
+        view.setFocusable(true);
+        view.setOnClickListener(v -> {
+            int posicao = holder.getBindingAdapterPosition();
+            if (posicao != RecyclerView.NO_POSITION && onUsuarioClickListener != null) {
+                onUsuarioClickListener.onUsuarioClick(getItem(posicao));
+            }
+        });
+        return holder;
     }
 
     @Override

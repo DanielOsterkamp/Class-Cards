@@ -44,6 +44,9 @@ public class DeckSelecionadoFragment extends Fragment {
         TextView txtQuantidadeCards = view.findViewById(R.id.txtQuantidadeCards);
 
         MaterialButton btnEditarDeck = view.findViewById(R.id.btnDissertativo);
+        // Só libera ações após carregar o deck e confirmar se ele pertence à conta conectada.
+        btnEditarDeck.setVisibility(View.GONE);
+        btnEstudar.setEnabled(false);
 
         DeckSelecionadoViewModel viewModel = new ViewModelProvider(this).get(DeckSelecionadoViewModel.class);
 
@@ -57,6 +60,7 @@ public class DeckSelecionadoFragment extends Fragment {
 
                     txtNomeDeck.setText(deck.getTitulo());
                     txtMateriaDeck.setText(deck.getMateria());
+                    btnEstudar.setEnabled(true);
 
                     int quantidade = deck.getQuantidadeCards();
 
