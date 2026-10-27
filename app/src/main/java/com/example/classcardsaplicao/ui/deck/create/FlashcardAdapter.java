@@ -19,6 +19,13 @@ public class FlashcardAdapter
         extends RecyclerView.Adapter<FlashcardAdapter.FlashcardViewHolder> {
 
     private final List<Flashcard> flashcards = new ArrayList<>();
+    private boolean edicaoHabilitada = true;
+
+    public void setEdicaoHabilitada(boolean habilitada) {
+        if (edicaoHabilitada == habilitada) return;
+        edicaoHabilitada = habilitada;
+        notifyItemRangeChanged(0, getItemCount());
+    }
 
     private OnEditarFlashcardListener onEditarFlashcardListener;
 
@@ -40,17 +47,19 @@ public class FlashcardAdapter
             int position
     ) {
         Flashcard flashcard = flashcards.get(position);
-        MaterialButton btnEditarFlashcard;
+        holder.btnEditarFlashcard.setEnabled(edicaoHabilitada);
+        holder.btnExcluir.setEnabled(edicaoHabilitada);
 
         holder.btnEditarFlashcard.setOnClickListener(v -> {
 
 
-            if (position != RecyclerView.NO_POSITION
+            int atual = holder.getBindingAdapterPosition();
+            if (edicaoHabilitada && atual != RecyclerView.NO_POSITION
                     && onEditarFlashcardListener != null) {
 
                 onEditarFlashcardListener.onEditar(
-                        position,
-                        flashcards.get(position)
+                        atual,
+                        flashcards.get(atual)
                 );
             }
         });
@@ -60,10 +69,11 @@ public class FlashcardAdapter
 
         holder.btnExcluir.setOnClickListener(v -> {
 
-            if (position != RecyclerView.NO_POSITION
+            int atual = holder.getBindingAdapterPosition();
+            if (edicaoHabilitada && atual != RecyclerView.NO_POSITION
                     && onExcluirFlashcardListener != null) {
 
-                onExcluirFlashcardListener.onExcluir(position);
+                onExcluirFlashcardListener.onExcluir(atual);
             }
         });
     }

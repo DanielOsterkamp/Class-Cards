@@ -8,6 +8,7 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.WriteBatch;
+import com.google.firebase.firestore.Source;
 import com.google.firebase.auth.FirebaseAuth;
 
 import java.util.ArrayList;
@@ -220,6 +221,58 @@ public class DeckRepository {
 
         void onSuccess();
 
+        void onError(Exception exception);
+    }
+
+    public void excluirDeck(String deckId, String uid, ExcluirDeckCallback callback) {
+
+        DocumentReference referencia = firestore.collection("decks").document(deckId);
+
+        firestore.runTransaction(transaction -> {
+            DocumentSnapshot deck = transaction.get(referencia);
+
+            transaction.update(referencia, "excluindo", true);
+            return null;
+        }).addOnSuccessListener(ignorado -> excluirProximoLote(referencia, uid, callback))
+                .addOnFailureListener(callback::onError);
+    }
+    // o deck é excluido por meio de lotes do firebase, o deck só é exlcluido de fato, quando excluimos todos os cards primeiro
+    private void excluirProximoLote(DocumentReference referencia, String uid, ExcluirDeckCallback callback) {
+
+        referencia.get(Source.SERVER).addOnSuccessListener(deck -> {
+
+            referencia.collection("cards").limit(400).get(Source.SERVER).addOnSuccessListener(cards -> {
+
+                if (!uid.equals(FirebaseAuth.getInstance().getUid())) {
+                    callback.onError(new IllegalStateException("A conta mudou. Tente novamente."));
+                    return;
+                }
+
+                WriteBatch lote = firestore.batch();
+
+                for (DocumentSnapshot card : cards.getDocuments())
+                    lote.delete(card.getReference());
+
+                boolean ultimoLote = cards.size() < 400;
+
+
+                if (ultimoLote)
+                    lote.delete(referencia);
+
+                lote.commit().addOnSuccessListener(ignorado -> {
+
+                    if (ultimoLote)
+                        callback.onSuccess();
+                    else
+                        excluirProximoLote(referencia, uid, callback);
+
+                }).addOnFailureListener(callback::onError);
+            }).addOnFailureListener(callback::onError);
+        }).addOnFailureListener(callback::onError);
+    }
+
+    public interface ExcluirDeckCallback {
+        void onSuccess();
         void onError(Exception exception);
     }
 

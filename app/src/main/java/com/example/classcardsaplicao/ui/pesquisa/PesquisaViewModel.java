@@ -21,6 +21,8 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.HashSet;
 import java.util.Objects;
 import java.util.function.LongSupplier;
 import java.util.function.Supplier;
@@ -76,6 +78,7 @@ public class PesquisaViewModel extends ViewModel {
     private Runnable pendente;
     private int versao;
     private boolean encerrado;
+    private final Set<String> decksExcluidos = new HashSet<>();
     private FirebaseAuth auth;
     private FirebaseAuth.AuthStateListener listenerAuth;
 
@@ -110,6 +113,15 @@ public class PesquisaViewModel extends ViewModel {
     public LiveData<List<ResultadoUsuarioPesquisa>> getUsuarios() { return usuarios; }
     public LiveData<EstadoTela> getEstado() { return estado; }
     public String getTermo() { return termo; }
+
+    /** Remove um deck excluído sem perder o termo, a aba ou os resultados de usuários. */
+    public void removerDeckExcluido(String id) {
+        if (id == null || id.isEmpty() || encerrado) return;
+        decksExcluidos.add(id);
+        for (Cache item : cache.values()) item.consulta.decks.itens.removeIf(deck -> id.equals(deck.getId()));
+        if (consulta != null) consulta.decks.itens.removeIf(deck -> id.equals(deck.getId()));
+        publicar();
+    }
 
     public void selecionarAba(Aba novaAba) {
         if (novaAba == null || encerrado) return;
@@ -274,7 +286,10 @@ public class PesquisaViewModel extends ViewModel {
                     }
                     Map<String, T> unicos = new LinkedHashMap<>();
                     if (mais) for (T item : pagina.itens) unicos.put(id(item), item);
-                    for (T item : itens) unicos.put(id(item), item);
+                    for (T item : itens) {
+                        if (item instanceof ResultadoDeckPesquisa && decksExcluidos.contains(id(item))) continue;
+                        unicos.put(id(item), item);
+                    }
                     pagina.itens = new ArrayList<>(unicos.values());
                     pagina.cursor = cursor;
                     pagina.temMais = temMais;
@@ -318,6 +333,7 @@ public class PesquisaViewModel extends ViewModel {
         String uid = usuarioAtual.get();
         if (Objects.equals(uid, uidAtual)) return;
         uidAtual = uid;
+        decksExcluidos.clear();
         versao++;
         cancelarPendente();
         cache.clear();

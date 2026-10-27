@@ -63,6 +63,15 @@ public class PesquisaFragment extends Fragment {
         toggle = view.findViewById(R.id.togglePesquisa);
         recycler.setItemAnimator(null);
 
+        androidx.navigation.NavBackStackEntry entrada = NavHostFragment.findNavController(this).getCurrentBackStackEntry();
+        if (entrada != null) {
+            entrada.getSavedStateHandle().<String>getLiveData("deckExcluidoId").observe(getViewLifecycleOwner(), id -> {
+                if (id == null) return;
+                viewModel.removerDeckExcluido(id);
+                entrada.getSavedStateHandle().remove("deckExcluidoId");
+            });
+        }
+
         // Envia somente o ID do resultado; a tela de destino carrega os dados correspondentes.
         decksAdapter.setOnDeckClickListener(deck -> {
             Bundle argumentos = new Bundle();

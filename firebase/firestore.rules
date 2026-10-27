@@ -25,7 +25,13 @@ service cloud.firestore {
       allow read: if request.auth != null;
       allow update, delete: if request.auth != null && resource.data.ownerId == request.auth.uid;
       match /cards/{cardId} {
-        allow read, create, update, delete: if request.auth != null;
+        allow read: if request.auth != null;
+        // getAfter também funciona na criação do deck e dos cards no mesmo lote.
+        allow create, update: if request.auth != null
+                              && getAfter(/databases/$(database)/documents/decks/$(deckId)).data.ownerId == request.auth.uid
+                              && !getAfter(/databases/$(database)/documents/decks/$(deckId)).data.get('excluindo', false);
+        allow delete: if request.auth != null
+                      && get(/databases/$(database)/documents/decks/$(deckId)).data.ownerId == request.auth.uid;
       }
     }
 

@@ -1,0 +1,218 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="@dimen/spacing_md">
+
+    <ProgressBar
+        android:id="@+id/progressCarregarDeck"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_gravity="center_horizontal"
+        android:contentDescription="@string/deck_carregando"
+        android:indeterminateTint="@color/ranking_accent"
+        android:visibility="gone" />
+
+    <TextView
+        android:id="@+id/txtErroCarregarDeck"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:accessibilityLiveRegion="polite"
+        android:textColor="@color/text_secondary"
+        android:visibility="gone" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnTentarCarregarDeck"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/pesquisa_tentar_novamente"
+        android:textColor="@color/text_primary"
+        android:visibility="gone"
+        app:backgroundTint="@color/card_background" />
+
+    <EditText
+        android:id="@+id/inputNomeDeck"
+        style="@style/Widget.ClassCards.DeckInput"
+        android:hint="@string/deck_nome"
+        android:singleLine="true"
+        android:inputType="textCapSentences"
+        android:maxLines="1" />
+
+    <EditText
+        android:id="@+id/inputMateriaDeck"
+        style="@style/Widget.ClassCards.DeckInput"
+        android:layout_marginTop="@dimen/spacing_md"
+        android:hint="@string/deck_materia"
+        android:singleLine="true"
+        android:inputType="textCapSentences"
+        android:maxLines="1" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/spacing_lg"
+        android:gravity="center"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/txtManual"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/deck_manual"
+            android:textColor="@color/text_primary"
+            android:textSize="@dimen/text_body" />
+
+        <com.google.android.material.switchmaterial.SwitchMaterial
+            android:id="@+id/switchModoCriacao"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/spacing_md"
+            android:layout_marginEnd="@dimen/spacing_md"
+            android:contentDescription="@string/deck_alterar_modo" />
+
+        <TextView
+            android:id="@+id/txtAutomatico"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/deck_automatico"
+            android:textColor="@color/text_secondary"
+            android:textSize="@dimen/text_body" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/containerManual"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <EditText
+            android:id="@+id/inputPergunta"
+            style="@style/Widget.ClassCards.DeckMultilineInput"
+            android:layout_marginTop="@dimen/spacing_md"
+            android:hint="@string/deck_pergunta" />
+
+        <EditText
+            android:id="@+id/inputResposta"
+            style="@style/Widget.ClassCards.DeckMultilineInput"
+            android:layout_marginTop="@dimen/spacing_md"
+            android:hint="@string/deck_resposta" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnCriarFlashcard"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/button_height"
+            android:layout_marginTop="@dimen/spacing_md"
+            android:text="@string/deck_adicionar_card"
+            android:textColor="@color/text_primary"
+            app:backgroundTint="@color/card_background"
+            app:cornerRadius="@dimen/button_radius" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/containerAutomatico"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:visibility="gone">
+
+        <EditText
+            android:id="@+id/inputNumeroCards"
+            style="@style/Widget.ClassCards.DeckInput"
+            android:layout_marginTop="@dimen/spacing_md"
+            android:hint="@string/deck_numero_cards"
+            android:inputType="number" />
+
+        <EditText
+            android:id="@+id/inputDescricaoIA"
+            style="@style/Widget.ClassCards.DeckMultilineInput"
+            android:layout_marginTop="@dimen/spacing_md"
+            android:hint="@string/deck_descricao_ia"
+            android:minLines="3" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/spacing_sm"
+            android:text="@string/deck_ia_adiciona"
+            android:textColor="@color/text_secondary"
+            android:textSize="@dimen/text_secondary" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnGerarFlashcards"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/button_height"
+            android:layout_marginTop="@dimen/spacing_md"
+            android:text="@string/deck_gerar_ia"
+            android:textColor="@color/text_primary"
+            app:backgroundTint="@color/card_background"
+            app:cornerRadius="@dimen/button_radius" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/containerCarregamentoCriacao"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/spacing_lg"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:padding="@dimen/spacing_md"
+        android:visibility="gone">
+
+        <ProgressBar
+            android:id="@+id/progressGeracaoFlashcards"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:indeterminateTint="@color/ranking_accent" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/spacing_md"
+            android:accessibilityLiveRegion="polite"
+            android:text="@string/gerando_flashcards_ia"
+            android:textColor="@color/text_primary"
+            android:textSize="@dimen/text_secondary" />
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/txtFlashcardsCriados"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/spacing_lg"
+        android:text="@string/deck_flashcards"
+        android:textColor="@color/text_primary"
+        android:textSize="18sp"
+        android:textStyle="bold" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerFlashcards"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/spacing_md"
+        android:nestedScrollingEnabled="false" />
+
+    <ProgressBar
+        android:id="@+id/progressSalvarDeck"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="@dimen/spacing_md"
+        android:contentDescription="@string/deck_salvando"
+        android:indeterminateTint="@color/ranking_accent"
+        android:visibility="gone" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnSalvarDeck"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/button_height"
+        android:layout_marginTop="@dimen/spacing_lg"
+        android:layout_marginBottom="@dimen/spacing_lg"
+        android:text="@string/deck_salvar"
+        android:textColor="@color/text_primary"
+        app:backgroundTint="@color/button_primary"
+        app:cornerRadius="@dimen/button_radius"
+        app:strokeColor="@color/button_border"
+        app:strokeWidth="1dp" />
+</LinearLayout>

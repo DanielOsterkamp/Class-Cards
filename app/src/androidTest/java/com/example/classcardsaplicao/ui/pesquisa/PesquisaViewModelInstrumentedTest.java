@@ -421,6 +421,35 @@ public class PesquisaViewModelInstrumentedTest {
         });
     }
 
+    @Test public void deckExcluidoSaiDoCacheSemPerderUsuariosOuTexto() {
+        principal(() -> {
+            buscar("História");
+            responderPrimeiraPagina();
+            viewModel.selecionarAba(PesquisaViewModel.Aba.USUARIOS);
+            viewModel.removerDeckExcluido("d1");
+            assertTrue(viewModel.getDecks().getValue().isEmpty());
+            assertEquals(1, viewModel.getUsuarios().getValue().size());
+            assertEquals("História", viewModel.getTermo());
+            assertEquals(PesquisaViewModel.Aba.USUARIOS, viewModel.getAba().getValue());
+            buscar("Outra busca");
+            fonte.decks.get(1).sucesso(Collections.emptyList(), null, false);
+            fonte.usuarios.get(1).sucesso(Collections.emptyList(), null, false);
+            viewModel.pesquisar("História");
+            assertTrue(viewModel.getDecks().getValue().isEmpty());
+            assertEquals(2, fonte.decks.size());
+        });
+    }
+
+    @Test public void respostaTardiaNaoReinsereDeckExcluido() {
+        principal(() -> {
+            buscar("História");
+            viewModel.removerDeckExcluido("d1");
+            responderPrimeiraPagina();
+            assertTrue(viewModel.getDecks().getValue().isEmpty());
+            assertEquals(1, viewModel.getUsuarios().getValue().size());
+        });
+    }
+
     private void buscar(String termo) {
         viewModel.pesquisar(termo);
         viewModel.buscarAgora();

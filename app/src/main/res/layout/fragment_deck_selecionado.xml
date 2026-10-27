@@ -1,133 +1,193 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<androidx.core.widget.NestedScrollView
+<androidx.constraintlayout.widget.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/background"
-    android:fillViewport="true"
     tools:context=".ui.deck.details.DeckSelecionadoFragment">
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:paddingStart="@dimen/header_inset"
-        android:paddingTop="@dimen/header_inset"
-        android:paddingEnd="@dimen/header_inset"
-        android:paddingBottom="@dimen/spacing_xl">
-
-        <!-- TOPO -->
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:fillViewport="true"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent">
 
         <LinearLayout
-            style="@style/Widget.ClassCards.HeaderRow">
-
-            <androidx.appcompat.widget.AppCompatImageButton
-                style="@style/Widget.ClassCards.BackButton"
-                android:id="@+id/btnVoltar" />
-
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:text="Deck"
-                style="@style/Widget.ClassCards.HeaderTitle"
-                android:layout_weight="1" />
-
-        </LinearLayout>
-
-
-        <!-- NOME DO DECK -->
-
-        <TextView
-            android:id="@+id/txtNomeDeck"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/spacing_xl"
-            android:fontFamily="sans-serif-medium"
-            android:textColor="@color/text_primary"
-            android:textSize="@dimen/text_title"
-            tools:text="Biologia Celular" />
+            android:orientation="vertical"
+            android:paddingStart="@dimen/header_inset"
+            android:paddingTop="@dimen/header_inset"
+            android:paddingEnd="@dimen/header_inset"
+            android:paddingBottom="@dimen/spacing_xl">
 
+            <!-- TOPO -->
 
-        <!-- MATÉRIA -->
+            <LinearLayout style="@style/Widget.ClassCards.HeaderRow">
 
-        <TextView
-            android:id="@+id/txtMateriaDeck"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/spacing_sm"
-            android:textColor="@color/text_secondary"
-            android:textSize="@dimen/text_body"
-            tools:text="Biologia" />
-
-
-        <!-- INFORMAÇÕES -->
-
-        <com.google.android.material.card.MaterialCardView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/spacing_xl"
-            app:cardBackgroundColor="@color/card_background"
-            app:cardCornerRadius="@dimen/radius_card"
-            app:cardElevation="0dp">
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:padding="@dimen/spacing_md">
+                <androidx.appcompat.widget.AppCompatImageButton
+                    android:id="@+id/btnVoltar"
+                    style="@style/Widget.ClassCards.BackButton" />
 
                 <TextView
-                    android:layout_width="wrap_content"
+                    style="@style/Widget.ClassCards.HeaderTitle"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:text="Flashcards"
-                    android:textColor="@color/text_secondary"
-                    android:textSize="@dimen/text_small" />
+                    android:layout_weight="1"
+                    android:text="Deck" />
 
-                <TextView
-                    android:id="@+id/txtQuantidadeCards"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/spacing_xs"
-                    android:fontFamily="sans-serif-medium"
-                    android:textColor="@color/text_primary"
-                    android:textSize="@dimen/text_emphasis"
-                    tools:text="24 cards" />
+                <!-- Ações do dono ficam no cabeçalho, com área de toque de 48dp. -->
+                <androidx.appcompat.widget.AppCompatImageButton
+                    android:id="@+id/btnEditarDeck"
+                    android:layout_width="@dimen/header_action_size"
+                    android:layout_height="@dimen/header_action_size"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:contentDescription="@string/deck_editar"
+                    android:padding="@dimen/spacing_smd"
+                    android:scaleType="fitCenter"
+                    android:visibility="gone"
+                    app:srcCompat="@drawable/ic_edit_deck"
+                    app:tint="@color/text_primary" />
+
+                <androidx.appcompat.widget.AppCompatImageButton
+                    android:id="@+id/btnExcluirDeck"
+                    android:layout_width="@dimen/header_action_size"
+                    android:layout_height="@dimen/header_action_size"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:contentDescription="@string/deck_excluir"
+                    android:padding="@dimen/spacing_smd"
+                    android:scaleType="fitCenter"
+                    android:visibility="gone"
+                    app:srcCompat="@drawable/ic_delete_deck"
+                    app:tint="@color/text_primary" />
 
             </LinearLayout>
 
-        </com.google.android.material.card.MaterialCardView>
+
+            <!-- NOME DO DECK -->
+
+            <TextView
+                android:id="@+id/txtNomeDeck"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/spacing_xl"
+                android:fontFamily="sans-serif-medium"
+                android:textColor="@color/text_primary"
+                android:textSize="@dimen/text_title"
+                tools:text="Biologia Celular" />
 
 
-        <!-- ESTUDAR -->
+            <!-- MATÉRIA -->
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnEstudar"
-            android:layout_width="match_parent"
-            android:layout_height="@dimen/button_height"
-            android:layout_marginTop="@dimen/spacing_xl"
-            android:text="Estudar"
-            android:textColor="@color/button_text"
-            app:backgroundTint="@color/card_background"
-            app:cornerRadius="@dimen/button_radius" />
+            <TextView
+                android:id="@+id/txtCriadorDeck"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/spacing_sm"
+                android:textColor="@color/text_secondary"
+                android:textSize="@dimen/text_body"
+                tools:text="Criado por Ana Silva" />
+
+            <TextView
+                android:id="@+id/txtMateriaDeck"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/spacing_sm"
+                android:textColor="@color/text_secondary"
+                android:textSize="@dimen/text_body"
+                tools:text="Biologia" />
 
 
-        <!-- EDITAR -->
+            <!-- INFORMAÇÕES -->
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnDissertativo"
-            android:layout_width="match_parent"
-            android:layout_height="@dimen/button_height"
-            android:layout_marginTop="@dimen/spacing_md"
-            android:text="Editar Deck"
-            android:textColor="@color/button_text"
-            app:backgroundTint="@color/button_primary"
-            app:cornerRadius="@dimen/button_radius"
-            app:strokeColor="@color/button_border"
-            app:strokeWidth="1dp" />
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/spacing_xl"
+                app:cardBackgroundColor="@color/card_background"
+                app:cardCornerRadius="@dimen/radius_card"
+                app:cardElevation="0dp"
+                app:strokeWidth="0dp">
 
-    </LinearLayout>
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="@dimen/spacing_md">
 
-</androidx.core.widget.NestedScrollView>
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Flashcards"
+                        android:textColor="@color/text_secondary"
+                        android:textSize="@dimen/text_small" />
+
+                    <TextView
+                        android:id="@+id/txtQuantidadeCards"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/spacing_xs"
+                        android:fontFamily="sans-serif-medium"
+                        android:textColor="@color/text_primary"
+                        android:textSize="@dimen/text_emphasis"
+                        tools:text="24 cards" />
+
+                </LinearLayout>
+
+            </com.google.android.material.card.MaterialCardView>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnEstudar"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/button_height"
+                android:layout_marginTop="@dimen/spacing_xl"
+                android:text="Estudar"
+                android:textColor="@color/button_text"
+                app:backgroundTint="@color/button_primary"
+                app:cornerRadius="@dimen/button_radius"
+                app:strokeColor="@color/button_border"
+                app:strokeWidth="1dp" />
+
+            <TextView
+                android:id="@+id/txtAvisoExclusaoDeck"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/spacing_md"
+                android:text="@string/deck_exclusao_pendente"
+                android:textColor="@color/text_secondary"
+                android:visibility="gone" />
+
+            <LinearLayout
+                android:id="@+id/containerExclusaoDeck"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/spacing_lg"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:visibility="gone">
+
+                <ProgressBar
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:indeterminateTint="@color/ranking_accent" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/spacing_md"
+                    android:accessibilityLiveRegion="polite"
+                    android:text="@string/deck_excluindo"
+                    android:textColor="@color/text_primary" />
+            </LinearLayout>
+
+        </LinearLayout>
+
+    </androidx.core.widget.NestedScrollView>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

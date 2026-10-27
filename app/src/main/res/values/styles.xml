@@ -1,5 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools">
+    <!-- Campos sublinhados usados tanto na criação quanto na edição de decks. -->
+    <style name="Widget.ClassCards.DeckInput" parent="Widget.AppCompat.EditText">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:minHeight">48dp</item>
+        <item name="android:textColor">@color/text_primary</item>
+        <item name="android:textColorHint">@color/text_secondary</item>
+        <item name="android:textSize">@dimen/text_body</item>
+        <item name="backgroundTint">@color/ranking_accent</item>
+    </style>
+    <style name="Widget.ClassCards.DeckMultilineInput" parent="Widget.ClassCards.DeckInput">
+        <item name="android:minLines">2</item>
+        <item name="android:maxLines">6</item>
+        <item name="android:gravity">top|start</item>
+        <item name="android:inputType">textMultiLine|textCapSentences</item>
+    </style>
     <!-- Visual compartilhado com o botão de volta dos detalhes do deck. -->
     <style name="Widget.ClassCards.BackButton" parent="Widget.AppCompat.ImageButton">
         <item name="android:layout_width">@dimen/header_action_size</item>

@@ -4,7 +4,8 @@
   "version": "1.0.0",
   "description": "Migração e testes locais das regras do ranking do Class Cards",
   "scripts": {
-    "test:security": "firebase emulators:exec --only firestore --project demo-classcards-ranking --config ../../firebase.json \"node --test security.test.cjs\""
+    "test:security": "firebase emulators:exec --only firestore --project demo-classcards-ranking --config ../../firebase.json \"node --test security.test.cjs\"",
+    "test:decks": "firebase emulators:exec --only firestore --project demo-classcards-decks --config ../../firebase.json \"node --test deck-security.test.cjs\""
   },
   "dependencies": {
     "firebase-admin": "^14.5.0"

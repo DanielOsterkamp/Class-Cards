@@ -8,6 +8,7 @@ import com.example.classcardsaplicao.data.AiRepository;
 import com.example.classcardsaplicao.data.DeckRepository;
 import com.example.classcardsaplicao.model.Deck;
 import com.example.classcardsaplicao.model.Flashcard;
+import com.example.classcardsaplicao.ui.deck.GeracaoFlashcards;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,7 +20,10 @@ public class CriarDeckViewModel extends ViewModel {
     private final MutableLiveData<String> deckCriado = new MutableLiveData<>();
     private final MutableLiveData<String> erro = new MutableLiveData<>();
 
-    private final AiRepository aiRepository;
+    private final GeracaoFlashcards geracao;
+    private final MutableLiveData<Boolean> salvando = new MutableLiveData<>(false);
+
+    public LiveData<Boolean> getSalvando() { return salvando; }
 
     public CriarDeckViewModel() {
         this(new AiRepository());
@@ -27,14 +31,15 @@ public class CriarDeckViewModel extends ViewModel {
 
     // Permite testar os estados de carregamento sem enviar requisições à IA.
     CriarDeckViewModel(AiRepository aiRepository) {
-        this.aiRepository = aiRepository;
+        geracao = new GeracaoFlashcards(aiRepository, cards -> {
+            List<Flashcard> lista = new ArrayList<>(flashcards.getValue());
+            lista.addAll(cards);
+            flashcards.setValue(lista);
+        }, erro::setValue);
     }
 
-    private final MutableLiveData<Boolean> gerandoFlashcards =
-            new MutableLiveData<>(false);
-
     public LiveData<Boolean> getGerandoFlashcards() {
-        return gerandoFlashcards;
+        return geracao.getGerando();
     }
 
     public LiveData<String> getDeckCriado() {
@@ -57,7 +62,8 @@ public class CriarDeckViewModel extends ViewModel {
             String nome,
             String materia
     ) {
-        if (Boolean.TRUE.equals(gerandoFlashcards.getValue())) {
+        if (Boolean.TRUE.equals(salvando.getValue())) return;
+        if (Boolean.TRUE.equals(getGerandoFlashcards().getValue())) {
             erro.setValue("Aguarde a criação dos flashcards antes de salvar o deck.");
             return;
         }
@@ -92,17 +98,20 @@ public class CriarDeckViewModel extends ViewModel {
                 agora
         );
 
+        salvando.setValue(true);
         deckRepository.criarDeck(
                 deck,
                 lista,
                 new DeckRepository.DeckCallback() {
                     @Override
                     public void onSuccess(String deckId) {
+                        salvando.setValue(false);
                         deckCriado.setValue(deckId);
                     }
 
                     @Override
                     public void onError(Exception exception) {
+                        salvando.setValue(false);
                         erro.setValue(exception.getMessage());
                     }
                 }
@@ -114,6 +123,7 @@ public class CriarDeckViewModel extends ViewModel {
             String pergunta,
             String resposta
     ) {
+        if (ocupado()) return;
         List<Flashcard> listaAtual = flashcards.getValue();
 
         if (listaAtual == null
@@ -132,79 +142,12 @@ public class CriarDeckViewModel extends ViewModel {
         flashcards.setValue(novaLista);
     }
 
-    public void gerarFlashcards(
-            String materia,
-            String descricao,
-            String quantidadeTexto
-    ) {
-        if (Boolean.TRUE.equals(gerandoFlashcards.getValue())) {
-            return;
-        }
-
-        if (materia == null || materia.trim().isEmpty()) {
-            erro.setValue("Informe a matéria.");
-            return;
-        }
-
-        if (descricao == null || descricao.trim().isEmpty()) {
-            erro.setValue("Informe a descrição.");
-            return;
-        }
-
-        int quantidade;
-
-        try {
-            quantidade = Integer.parseInt(quantidadeTexto);
-        } catch (NumberFormatException exception) {
-            erro.setValue("Informe uma quantidade válida.");
-            return;
-        }
-
-        if (quantidade < 1 || quantidade > 30) {
-            erro.setValue("A quantidade deve estar entre 1 e 30.");
-            return;
-        }
-
-        gerandoFlashcards.setValue(true);
-
-        try {
-            aiRepository.gerarFlashcards(
-                materia.trim(),
-                descricao.trim(),
-                quantidade,
-                new AiRepository.AiCallback() {
-
-                    @Override
-                    public void onSuccess(List<Flashcard> cardsGerados) {
-
-                        List<Flashcard> listaAtual =
-                                new ArrayList<>(flashcards.getValue());
-
-                        listaAtual.addAll(cardsGerados);
-
-                        flashcards.postValue(listaAtual);
-                        gerandoFlashcards.postValue(false);
-                    }
-
-                    @Override
-                    public void onError(Exception exception) {
-                        gerandoFlashcards.postValue(false);
-
-                        erro.postValue(
-                                exception.getMessage() != null
-                                        ? exception.getMessage()
-                                        : "Erro ao gerar flashcards."
-                        );
-                    }
-                }
-            );
-        } catch (Exception exception) {
-            gerandoFlashcards.setValue(false);
-            erro.setValue("Não foi possível iniciar a criação dos flashcards. Tente novamente.");
-        }
+    public void gerarFlashcards(String materia, String descricao, String quantidadeTexto) {
+        if (Boolean.TRUE.equals(salvando.getValue())) return;
+        geracao.gerar(materia, descricao, quantidadeTexto);
     }
-
     public void adicionarFlashcard(String pergunta, String resposta) {
+        if (ocupado()) return;
 
         List<Flashcard> listaAtual =
                 new ArrayList<>(flashcards.getValue());
@@ -222,6 +165,7 @@ public class CriarDeckViewModel extends ViewModel {
     }
 
     public void removerFlashcard(int position) {
+        if (ocupado()) return;
 
         List<Flashcard> listaAtual =
                 new ArrayList<>(flashcards.getValue());
@@ -234,4 +178,10 @@ public class CriarDeckViewModel extends ViewModel {
 
         flashcards.setValue(listaAtual);
     }
+
+    private boolean ocupado() {
+        return Boolean.TRUE.equals(salvando.getValue()) || Boolean.TRUE.equals(getGerandoFlashcards().getValue());
+    }
+
+    @Override protected void onCleared() { geracao.encerrar(); }
 }

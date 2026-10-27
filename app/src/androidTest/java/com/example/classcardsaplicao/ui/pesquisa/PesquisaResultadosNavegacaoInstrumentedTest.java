@@ -62,7 +62,7 @@ public class PesquisaResultadosNavegacaoInstrumentedTest {
             scenario.onActivity(activity -> {
                 assertDestino(activity, R.id.deckSelecionadoFragment, "deckId", "deck-2");
                 assertEquals("Deck selecionado deck-2", texto(atual(activity), R.id.txtNomeDeck));
-                assertEquals(View.GONE, atual(activity).requireView().findViewById(R.id.btnDissertativo).getVisibility());
+                assertEquals(View.GONE, atual(activity).requireView().findViewById(R.id.btnEditarDeck).getVisibility());
                 assertNotNull(itemSelecionado.get());
                 atual(activity).requireView().findViewById(R.id.btnVoltar).performClick();
             });

@@ -14,6 +14,10 @@ public class Deck {
     private String materia;
 
     private int quantidadeCards;
+    private boolean excluindo;
+
+    public boolean isExcluindo() { return excluindo; }
+    public void setExcluindo(boolean excluindo) { this.excluindo = excluindo; }
 
     public Deck() {
     }
