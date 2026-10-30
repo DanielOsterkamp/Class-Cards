@@ -71,6 +71,17 @@ public class EstudarDeckDissertativoViewModel extends ViewModel {
     /**
      * Expõe o estado como LiveData para que o Fragment observe sem modificá-lo diretamente.
      */
+    public ResultadoOfensiva getResultadoOfensiva() {
+        android.os.Bundle resultado = salvo.get("conclusaoOfensiva");
+        return resultado == null ? null : ConclusaoEstudo.ler(resultado);
+    }
+
+    private boolean ultimaRevisao() {
+        for (int i = getIndice() + 1; i < cards.size(); i++)
+            if (cards.get(i) != null) return false;
+        return true;
+    }
+
     public LiveData<Estado> getEstado() {
         return estado;
     }
@@ -359,7 +370,13 @@ public class EstudarDeckDissertativoViewModel extends ViewModel {
         // Mantém a classificação e o card atual enquanto aguarda a confirmação do Firestore.
         estado.setValue(Estado.SALVANDO);
         gamificacao.confirmarRevisao(salvo.get("uid"), salvo.get("deckId"), getAtual().getId(),
-                salvo.get("tentativaId"), rating, new GamificacaoRepository.Callback() {
+                salvo.get("tentativaId"), rating, ultimaRevisao(), new GamificacaoRepository.Callback() {
+            @Override
+            public void onSuccess(ResultadoOfensiva resultado) {
+                if (ultimaRevisao()) salvo.set("conclusaoOfensiva", ConclusaoEstudo.dados(resultado));
+                onSuccess();
+            }
+
             @Override
             public void onSuccess() {
                 if (!autenticado()) {

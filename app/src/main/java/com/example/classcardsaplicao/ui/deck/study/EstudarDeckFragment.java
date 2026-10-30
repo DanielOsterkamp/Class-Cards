@@ -141,15 +141,7 @@ public class EstudarDeckFragment extends Fragment {
                         return;
                     }
 
-                    txtConteudoFlashcard.setText(
-                            "Sessão de estudo concluída!"
-                    );
-
-                    txtProgresso.setText("Revisões concluídas");
-
-                    layoutAvaliacoes.setVisibility(View.GONE);
-
-                    cardFlashcard.setEnabled(false);
+                    ConclusaoEstudo.voltarAoDeck(this, viewModel.getResultadoOfensiva());
                 }
         );
 
@@ -196,16 +188,6 @@ public class EstudarDeckFragment extends Fragment {
                     boolean avancou = viewModel.proximoFlashcard();
 
                     if (!avancou) {
-
-                        Toast.makeText(
-                                requireContext(),
-                                "Você concluiu este deck!",
-                                Toast.LENGTH_SHORT
-                        ).show();
-
-                        NavHostFragment
-                                .findNavController(this)
-                                .popBackStack();
 
                         return;
                     }

@@ -1,6 +1,7 @@
 package com.example.classcardsaplicao.data;
 
 import com.example.classcardsaplicao.model.FsrsScheduler;
+import com.example.classcardsaplicao.model.ResultadoOfensiva;
 import com.example.classcardsaplicao.model.ProgressoFlashcard;
 import com.example.classcardsaplicao.model.Rating;
 import com.example.classcardsaplicao.model.RegrasGamificacao;
@@ -21,17 +22,27 @@ public class GamificacaoRepository {
     public void confirmarRevisao(String uid, String deckId, String flashcardId,
             String tentativaId, Rating rating, Callback callback) {
 
-        confirmar(uid, deckId, flashcardId, tentativaId, rating, "revisoesDissertativas", callback);
+        confirmarRevisao(uid, deckId, flashcardId, tentativaId, rating, false, callback);
     }
 
     public void confirmarRevisaoTradicional(String uid, String deckId, String flashcardId,
             String tentativaId, Rating rating, Callback callback) {
-        confirmar(uid, deckId, flashcardId, tentativaId, rating, "revisoesTradicionais", callback);
+        confirmarRevisaoTradicional(uid, deckId, flashcardId, tentativaId, rating, false, callback);
+    }
+
+    public void confirmarRevisao(String uid, String deckId, String flashcardId,
+            String tentativaId, Rating rating, boolean ultimaRevisao, Callback callback) {
+        confirmar(uid, deckId, flashcardId, tentativaId, rating, "revisoesDissertativas", ultimaRevisao, callback);
+    }
+
+    public void confirmarRevisaoTradicional(String uid, String deckId, String flashcardId,
+            String tentativaId, Rating rating, boolean ultimaRevisao, Callback callback) {
+        confirmar(uid, deckId, flashcardId, tentativaId, rating, "revisoesTradicionais", ultimaRevisao, callback);
     }
 
     private void confirmar(String uid, String deckId, String flashcardId, String tentativaId,
-            Rating rating, String colecaoEventos, Callback callback) {
-        long xpGanho = RegrasGamificacao.xpPorRevisao(rating);
+            Rating rating, String colecaoEventos, boolean ultimaRevisao, Callback callback) {
+        long xpGanho = "revisoesDissertativas".equals(colecaoEventos) ? RegrasGamificacao.xpPorRevisao(rating) : 0;
         DocumentReference usuario = firestore.collection("users").document(uid);
         DocumentReference evento = usuario.collection(colecaoEventos).document(tentativaId);
         DocumentReference resumo = usuario.collection("gamificacao").document("resumo");
@@ -46,8 +57,11 @@ public class GamificacaoRepository {
 
         firestore.runTransaction(transaction -> {
 
-            if (transaction.get(evento).exists())
-                return null;
+            DocumentSnapshot recibo = transaction.get(evento);
+            if (recibo.exists()) {
+                return new ResultadoOfensiva(numero(recibo, "ofensivaAnterior"),
+                        numero(recibo, "ofensivaAtual"), Boolean.TRUE.equals(recibo.getBoolean("ofensivaConquistada")));
+            }
 
             DocumentSnapshot stats = transaction.get(resumo);
             DocumentSnapshot anterior = transaction.get(progresso);
@@ -60,33 +74,38 @@ public class GamificacaoRepository {
             // recalcula a próxima revisão com a classificação confirmada pelo estudante.
             new FsrsScheduler().revisar(progressoFlashcard, rating);
             long xp = numero(stats, "xp");
-            long ofensiva = RegrasGamificacao.proximaOfensiva(numero(stats, "ofensiva"),
-                    stats.getString("ultimoDiaEstudo"), hoje, ontem);
+            ResultadoOfensiva resultado = ResultadoOfensiva.calcular(numero(stats, "ofensiva"),
+                    stats.getString("ultimoDiaEstudo"), hoje, ontem, ultimaRevisao);
 
             Map<String, Object> valores = new HashMap<>();
             valores.put("xp", xp + xpGanho);
-            valores.put("ofensiva", ofensiva);
             valores.put("fusoHorario", zona.getID());
             valores.put("cardsEstudados", numero(stats, "cardsEstudados") + (primeiroEstudo ? 1 : 0)); // fazemos isso porque o firebase não entende booleano, temos que passar 1 ou 0
             valores.put("versaoEstudos", numero(stats, "versaoEstudos") + 1);
 
-            String ultimoDia = stats.getString("ultimoDiaEstudo");
-            valores.put("ultimoDiaEstudo", ultimoDia != null && ultimoDia.compareTo(hoje) > 0 ? ultimoDia : hoje);
+            if (resultado.conquistada) {
+                valores.put("ofensiva", resultado.atual);
+                valores.put("ultimoDiaEstudo", hoje);
+            }
 
             Map<String, Object> registro = new HashMap<>();
             registro.put("deckId", deckId);
             registro.put("flashcardId", flashcardId);
             registro.put("rating", rating.name());
             registro.put("xp", xpGanho);
+            registro.put("sessaoConcluida", ultimaRevisao);
+            registro.put("ofensivaAnterior", resultado.anterior);
+            registro.put("ofensivaAtual", resultado.atual);
+            registro.put("ofensivaConquistada", resultado.conquistada);
             registro.put("createdAt", FieldValue.serverTimestamp());
 
             transaction.set(progresso, progressoFlashcard);
             transaction.set(resumo, valores, SetOptions.merge());
             transaction.set(evento, registro);
-            return null;
-        }).addOnSuccessListener(ignorado -> {
+            return resultado;
+        }).addOnSuccessListener(resultado -> {
             RankingRepository.atualizarEmSegundoPlano();
-            callback.onSuccess();
+            callback.onSuccess(resultado);
         })
                 .addOnFailureListener(callback::onError);
     }
@@ -98,6 +117,8 @@ public class GamificacaoRepository {
 
     public interface Callback {
         void onSuccess();
+
+        default void onSuccess(ResultadoOfensiva resultado) { onSuccess(); }
 
         void onError(Exception erro);
     }

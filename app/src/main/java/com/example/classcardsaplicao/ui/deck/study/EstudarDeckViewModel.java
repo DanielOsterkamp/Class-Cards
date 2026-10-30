@@ -1,6 +1,7 @@
 package com.example.classcardsaplicao.ui.deck.study;
 
 import androidx.lifecycle.LiveData;
+import com.example.classcardsaplicao.model.ResultadoOfensiva;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
@@ -52,6 +53,9 @@ public class EstudarDeckViewModel extends ViewModel {
     private final MutableLiveData<ProgressoFlashcard> progressoAtual = new MutableLiveData<>();
 
     private final MutableLiveData<Boolean> salvandoProgresso = new MutableLiveData<>(false);
+
+    private ResultadoOfensiva resultadoOfensiva;
+    public ResultadoOfensiva getResultadoOfensiva() { return resultadoOfensiva; }
 
     private String deckIdAtual;
 
@@ -393,8 +397,14 @@ public class EstudarDeckViewModel extends ViewModel {
         // O mesmo caminho de transação aplica agendamento, XP e ofensiva nos dois modos.
         gamificacaoRepository.confirmarRevisaoTradicional(
                 progresso.getUserId(), progresso.getDeckId(), progresso.getFlashcardId(),
-                tentativaIdAtual, rating,
+                tentativaIdAtual, rating, indiceAtual == flashcards.getValue().size() - 1,
                 new GamificacaoRepository.Callback() {
+
+                    @Override
+                    public void onSuccess(ResultadoOfensiva resultado) {
+                        resultadoOfensiva = resultado;
+                        onSuccess();
+                    }
 
                     @Override
                     public void onSuccess() {

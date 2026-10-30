@@ -105,6 +105,17 @@ public class DeckSelecionadoFragment extends Fragment {
 
     @Override public void onResume() {
         super.onResume();
+        androidx.lifecycle.SavedStateHandle estado = NavHostFragment.findNavController(this)
+                .getBackStackEntry(R.id.deckSelecionadoFragment).getSavedStateHandle();
+        Bundle conquista = estado.get(com.example.classcardsaplicao.ui.deck.study.ConclusaoEstudo.CHAVE);
+        if (conquista != null) {
+            if (getChildFragmentManager().findFragmentByTag(OfensivaConquistadaDialog.TAG) == null) {
+                OfensivaConquistadaDialog dialog = new OfensivaConquistadaDialog();
+                dialog.setArguments(conquista);
+                dialog.showNow(getChildFragmentManager(), OfensivaConquistadaDialog.TAG);
+            }
+            estado.remove(com.example.classcardsaplicao.ui.deck.study.ConclusaoEstudo.CHAVE);
+        }
         // Recarrega título e quantidade ao retornar da edição.
         new ViewModelProvider(this).get(DeckSelecionadoViewModel.class)
                 .carregarDeck(requireArguments().getString("deckId"));

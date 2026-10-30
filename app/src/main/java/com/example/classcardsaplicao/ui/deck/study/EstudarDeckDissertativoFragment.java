@@ -106,6 +106,10 @@ public class EstudarDeckDissertativoFragment extends Fragment {
             TextView contador = view.findViewById(R.id.txtContadorFlashcards);
 
             // Mostra uma mensagem adequada para sessão vazia, sessão concluída ou card em andamento.
+            if (concluida && vm.getResultadoOfensiva() != null) {
+                ConclusaoEstudo.voltarAoDeck(this, vm.getResultadoOfensiva());
+                return;
+            }
             if (concluida) {
                 pergunta.setText(vm.getTotal() == 0 ? "Nenhum flashcard para revisar agora."
                         : "Sessão de estudo concluída!");

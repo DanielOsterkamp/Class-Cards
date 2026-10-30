@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="ofensiva_conquista_titulo">Ofensiva conquistada!</string>
+    <string name="ofensiva_conquista_mensagem">Você concluiu sua sessão de estudo e garantiu a ofensiva de hoje.</string>
+    <string name="ofensiva_fechar">Fechar conquista de ofensiva</string>
+    <string name="ofensiva_valor_anterior">Anterior: %1$d</string>
+    <string name="ofensiva_valor_atual">Atual: %1$d</string>
+</resources>
