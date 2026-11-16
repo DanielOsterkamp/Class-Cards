@@ -67,6 +67,20 @@
             app:layout_constraintTop_toBottomOf="@id/imgPerfil"
             tools:text="Rodrigo Remor" />
 
+        <!-- Papel no Moodle (Estudante/Professor): só aparece para quem entrou pelo Moodle -->
+        <TextView
+            android:id="@+id/txtPapelMoodle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/spacing_xs"
+            android:textColor="@color/text_secondary"
+            android:textSize="14sp"
+            android:visibility="gone"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/txtNomeUsuario"
+            tools:text="Estudante" />
+
         <!-- Estatísticas do usuário -->
         <LinearLayout
             android:id="@+id/layoutGamificacao"
@@ -79,7 +93,7 @@
             android:orientation="horizontal"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/txtNomeUsuario">
+            app:layout_constraintTop_toBottomOf="@id/txtPapelMoodle">
 
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/cardOfensiva"

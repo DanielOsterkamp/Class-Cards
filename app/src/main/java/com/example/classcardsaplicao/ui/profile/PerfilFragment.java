@@ -15,6 +15,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.example.classcardsaplicao.R;
+import com.example.classcardsaplicao.data.moodle.MoodleSessao;
 import com.example.classcardsaplicao.ui.deck.create.DeckAdapter;
 import com.google.android.material.imageview.ShapeableImageView;
 import com.google.firebase.auth.FirebaseAuth;
@@ -103,6 +104,14 @@ public class PerfilFragment extends Fragment {
         viewModel.getNome().observe(getViewLifecycleOwner(), nome -> {
             txtNomeUsuario.setText(nome);
         });
+
+        // papel no Moodle (Estudante/Professor): só no próprio perfil de quem entrou pelo Moodle
+        TextView txtPapelMoodle = view.findViewById(R.id.txtPapelMoodle);
+        String uidAtual = FirebaseAuth.getInstance().getUid();
+        if (!outroUsuario && MoodleSessao.ativa(requireContext(), uidAtual)) {
+            txtPapelMoodle.setText(MoodleSessao.professor(requireContext(), uidAtual) ? "Professor" : "Estudante");
+            txtPapelMoodle.setVisibility(View.VISIBLE);
+        }
 
         viewModel.getErro().observe(getViewLifecycleOwner(), erro -> apresentarEstado(view, viewModel));
         viewModel.getCarregando().observe(getViewLifecycleOwner(), carregando -> apresentarEstado(view, viewModel));
