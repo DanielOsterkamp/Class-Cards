@@ -18,6 +18,8 @@ public final class FormularioDeck {
         this.raiz = raiz;
         modo = raiz.findViewById(R.id.switchModoCriacao);
         modo.setOnCheckedChangeListener((botao, automatico) -> apresentarModo());
+        // quem entrou pelo Moodle escolhe a matéria numa lista com os cursos em que está inscrito
+        SeletorMateriaMoodle.aplicar(raiz.findViewById(R.id.inputMateriaDeck));
         apresentarModo();
     }
 
