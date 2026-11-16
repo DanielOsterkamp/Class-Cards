@@ -26,7 +26,39 @@ public final class BolhaMoodle {
     public static final String PREFIXO_UID = "moodle-";
     public static final String PREFIXO_DECK = "moodle-";
 
+    /** O Firestore aceita no máximo 30 valores num filtro "in" / "array-contains-any". */
+    public static final int LIMITE_IN = 30;
+
+    /** Curso escolhido no filtro da pesquisa (null = todos os cursos da pessoa). */
+    private static String filtroPesquisa;
+
     private BolhaMoodle() {
+    }
+
+    public static void definirFiltroPesquisa(String chaveCurso) {
+        filtroPesquisa = chaveCurso;
+    }
+
+    /** Cursos que a pesquisa deve considerar: o do filtro, ou todos os da pessoa (até 30). */
+    public static List<String> chavesDaPesquisa() {
+        List<String> minhas = minhasChaves();
+        if (filtroPesquisa != null && minhas.contains(filtroPesquisa)) {
+            return Collections.singletonList(filtroPesquisa);
+        }
+        return minhas.size() > LIMITE_IN ? minhas.subList(0, LIMITE_IN) : minhas;
+    }
+
+    /** As duas listas de cursos têm algum curso em comum? */
+    public static boolean temCursoEmComum(List<?> cursosDoOutro, List<String> meus) {
+        if (cursosDoOutro == null) {
+            return false;
+        }
+        for (Object curso : cursosDoOutro) {
+            if (meus.contains(String.valueOf(curso))) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /** Coleção em que um baralho está guardado, pelo id dele. */
