@@ -22,6 +22,20 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <!-- recebe o retorno do login do Moodle: classcards://token=... -->
+        <activity
+            android:name=".ui.auth.moodle.MoodleRetornoActivity"
+            android:exported="true"
+            android:launchMode="singleTask"
+            android:theme="@style/Theme.ClassCardsAplicação">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="classcards" />
+            </intent-filter>
+        </activity>
     </application>
 
 </manifest>

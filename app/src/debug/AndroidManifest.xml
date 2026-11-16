@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Somente na versão de DEBUG: permite HTTP sem criptografia APENAS para o Moodle local (localhost).
+    A versão final continua bloqueando HTTP, como o Android faz por padrão.
+-->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <application android:networkSecurityConfig="@xml/network_security_config_debug" />
+</manifest>
