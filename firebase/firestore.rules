@@ -35,6 +35,35 @@ service cloud.firestore {
       }
     }
 
+    // Integração Moodle (Fase 9): baralhos da bolha Moodle, presos a um curso "<site>:<courseid>".
+    // Só o dono e os membros do curso (claims do passe emitido pelo plugin do Moodle) leem.
+    function cursosMoodle() {
+      return request.auth.token.get('moodle', {}).get('cursos', []);
+    }
+    match /decksMoodle/{deckId} {
+      allow read: if request.auth != null
+                  && (resource.data.ownerId == request.auth.uid || resource.data.cursoChave in cursosMoodle());
+      allow create: if request.auth != null && deckId.matches('moodle-.*')
+                    && request.resource.data.ownerId == request.auth.uid
+                    && request.resource.data.cursoChave in cursosMoodle();
+      // Mudar de curso só para um curso da pessoa; manter o curso vale mesmo se ela saiu dele (ex.: excluir).
+      allow update: if request.auth != null && resource.data.ownerId == request.auth.uid
+                    && request.resource.data.ownerId == request.auth.uid
+                    && (request.resource.data.cursoChave == resource.data.cursoChave
+                        || request.resource.data.cursoChave in cursosMoodle());
+      allow delete: if request.auth != null && resource.data.ownerId == request.auth.uid;
+      match /cards/{cardId} {
+        allow read: if request.auth != null
+                    && (get(/databases/$(database)/documents/decksMoodle/$(deckId)).data.ownerId == request.auth.uid
+                        || get(/databases/$(database)/documents/decksMoodle/$(deckId)).data.cursoChave in cursosMoodle());
+        allow create, update: if request.auth != null
+                              && getAfter(/databases/$(database)/documents/decksMoodle/$(deckId)).data.ownerId == request.auth.uid
+                              && !getAfter(/databases/$(database)/documents/decksMoodle/$(deckId)).data.get('excluindo', false);
+        allow delete: if request.auth != null
+                      && get(/databases/$(database)/documents/decksMoodle/$(deckId)).data.ownerId == request.auth.uid;
+      }
+    }
+
     // A projeção publica apenas o que aparece no ranking; nunca e-mail ou respostas.
     function rankingPublicoValido(uid) {
       let d = request.resource.data;
