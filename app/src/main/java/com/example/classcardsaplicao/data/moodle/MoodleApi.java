@@ -16,6 +16,7 @@ import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -72,6 +73,97 @@ public class MoodleApi {
                     cursos);
         } catch (JSONException e) {
             throw new MoodleException("A resposta do Moodle veio em um formato inesperado.", "json_plugin", e);
+        }
+    }
+
+    /** Situação do ClassCards: termo do professor, aviso do aluno e, por curso, se os materiais estão liberados. */
+    public StatusClassCards obterStatus(String tokenMoodle) throws MoodleException {
+        JSONObject json = objeto(chamar("local_classcards_get_status", tokenMoodle, null));
+        try {
+            List<StatusClassCards.Curso> cursos = new ArrayList<>();
+            JSONArray lista = json.getJSONArray("cursos");
+            for (int i = 0; i < lista.length(); i++) {
+                JSONObject c = lista.getJSONObject(i);
+                cursos.add(new StatusClassCards.Curso(c.getLong("id"), c.getString("fullname"),
+                        c.optString("papel", CursoMoodle.PAPEL_ALUNO), c.optBoolean("autorizado"),
+                        c.optBoolean("podeautorizar")));
+            }
+            return new StatusClassCards(json.optBoolean("habilitado"), json.optInt("termosversao", 1),
+                    json.optString("termostexto", ""), json.optString("avisoaluno", ""), cursos);
+        } catch (JSONException e) {
+            throw new MoodleException("A resposta do Moodle veio em um formato inesperado.", "json_status", e);
+        }
+    }
+
+    /** O professor libera (aceitando o termo da versão informada) ou retira os materiais de um curso. */
+    public boolean definirAutorizacao(String tokenMoodle, long cursoId, boolean autorizado, int versaoTermo)
+            throws MoodleException {
+        Map<String, String> p = new HashMap<>();
+        p.put("courseid", String.valueOf(cursoId));
+        p.put("autorizado", autorizado ? "1" : "0");
+        p.put("versao", String.valueOf(versaoTermo));
+        return objeto(chamar("local_classcards_set_course_authorization", tokenMoodle, p)).optBoolean("autorizado");
+    }
+
+    /** PDFs de um curso liberado. */
+    public List<MaterialMoodle> listarMateriais(String tokenMoodle, long cursoId) throws MoodleException {
+        Map<String, String> p = new HashMap<>();
+        p.put("courseid", String.valueOf(cursoId));
+        JSONObject json = objeto(chamar("local_classcards_get_materials", tokenMoodle, p));
+        try {
+            List<MaterialMoodle> materiais = new ArrayList<>();
+            JSONArray lista = json.getJSONArray("materiais");
+            for (int i = 0; i < lista.length(); i++) {
+                JSONObject m = lista.getJSONObject(i);
+                materiais.add(new MaterialMoodle(m.getLong("cmid"), m.getString("nome"), m.optString("arquivo"),
+                        m.optLong("tamanho"), m.getString("fileurl")));
+            }
+            return materiais;
+        } catch (JSONException e) {
+            throw new MoodleException("A resposta do Moodle veio em um formato inesperado.", "json_materiais", e);
+        }
+    }
+
+    /** Baixa o PDF de um material (com o token do Moodle), respeitando o limite de tamanho do app. */
+    public void baixar(MaterialMoodle material, String tokenMoodle) throws MoodleException {
+        if (material.grandeDemais()) {
+            throw new MoodleException("Este PDF passa de 10 MB, o limite para a IA. Escolha um material menor.",
+                    "pdf_grande");
+        }
+        String url = material.getFileUrl();
+        try {
+            url += (url.contains("?") ? "&" : "?") + "token=" + URLEncoder.encode(tokenMoodle, "UTF-8");
+        } catch (java.io.UnsupportedEncodingException e) {
+            throw new IllegalStateException(e);
+        }
+        HttpURLConnection conexao = null;
+        try {
+            conexao = (HttpURLConnection) new URL(url).openConnection();
+            conexao.setConnectTimeout(TIMEOUT_MS);
+            conexao.setReadTimeout(TIMEOUT_MS * 3);
+            int status = conexao.getResponseCode();
+            String tipo = conexao.getContentType() == null ? "" : conexao.getContentType();
+            if (status >= 400 || !tipo.startsWith("application/pdf")) {
+                throw new MoodleException("Não foi possível baixar o material do Moodle.", "download_" + status);
+            }
+            try (InputStream in = conexao.getInputStream(); ByteArrayOutputStream buffer = new ByteArrayOutputStream()) {
+                byte[] bloco = new byte[8192];
+                int n;
+                while ((n = in.read(bloco)) != -1) {
+                    buffer.write(bloco, 0, n);
+                    if (buffer.size() > MaterialMoodle.TAMANHO_MAXIMO) {
+                        throw new MoodleException("Este PDF passa de 10 MB, o limite para a IA.", "pdf_grande");
+                    }
+                }
+                material.setConteudo(buffer.toByteArray());
+            }
+        } catch (IOException e) {
+            throw new MoodleException("Não foi possível baixar o material. Verifique a conexão e tente de novo.",
+                    "rede_download", e);
+        } finally {
+            if (conexao != null) {
+                conexao.disconnect();
+            }
         }
     }
 
@@ -144,7 +236,15 @@ public class MoodleApi {
             case "enablewsdescription":
                 return "O acesso de aplicativos está desligado neste Moodle.";
             case "accessexception":
+            case "nopermissions":
                 return "Você não tem permissão para fazer isso no Moodle.";
+            case "error_cursonaoautorizado":
+                return "O professor ainda não liberou os materiais deste curso no ClassCards.";
+            case "error_naoinscrito":
+            case "requireloginerror":
+                return "Você não está inscrito neste curso no Moodle.";
+            case "error_termosdesatualizados":
+                return "O termo foi atualizado. Abra de novo para ler a nova versão.";
             default:
                 // Funções inexistentes caem aqui (ex.: plugin não instalado neste Moodle).
                 return "O Moodle recusou o pedido: " + mensagemMoodle;

@@ -17,6 +17,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.classcardsaplicao.R;
 import com.example.classcardsaplicao.ui.deck.FlashcardDialogHelper;
 import com.example.classcardsaplicao.ui.deck.FormularioDeck;
+import com.example.classcardsaplicao.ui.deck.SeletorMaterialMoodle;
 import com.example.classcardsaplicao.ui.deck.create.FlashcardAdapter;
 
 public class EditarDeckFragment extends Fragment {
@@ -57,7 +58,8 @@ public class EditarDeckFragment extends Fragment {
         view.findViewById(R.id.btnVoltar).setOnClickListener(v -> NavHostFragment.findNavController(this).popBackStack());
         view.findViewById(R.id.btnTentarCarregarDeck).setOnClickListener(v -> viewModel.carregarDeck(deckId));
         view.findViewById(R.id.btnGerarFlashcards).setOnClickListener(v -> viewModel.gerarFlashcards(
-                materia.getText().toString(), descricao.getText().toString(), quantidade.getText().toString()));
+                materia.getText().toString(), descricao.getText().toString(), quantidade.getText().toString(),
+                SeletorMaterialMoodle.selecionado(view)));
         view.findViewById(R.id.btnSalvarDeck).setOnClickListener(v -> viewModel.salvarAlteracoes(
                 nome.getText().toString(), materia.getText().toString()));
         view.findViewById(R.id.btnCriarFlashcard).setOnClickListener(v -> {
