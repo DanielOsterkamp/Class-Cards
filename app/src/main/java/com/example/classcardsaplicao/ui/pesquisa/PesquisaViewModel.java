@@ -176,6 +176,12 @@ public class PesquisaViewModel extends ViewModel {
         relogio.postDelayed(pendente, PAUSA_DIGITACAO_MS);
     }
 
+    /** Bolha Moodle (Fase 9): o filtro por curso mudou, então os resultados guardados não valem mais. */
+    public void filtroMudou() {
+        cache.clear();
+        buscarAgora();
+    }
+
     /** A busca explícita antecipa a digitação pendente ou renova resultados já carregados. */
     public void buscarAgora() {
         if (encerrado) return;

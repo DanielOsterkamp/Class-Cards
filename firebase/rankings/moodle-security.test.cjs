@@ -5,7 +5,7 @@ const assert = require('node:assert/strict');
 const { readFileSync } = require('node:fs');
 const { join } = require('node:path');
 const { initializeTestEnvironment, assertFails, assertSucceeds } = require('@firebase/rules-unit-testing');
-const { doc, collection, query, where, getDoc, getDocs, setDoc, updateDoc, deleteDoc, writeBatch } = require('firebase/firestore');
+const { doc, collection, query, where, getDoc, getDocs, setDoc, updateDoc, deleteDoc, writeBatch, serverTimestamp } = require('firebase/firestore');
 
 const projectId = 'demo-classcards-moodle';
 assert.ok(process.env.FIRESTORE_EMULATOR_HOST, 'Execute pelo Firebase emulators:exec.');
@@ -39,11 +39,29 @@ beforeEach(async () => {
     lote.set(doc(db, 'decksMoodle/moodle-d2'), { ownerId: ALUNO_BDI.uid, titulo: 'Joins', tituloBusca: 'joins', cursoChave: BDI });
     // Baralho da bolha de fora, como os que já existem hoje.
     lote.set(doc(db, 'decks/publico1'), { ownerId: DE_FORA.uid, titulo: 'Biologia', tituloBusca: 'biologia' });
+    // Resumo de gamificação de cada conta (a regra do ranking confere os valores publicados contra ele).
+    for (const conta of [ALUNA_LPI, PROF_LPI, ALUNO_BDI, DE_FORA]) lote.set(doc(db, `users/${conta.uid}/gamificacao/resumo`), RESUMO);
     await lote.commit();
   });
 });
 
 const db = conta => env.authenticatedContext(conta.uid, conta.claims).firestore();
+
+// Ranking (2c): o campo opcional cursosChave só pode ter cursos da própria carteirinha.
+const RESUMO = { xp: 10, ofensiva: 1, cardsEstudados: 2, ultimoDiaEstudo: '2026-11-17', fusoHorario: 'America/Sao_Paulo' };
+const ranking = (conta, extra = {}) => setDoc(doc(db(conta), `rankings/${conta.uid}`), {
+  uid: conta.uid, nome: 'Teste', nomeBusca: 'teste', fotoUrl: '', ...RESUMO, atualizadoEm: serverTimestamp(), ...extra });
+
+test('ranking: conta Moodle publica os próprios cursos; curso alheio é recusado', async () => {
+  await assertSucceeds(ranking(ALUNA_LPI, { cursosChave: [LPI] }));
+  await assertFails(ranking(ALUNA_LPI, { cursosChave: [LPI, BDI] }));
+  await assertFails(ranking(ALUNA_LPI, { cursosChave: 'nao-e-lista' }));
+});
+
+test('ranking: conta de fora publica como antes e não pode inventar cursos', async () => {
+  await assertSucceeds(ranking(DE_FORA));
+  await assertFails(ranking(DE_FORA, { cursosChave: [LPI] }));
+});
 
 test('membro do curso lê o baralho e os cards do curso', async () => {
   await assertSucceeds(getDoc(doc(db(PROF_LPI), 'decksMoodle/moodle-d1')));

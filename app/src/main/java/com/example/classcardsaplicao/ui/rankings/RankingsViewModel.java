@@ -27,12 +27,14 @@ public class RankingsViewModel extends ViewModel {
 
     // a versão faz não mostrarmos dados antigos
     private int versao;
+    // Bolha Moodle (Fase 9): curso escolhido no filtro (null = todos)
+    private String filtroCurso;
 
     // o recalcular faz com que a cada minuto atualiza tabela automaticamente
     private final Runnable recalcular = new Runnable() {
         @Override public void run() {
             if (carregado && uidAtual != null && uidAtual.equals(FirebaseAuth.getInstance().getUid())) {
-                secoes.setValue(RankingCalculadora.montar(participantes, uidAtual, System.currentTimeMillis()));
+                secoes.setValue(RankingCalculadora.montar(filtrados(), uidAtual, System.currentTimeMillis()));
                 relogio.postDelayed(this, 60_000);
             }
         }
@@ -48,6 +50,21 @@ public class RankingsViewModel extends ViewModel {
 
     public MutableLiveData<Estado> getEstado() {
         return estado;
+    }
+
+    /** Bolha Moodle (Fase 9): mostra só os participantes de um curso (null = ranking global). */
+    public void filtrar(String chaveCurso) {
+        filtroCurso = chaveCurso;
+        if (carregado && uidAtual != null)
+            secoes.setValue(RankingCalculadora.montar(filtrados(), uidAtual, System.currentTimeMillis()));
+    }
+
+    private List<UsuarioRanking> filtrados() {
+        if (filtroCurso == null) return participantes;
+        List<UsuarioRanking> lista = new ArrayList<>();
+        for (UsuarioRanking usuario : participantes)
+            if (usuario.getCursosChave().contains(filtroCurso)) lista.add(usuario);
+        return lista;
     }
 
     public void carregar() {
@@ -101,7 +118,7 @@ public class RankingsViewModel extends ViewModel {
                 participantes = usuarios;
                 carregando = false;
                 carregado = true;
-                secoes.setValue(RankingCalculadora.montar(usuarios, uid, System.currentTimeMillis()));
+                secoes.setValue(RankingCalculadora.montar(filtrados(), uid, System.currentTimeMillis()));
                 estado.setValue(Estado.PRONTO);
                 relogio.removeCallbacks(recalcular);
                 relogio.postDelayed(recalcular, 60_000);

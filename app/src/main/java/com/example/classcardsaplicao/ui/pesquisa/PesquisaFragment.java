@@ -67,7 +67,7 @@ public class PesquisaFragment extends Fragment {
         BolhaMoodle.definirFiltroPesquisa(null);
         FiltroCursoMoodle.aplicar(view.findViewById(R.id.filtroCursoPesquisa), chave -> {
             BolhaMoodle.definirFiltroPesquisa(chave);
-            viewModel.buscarAgora();
+            viewModel.filtroMudou();
         });
         recycler.setItemAnimator(null);
 

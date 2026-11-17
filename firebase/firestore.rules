@@ -72,7 +72,10 @@ service cloud.firestore {
                     'ultimoDiaEstudo', 'fusoHorario', 'atualizadoEm'];
       return d.keys().hasAll(campos)
         // Opcional para manter os clientes anteriores compatíveis; somente clientes novos o gravam.
-        && d.keys().hasOnly(campos.concat(['nomeBusca']))
+        && d.keys().hasOnly(campos.concat(['nomeBusca', 'cursosChave']))
+        // Integração Moodle (Fase 9): cursos opcionais, só os da própria carteirinha (claims) e no máximo 30.
+        && (!('cursosChave' in d) || (d.cursosChave is list && d.cursosChave.size() <= 30
+            && d.cursosChave.hasOnly(request.auth.token.get('moodle', {}).get('cursos', []))))
         && (!('nomeBusca' in d) || (d.nomeBusca is string && d.nomeBusca.size() <= 240))
         && d.uid == uid
         && d.nome is string && d.nome.size() > 0 && d.nome.size() <= 120
