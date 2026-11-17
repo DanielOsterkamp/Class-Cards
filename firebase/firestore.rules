@@ -35,6 +35,35 @@ service cloud.firestore {
       }
     }
 
+    // Integração Moodle (Fase 9): baralhos da bolha Moodle, presos a um curso "<site>:<courseid>".
+    // Só o dono e os membros do curso (claims do passe emitido pelo plugin do Moodle) leem.
+    function cursosMoodle() {
+      return request.auth.token.get('moodle', {}).get('cursos', []);
+    }
+    match /decksMoodle/{deckId} {
+      allow read: if request.auth != null
+                  && (resource.data.ownerId == request.auth.uid || resource.data.cursoChave in cursosMoodle());
+      allow create: if request.auth != null && deckId.matches('moodle-.*')
+                    && request.resource.data.ownerId == request.auth.uid
+                    && request.resource.data.cursoChave in cursosMoodle();
+      // Mudar de curso só para um curso da pessoa; manter o curso vale mesmo se ela saiu dele (ex.: excluir).
+      allow update: if request.auth != null && resource.data.ownerId == request.auth.uid
+                    && request.resource.data.ownerId == request.auth.uid
+                    && (request.resource.data.cursoChave == resource.data.cursoChave
+                        || request.resource.data.cursoChave in cursosMoodle());
+      allow delete: if request.auth != null && resource.data.ownerId == request.auth.uid;
+      match /cards/{cardId} {
+        allow read: if request.auth != null
+                    && (get(/databases/$(database)/documents/decksMoodle/$(deckId)).data.ownerId == request.auth.uid
+                        || get(/databases/$(database)/documents/decksMoodle/$(deckId)).data.cursoChave in cursosMoodle());
+        allow create, update: if request.auth != null
+                              && getAfter(/databases/$(database)/documents/decksMoodle/$(deckId)).data.ownerId == request.auth.uid
+                              && !getAfter(/databases/$(database)/documents/decksMoodle/$(deckId)).data.get('excluindo', false);
+        allow delete: if request.auth != null
+                      && get(/databases/$(database)/documents/decksMoodle/$(deckId)).data.ownerId == request.auth.uid;
+      }
+    }
+
     // A projeção publica apenas o que aparece no ranking; nunca e-mail ou respostas.
     function rankingPublicoValido(uid) {
       let d = request.resource.data;
@@ -43,7 +72,10 @@ service cloud.firestore {
                     'ultimoDiaEstudo', 'fusoHorario', 'atualizadoEm'];
       return d.keys().hasAll(campos)
         // Opcional para manter os clientes anteriores compatíveis; somente clientes novos o gravam.
-        && d.keys().hasOnly(campos.concat(['nomeBusca']))
+        && d.keys().hasOnly(campos.concat(['nomeBusca', 'cursosChave']))
+        // Integração Moodle (Fase 9): cursos opcionais, só os da própria carteirinha (claims) e no máximo 30.
+        && (!('cursosChave' in d) || (d.cursosChave is list && d.cursosChave.size() <= 30
+            && d.cursosChave.hasOnly(request.auth.token.get('moodle', {}).get('cursos', []))))
         && (!('nomeBusca' in d) || (d.nomeBusca is string && d.nomeBusca.size() <= 240))
         && d.uid == uid
         && d.nome is string && d.nome.size() > 0 && d.nome.size() <= 120

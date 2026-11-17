@@ -55,6 +55,21 @@
             android:visibility="gone" />
     </FrameLayout>
 
+    <!-- Filtro por curso (bolha Moodle, Fase 9): só aparece para quem entrou pelo Moodle -->
+    <EditText
+        android:id="@+id/filtroCursoRankings"
+        style="@style/Widget.ClassCards.DeckInput"
+        android:layout_width="0dp"
+        android:layout_marginStart="@dimen/header_inset"
+        android:layout_marginEnd="@dimen/header_inset"
+        android:layout_marginTop="12dp"
+        android:focusable="false"
+        android:inputType="none"
+        android:visibility="gone"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/btnVoltar" />
+
     <LinearLayout
         android:id="@+id/containerDescricaoRankings"
         android:layout_width="0dp"
@@ -65,7 +80,7 @@
         android:orientation="vertical"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/btnVoltar">
+        app:layout_constraintTop_toBottomOf="@id/filtroCursoRankings">
 
         <TextView
             android:id="@+id/txtAvisoRankings"

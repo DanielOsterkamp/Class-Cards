@@ -125,6 +125,19 @@
             app:strokeWidth="1dp" />
     </com.google.android.material.button.MaterialButtonToggleGroup>
 
+    <!-- Filtro por curso (bolha Moodle, Fase 9): só aparece para quem entrou pelo Moodle -->
+    <EditText
+        android:id="@+id/filtroCursoPesquisa"
+        style="@style/Widget.ClassCards.DeckInput"
+        android:layout_width="0dp"
+        android:layout_marginTop="8dp"
+        android:focusable="false"
+        android:inputType="none"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="@id/togglePesquisa"
+        app:layout_constraintStart_toStartOf="@id/togglePesquisa"
+        app:layout_constraintTop_toBottomOf="@id/togglePesquisa" />
+
     <FrameLayout
         android:id="@+id/containerResultadosPesquisa"
         android:layout_width="0dp"
@@ -133,7 +146,7 @@
         app:layout_constraintBottom_toTopOf="@id/containerRodapePesquisa"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/togglePesquisa">
+        app:layout_constraintTop_toBottomOf="@+id/filtroCursoPesquisa">
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recyclerPesquisa"

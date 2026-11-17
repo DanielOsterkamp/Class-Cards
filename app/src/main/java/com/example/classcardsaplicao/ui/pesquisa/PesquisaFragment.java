@@ -23,6 +23,8 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.classcardsaplicao.R;
+import com.example.classcardsaplicao.data.moodle.BolhaMoodle;
+import com.example.classcardsaplicao.ui.moodle.FiltroCursoMoodle;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.button.MaterialButtonToggleGroup;
 import com.google.android.material.textfield.TextInputEditText;
@@ -61,6 +63,12 @@ public class PesquisaFragment extends Fragment {
         recycler = view.findViewById(R.id.recyclerPesquisa);
         campo = view.findViewById(R.id.campoPesquisa);
         toggle = view.findViewById(R.id.togglePesquisa);
+        // Filtro por curso da bolha Moodle (Fase 9): começa em "Todos"; ao mudar, pesquisa de novo
+        BolhaMoodle.definirFiltroPesquisa(null);
+        FiltroCursoMoodle.aplicar(view.findViewById(R.id.filtroCursoPesquisa), chave -> {
+            BolhaMoodle.definirFiltroPesquisa(chave);
+            viewModel.filtroMudou();
+        });
         recycler.setItemAnimator(null);
 
         androidx.navigation.NavBackStackEntry entrada = NavHostFragment.findNavController(this).getCurrentBackStackEntry();

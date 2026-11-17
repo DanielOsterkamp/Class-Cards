@@ -1,12 +1,14 @@
 package com.example.classcardsaplicao.data;
 
 import android.util.Log;
+import com.example.classcardsaplicao.data.moodle.BolhaMoodle;
 import com.example.classcardsaplicao.model.Deck;
 import com.example.classcardsaplicao.model.Flashcard;
 import com.example.classcardsaplicao.model.TextoPesquisa;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.WriteBatch;
 import com.google.firebase.firestore.Source;
 import com.google.firebase.auth.FirebaseAuth;
@@ -27,6 +29,11 @@ public class DeckRepository {
     }
 
     public void buscarDecksDoUsuario(String userId, BuscarDecksCallback callback) {
+        // Bolha Moodle: os baralhos de curso ficam em "decksMoodle" (Fase 9)
+        if (BolhaMoodle.ehMoodle()) {
+            buscarDecksMoodleDoUsuario(userId, callback);
+            return;
+        }
 
         // o collection do firebase seria tipo uma tabela do sql, aqui ele pega dos decks do usuario
 
@@ -53,8 +60,32 @@ public class DeckRepository {
         // igual em outros lugares, aqui ele passa a resposta pela interface do callback, que o codigo tá lá em baixo
     }
 
+    /** Bolha Moodle: os próprios baralhos, ou os de outra pessoa só dos cursos em comum. */
+    private void buscarDecksMoodleDoUsuario(String userId, BuscarDecksCallback callback) {
+        Query query = firestore.collection(BolhaMoodle.COLECAO_DECKS_MOODLE).whereEqualTo("ownerId", userId);
+        if (!userId.equals(FirebaseAuth.getInstance().getUid())) {
+            List<String> minhas = BolhaMoodle.minhasChaves();
+            if (minhas.isEmpty()) {
+                callback.onSuccess(new ArrayList<>());
+                return;
+            }
+            query = query.whereIn("cursoChave", minhas.subList(0, Math.min(30, minhas.size())));
+        }
+        query.get().addOnSuccessListener(querySnapshot -> {
+            List<Deck> decks = new ArrayList<>();
+            for (DocumentSnapshot documento : querySnapshot.getDocuments()) {
+                Deck deck = documento.toObject(Deck.class);
+                if (deck != null) {
+                    deck.setId(documento.getId());
+                    decks.add(deck);
+                }
+            }
+            callback.onSuccess(decks);
+        }).addOnFailureListener(callback::onError);
+    }
+
     public void buscarDeckPorId(String deckId, BuscarDeckCallback callback) {
-        firestore.collection("decks")
+        firestore.collection(BolhaMoodle.colecaoDoDeck(deckId))
                 .document(deckId)
                 .get()
                 .addOnSuccessListener(documentSnapshot -> {
@@ -84,7 +115,17 @@ public class DeckRepository {
     public void criarDeck(Deck deck, List<Flashcard> flashcards, DeckCallback callback) {
 
 
-        DocumentReference deckRef = firestore.collection("decks").document();
+        // Bolha Moodle: o baralho vai para "decksMoodle", preso ao curso da matéria (Fase 9)
+        boolean moodle = BolhaMoodle.ehMoodle();
+        String cursoChave = moodle ? BolhaMoodle.chaveDaMateria(deck.getMateria()) : null;
+        if (moodle && cursoChave == null) {
+            callback.onError(new Exception("Escolha a matéria na lista de cursos do Moodle."));
+            return;
+        }
+        DocumentReference deckRef = moodle
+                ? firestore.collection(BolhaMoodle.COLECAO_DECKS_MOODLE).document(BolhaMoodle.PREFIXO_DECK
+                        + firestore.collection(BolhaMoodle.COLECAO_DECKS_MOODLE).document().getId())
+                : firestore.collection("decks").document();
 
         // aqui ele tá criando uma referencia na "tabela" de decks
 
@@ -98,7 +139,9 @@ public class DeckRepository {
 
         // aqui ele salva as o deck e seus atributos nessa referencia
         // Metadados e índice usam uma única escrita dentro do mesmo lote dos flashcards.
-        batch.set(deckRef, dadosDeck(deck));
+        Map<String, Object> dados = dadosDeck(deck);
+        if (moodle) dados.put("cursoChave", cursoChave);
+        batch.set(deckRef, dados);
 
         // aqui salva os flashcards na subcoleção cards
 
@@ -120,7 +163,7 @@ public class DeckRepository {
 
 
     public void buscarFlashcardsDoDeck(String deckId, BuscarFlashcardsCallback callback) {
-        firestore.collection("decks")
+        firestore.collection(BolhaMoodle.colecaoDoDeck(deckId))
                 .document(deckId)
                 .collection("cards")
                 .get()
@@ -149,7 +192,7 @@ public class DeckRepository {
 
     public void atualizarDeck(Deck deck, List<Flashcard> flashcards, AtualizarDeckCallback callback) {
 
-        DocumentReference deckRef = firestore.collection("decks").document(deck.getId());
+        DocumentReference deckRef = firestore.collection(BolhaMoodle.colecaoDoDeck(deck.getId())).document(deck.getId());
 
         deckRef.collection("cards")
                 .get()
@@ -166,6 +209,12 @@ public class DeckRepository {
                             "quantidadeCards", flashcards.size(),
                             "updatedAt", System.currentTimeMillis()
                     );
+
+                    // Bolha Moodle: se a matéria mudou, o baralho passa para o curso novo (Fase 9)
+                    if (BolhaMoodle.COLECAO_DECKS_MOODLE.equals(BolhaMoodle.colecaoDoDeck(deck.getId()))) {
+                        String cursoChave = BolhaMoodle.chaveDaMateria(deck.getMateria());
+                        if (cursoChave != null) batch.update(deckRef, "cursoChave", cursoChave);
+                    }
 
                     // aqui salvamos os ids dos cards que vão continuar iguais, fazemos isso pra não perder as informações sobre a repetição espaçada
                     Set<String> idsMantidos = new HashSet<>();
@@ -226,7 +275,7 @@ public class DeckRepository {
 
     public void excluirDeck(String deckId, String uid, ExcluirDeckCallback callback) {
 
-        DocumentReference referencia = firestore.collection("decks").document(deckId);
+        DocumentReference referencia = firestore.collection(BolhaMoodle.colecaoDoDeck(deckId)).document(deckId);
 
         firestore.runTransaction(transaction -> {
             DocumentSnapshot deck = transaction.get(referencia);
