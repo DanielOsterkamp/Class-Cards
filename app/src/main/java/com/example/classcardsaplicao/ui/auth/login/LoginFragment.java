@@ -29,6 +29,8 @@ import android.widget.Toast;
 
 
 import com.example.classcardsaplicao.R;
+import com.example.classcardsaplicao.data.moodle.MoodleConfig;
+import com.example.classcardsaplicao.data.moodle.MoodleLogin;
 import com.google.android.libraries.identity.googleid.GetGoogleIdOption;
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential;
 
@@ -92,6 +94,12 @@ public class LoginFragment extends Fragment {
 
         // evento de click do botao de entrar com o google
         btnGoogle.setOnClickListener(v -> loginGoogle());
+
+        // botão "Entrar com o Moodle": só funciona se o módulo Moodle estiver ligado
+        Button btnMoodle = view.findViewById(R.id.btnMoodle);
+        if (MoodleConfig.habilitado(requireContext())) {
+            btnMoodle.setOnClickListener(v -> MoodleLogin.iniciar(requireActivity()));
+        }
 
         mViewModel.getLoginSucesso().observe(
                 getViewLifecycleOwner(),

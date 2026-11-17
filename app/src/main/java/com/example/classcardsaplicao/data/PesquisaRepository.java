@@ -1,5 +1,6 @@
 package com.example.classcardsaplicao.data;
 
+import com.example.classcardsaplicao.data.moodle.BolhaMoodle;
 import com.example.classcardsaplicao.model.ResultadoDeckPesquisa;
 import com.example.classcardsaplicao.model.ResultadoUsuarioPesquisa;
 import com.example.classcardsaplicao.model.TextoPesquisa;
@@ -18,16 +19,33 @@ public class PesquisaRepository implements PesquisaFonte {
     private final FirebaseFirestore firestore = FirebaseFirestore.getInstance();
 
     @Override public void buscarDecks(String termo, Object cursor, Callback<ResultadoDeckPesquisa> callback) {
-        buscar("decks", "tituloBusca", termo, cursor, doc -> new ResultadoDeckPesquisa(doc.getId(),
+        Query base = firestore.collection("decks");
+        // Bolha Moodle (Fase 9): só baralhos dos cursos da pessoa (ou do curso do filtro), em "decksMoodle"
+        if (BolhaMoodle.ehMoodle()) {
+            List<String> cursos = BolhaMoodle.chavesDaPesquisa();
+            if (cursos.isEmpty()) {
+                callback.onSuccess(new ArrayList<>(), null, false);
+                return;
+            }
+            base = firestore.collection(BolhaMoodle.COLECAO_DECKS_MOODLE).whereIn("cursoChave", cursos);
+        }
+        buscar(base, "tituloBusca", termo, cursor, doc -> true, doc -> new ResultadoDeckPesquisa(doc.getId(),
                 texto(doc, "titulo"), texto(doc, "materia"), numero(doc, "quantidadeCards")), callback);
     }
 
     @Override public void buscarUsuarios(String termo, Object cursor, Callback<ResultadoUsuarioPesquisa> callback) {
-        buscar("rankings", "nomeBusca", termo, cursor, doc -> new ResultadoUsuarioPesquisa(doc.getId(),
+        // Bolhas (Fase 9): quem é do Moodle vê só colegas de curso; quem é de fora, só contas de fora
+        boolean moodle = BolhaMoodle.ehMoodle();
+        List<String> cursos = BolhaMoodle.chavesDaPesquisa();
+        Filtro filtro = doc -> moodle
+                ? BolhaMoodle.contaMoodle(doc.getId()) && BolhaMoodle.temCursoEmComum(
+                        doc.get("cursosChave") instanceof List ? (List<?>) doc.get("cursosChave") : null, cursos)
+                : !BolhaMoodle.contaMoodle(doc.getId());
+        buscar(firestore.collection("rankings"), "nomeBusca", termo, cursor, filtro, doc -> new ResultadoUsuarioPesquisa(doc.getId(),
                 texto(doc, "nome"), texto(doc, "fotoUrl")), callback);
     }
 
-    private <T> void buscar(String colecao, String campo, String termo, Object cursor,
+    private <T> void buscar(Query base, String campo, String termo, Object cursor, Filtro filtro,
             Conversor<T> conversor, Callback<T> callback) {
         String uid = FirebaseAuth.getInstance().getUid();
         String chave = TextoPesquisa.normalizar(termo);
@@ -41,7 +59,7 @@ public class PesquisaRepository implements PesquisaFonte {
         }
 
         // O limite superior atende prefixos dos títulos/nomes latinos, incluindo português normalizado.
-        Query query = firestore.collection(colecao).orderBy(campo)
+        Query query = base.orderBy(campo)
                 .startAt(chave).endAt(chave + "\uf8ff").limit(TAMANHO_PAGINA + 1);
         if (cursor != null) query = query.startAfter((DocumentSnapshot) cursor);
 
@@ -50,7 +68,8 @@ public class PesquisaRepository implements PesquisaFonte {
             List<T> itens = new ArrayList<>();
             List<DocumentSnapshot> documentos = snapshot.getDocuments();
             int quantidade = Math.min(TAMANHO_PAGINA, documentos.size());
-            for (int i = 0; i < quantidade; i++) itens.add(conversor.converter(documentos.get(i)));
+            for (int i = 0; i < quantidade; i++)
+                if (filtro.aceita(documentos.get(i))) itens.add(conversor.converter(documentos.get(i)));
             Object proximo = quantidade == 0 ? null : documentos.get(quantidade - 1);
             callback.onSuccess(itens, proximo, documentos.size() > TAMANHO_PAGINA);
         }).addOnFailureListener(erro -> {
@@ -75,4 +94,5 @@ public class PesquisaRepository implements PesquisaFonte {
     }
 
     private interface Conversor<T> { T converter(DocumentSnapshot documento); }
+    private interface Filtro { boolean aceita(DocumentSnapshot documento); }
 }

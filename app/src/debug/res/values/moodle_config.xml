@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Somente na versão de DEBUG: liga o módulo Moodle e aponta para o Moodle de desenvolvimento.
+    O celular chega ao Moodle do PC pelo cabo USB com: adb reverse tcp:8000 tcp:8000
+-->
+<resources>
+    <bool name="moodle_habilitado">true</bool>
+    <string name="moodle_url" translatable="false">http://localhost:8000</string>
+</resources>

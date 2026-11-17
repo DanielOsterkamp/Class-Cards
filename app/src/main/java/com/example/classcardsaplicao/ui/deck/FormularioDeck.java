@@ -13,16 +13,22 @@ import com.google.android.material.switchmaterial.SwitchMaterial;
 public final class FormularioDeck {
     private final View raiz;
     private final SwitchMaterial modo;
+    private final SeletorMaterialMoodle seletorMaterial;
 
     public FormularioDeck(View raiz) {
         this.raiz = raiz;
         modo = raiz.findViewById(R.id.switchModoCriacao);
         modo.setOnCheckedChangeListener((botao, automatico) -> apresentarModo());
+        // quem entrou pelo Moodle escolhe a matéria numa lista com os cursos em que está inscrito
+        SeletorMateriaMoodle.aplicar(raiz.findViewById(R.id.inputMateriaDeck));
+        // quem entrou pelo Moodle pode usar um PDF do curso na geração automática (opcional)
+        seletorMaterial = SeletorMaterialMoodle.aplicar(raiz);
         apresentarModo();
     }
 
     public void apresentarModo() {
         boolean automatico = modo.isChecked();
+        if (seletorMaterial != null) seletorMaterial.aoMudarModo(automatico);
         raiz.findViewById(R.id.containerManual).setVisibility(automatico ? View.GONE : View.VISIBLE);
         raiz.findViewById(R.id.containerAutomatico).setVisibility(automatico ? View.VISIBLE : View.GONE);
         ((TextView) raiz.findViewById(R.id.txtManual)).setTextColor(ContextCompat.getColor(raiz.getContext(),

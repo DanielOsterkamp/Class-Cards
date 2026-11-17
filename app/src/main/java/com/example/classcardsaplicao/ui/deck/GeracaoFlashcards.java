@@ -6,7 +6,9 @@ import android.os.Looper;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
+import com.example.classcardsaplicao.data.AiMaterialRepository;
 import com.example.classcardsaplicao.data.AiRepository;
+import com.example.classcardsaplicao.data.moodle.MaterialMoodle;
 import com.example.classcardsaplicao.model.Flashcard;
 
 import java.util.ArrayList;
@@ -16,6 +18,7 @@ import java.util.function.Consumer;
 /** Validação e estados da geração por IA compartilhados pela criação e pela edição. */
 public final class GeracaoFlashcards {
     private final AiRepository repository;
+    private AiMaterialRepository materialRepository;
     private final Consumer<List<Flashcard>> receberCards;
     private final Consumer<String> receberErro;
     private final MutableLiveData<Boolean> gerando = new MutableLiveData<>(false);
@@ -33,12 +36,18 @@ public final class GeracaoFlashcards {
     public LiveData<Boolean> getGerando() { return gerando; }
 
     public void gerar(String materia, String descricao, String quantidadeTexto) {
+        gerar(materia, descricao, quantidadeTexto, null);
+    }
+
+    /** Com um PDF do Moodle, a descrição é opcional (serve de foco) e a IA usa o PDF como base. */
+    public void gerar(String materia, String descricao, String quantidadeTexto, MaterialMoodle material) {
+        boolean comMaterial = material != null && material.getConteudo() != null;
         if (encerrada || Boolean.TRUE.equals(gerando.getValue())) return;
         if (materia == null || materia.trim().isEmpty()) {
             receberErro.accept("Informe a matéria.");
             return;
         }
-        if (descricao == null || descricao.trim().isEmpty()) {
+        if (!comMaterial && (descricao == null || descricao.trim().isEmpty())) {
             receberErro.accept("Informe a descrição.");
             return;
         }
@@ -57,7 +66,7 @@ public final class GeracaoFlashcards {
         int carga = ++tentativa;
         gerando.setValue(true);
         try {
-            repository.gerarFlashcards(materia.trim(), descricao.trim(), quantidade, new AiRepository.AiCallback() {
+            AiRepository.AiCallback callback = new AiRepository.AiCallback() {
                 @Override public void onSuccess(List<Flashcard> cards) {
                     naPrincipal(() -> {
                         if (!valida(carga)) return;
@@ -87,7 +96,14 @@ public final class GeracaoFlashcards {
                     naPrincipal(() -> falhar(carga, erro != null && erro.getMessage() != null
                             ? erro.getMessage() : "Erro ao gerar flashcards."));
                 }
-            });
+            };
+            if (comMaterial) {
+                if (materialRepository == null) materialRepository = new AiMaterialRepository();
+                materialRepository.gerarFlashcards(materia.trim(), descricao == null ? "" : descricao.trim(),
+                        quantidade, material.getConteudo(), callback);
+            } else {
+                repository.gerarFlashcards(materia.trim(), descricao.trim(), quantidade, callback);
+            }
         } catch (Exception erro) {
             falhar(carga, "Não foi possível iniciar a criação dos flashcards. Tente novamente.");
         }

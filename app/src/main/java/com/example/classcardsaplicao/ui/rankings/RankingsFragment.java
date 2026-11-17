@@ -13,6 +13,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.classcardsaplicao.R;
+import com.example.classcardsaplicao.ui.moodle.FiltroCursoMoodle;
 
 public class RankingsFragment extends Fragment {
 
@@ -35,6 +36,9 @@ public class RankingsFragment extends Fragment {
                 NavHostFragment.findNavController(this).popBackStack());
         view.findViewById(R.id.btnAtualizarRankings).setOnClickListener(v -> viewModel.atualizar());
         view.findViewById(R.id.btnTentarRankings).setOnClickListener(v -> viewModel.atualizar());
+        // Filtro por curso da bolha Moodle (Fase 9): começa em "Todos" (ranking global)
+        viewModel.filtrar(null);
+        FiltroCursoMoodle.aplicar(view.findViewById(R.id.filtroCursoRankings), viewModel::filtrar);
 
         viewModel.getSecoes().observe(getViewLifecycleOwner(), secoes -> {
             adapter.atualizar(secoes);

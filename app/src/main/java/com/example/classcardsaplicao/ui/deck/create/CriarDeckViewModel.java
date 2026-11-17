@@ -6,6 +6,7 @@ import androidx.lifecycle.ViewModel;
 
 import com.example.classcardsaplicao.data.AiRepository;
 import com.example.classcardsaplicao.data.DeckRepository;
+import com.example.classcardsaplicao.data.moodle.MaterialMoodle;
 import com.example.classcardsaplicao.model.Deck;
 import com.example.classcardsaplicao.model.Flashcard;
 import com.example.classcardsaplicao.ui.deck.GeracaoFlashcards;
@@ -145,6 +146,12 @@ public class CriarDeckViewModel extends ViewModel {
     public void gerarFlashcards(String materia, String descricao, String quantidadeTexto) {
         if (Boolean.TRUE.equals(salvando.getValue())) return;
         geracao.gerar(materia, descricao, quantidadeTexto);
+    }
+
+    /** Geração com um PDF do Moodle (material == null funciona como a versão sem material). */
+    public void gerarFlashcards(String materia, String descricao, String quantidadeTexto, MaterialMoodle material) {
+        if (Boolean.TRUE.equals(salvando.getValue())) return;
+        geracao.gerar(materia, descricao, quantidadeTexto, material);
     }
     public void adicionarFlashcard(String pergunta, String resposta) {
         if (ocupado()) return;

@@ -1,5 +1,8 @@
 package com.example.classcardsaplicao.model;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.TimeZone;
 
 public final class UsuarioRanking {
@@ -11,6 +14,8 @@ public final class UsuarioRanking {
     private final long cardsEstudados;
     private final String ultimoDiaEstudo;
     private final String fusoHorario;
+    // Bolha Moodle (Fase 9): chaves "<site>:<courseid>" dos cursos do participante (vazio para contas de fora)
+    private List<String> cursosChave = Collections.emptyList();
 
     public UsuarioRanking(String uid, String nome, String fotoUrl, long xp, long ofensiva,
             long cardsEstudados, String ultimoDiaEstudo, String fusoHorario) {
@@ -28,6 +33,14 @@ public final class UsuarioRanking {
     public String getUid() { return uid; }
     public String getNome() { return nome; }
     public String getFotoUrl() { return fotoUrl; }
+    public List<String> getCursosChave() { return cursosChave; }
+
+    /** Complementa o participante com os cursos dele (usado pelo filtro por curso do ranking). */
+    public UsuarioRanking comCursos(List<String> cursos) {
+        this.cursosChave = cursos == null ? Collections.emptyList()
+                : Collections.unmodifiableList(new ArrayList<>(cursos));
+        return this;
+    }
 
     public long valor(TipoRanking tipo) {
         return valorEm(tipo, System.currentTimeMillis());

@@ -117,6 +117,16 @@
         android:orientation="vertical"
         android:visibility="gone">
 
+        <!-- Material do Moodle (opcional): só aparece para quem entrou pelo Moodle -->
+        <EditText
+            android:id="@+id/inputMaterialMoodle"
+            style="@style/Widget.ClassCards.DeckInput"
+            android:layout_marginTop="@dimen/spacing_md"
+            android:focusable="false"
+            android:inputType="none"
+            android:text="Material: Nenhum"
+            android:visibility="gone" />
+
         <EditText
             android:id="@+id/inputNumeroCards"
             style="@style/Widget.ClassCards.DeckInput"

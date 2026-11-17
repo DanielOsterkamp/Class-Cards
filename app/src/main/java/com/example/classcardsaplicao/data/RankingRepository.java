@@ -1,5 +1,7 @@
 package com.example.classcardsaplicao.data;
 
+import com.example.classcardsaplicao.data.moodle.BolhaMoodle;
+
 import android.util.Log;
 import com.example.classcardsaplicao.model.UsuarioRanking;
 import com.example.classcardsaplicao.model.TextoPesquisa;
@@ -50,7 +52,7 @@ public class RankingRepository {
             for (QueryDocumentSnapshot doc : task.getResult()) {
                 usuarios.add(new UsuarioRanking(doc.getId(), texto(doc, "nome"), texto(doc, "fotoUrl"),
                         numero(doc, "xp"), numero(doc, "ofensiva"), numero(doc, "cardsEstudados"),
-                        texto(doc, "ultimoDiaEstudo"), texto(doc, "fusoHorario")));
+                        texto(doc, "ultimoDiaEstudo"), texto(doc, "fusoHorario")).comCursos(lista(doc, "cursosChave")));
             }
             return usuarios;
         });
@@ -141,6 +143,8 @@ public class RankingRepository {
                     publicacao.put("fusoHorario", fuso);
                     publicacao.put("cardsEstudados", cardsEstudados);
                     publicacao.put("atualizadoEm", FieldValue.serverTimestamp());
+                    // Bolha Moodle (Fase 9): cursos da pessoa, para o filtro por curso do ranking
+                    if (BolhaMoodle.contaMoodle(uid)) publicacao.put("cursosChave", BolhaMoodle.minhasChaves());
 
                     transaction.set(resumo, canonico, SetOptions.merge());
 
@@ -169,6 +173,13 @@ public class RankingRepository {
         return false;
     }
     private static final class VersaoAlterada extends RuntimeException { }
+    // Bolha Moodle (Fase 9): lê uma lista de textos (ex.: cursosChave) com segurança
+    private static List<String> lista(DocumentSnapshot doc, String campo) {
+        List<String> lista = new ArrayList<>();
+        Object valor = doc.get(campo);
+        if (valor instanceof List) for (Object item : (List<?>) valor) if (item instanceof String) lista.add((String) item);
+        return lista;
+    }
     private static long numero(DocumentSnapshot doc, String campo) {
         Object valor = doc.get(campo);
         return valor instanceof Number ? Math.max(0, ((Number) valor).longValue()) : 0;

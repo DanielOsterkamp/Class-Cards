@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Integração com o Moodle (módulo novo).
+    Na versão final (release) o módulo fica DESLIGADO e o app se comporta como antes.
+    Na versão de debug, estes valores são substituídos por src/debug/res/values/moodle_config.xml.
+-->
+<resources>
+    <!-- interruptor do módulo Moodle -->
+    <bool name="moodle_habilitado">false</bool>
+    <!-- endereço do Moodle, exatamente igual ao wwwroot do site (sem barra no final) -->
+    <string name="moodle_url" translatable="false"></string>
+    <!-- esquema de retorno configurado no Moodle (tool_mobile/forcedurlscheme) -->
+    <string name="moodle_urlscheme" translatable="false">classcards</string>
+</resources>
