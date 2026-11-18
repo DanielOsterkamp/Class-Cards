@@ -40,17 +40,33 @@ service cloud.firestore {
     function cursosMoodle() {
       return request.auth.token.get('moodle', {}).get('cursos', []);
     }
+    function professorDoCurso(curso) {
+      return curso in request.auth.token.get('moodle', {}).get('prof', []);
+    }
     match /decksMoodle/{deckId} {
       allow read: if request.auth != null
                   && (resource.data.ownerId == request.auth.uid || resource.data.cursoChave in cursosMoodle());
       allow create: if request.auth != null && deckId.matches('moodle-.*')
                     && request.resource.data.ownerId == request.auth.uid
-                    && request.resource.data.cursoChave in cursosMoodle();
+                    && request.resource.data.cursoChave in cursosMoodle()
+                    && request.resource.data.get('verificadoPorProfessor', false) is bool
+                    && (!request.resource.data.get('verificadoPorProfessor', false)
+                        || professorDoCurso(request.resource.data.cursoChave));
       // Mudar de curso só para um curso da pessoa; manter o curso vale mesmo se ela saiu dele (ex.: excluir).
-      allow update: if request.auth != null && resource.data.ownerId == request.auth.uid
+      allow update: if request.auth != null
+                    && request.resource.data.get('verificadoPorProfessor', false) is bool
+                    && ((resource.data.ownerId == request.auth.uid
                     && request.resource.data.ownerId == request.auth.uid
                     && (request.resource.data.cursoChave == resource.data.cursoChave
-                        || request.resource.data.cursoChave in cursosMoodle());
+                        || request.resource.data.cursoChave in cursosMoodle())
+                    && (!request.resource.data.get('verificadoPorProfessor', false)
+                        || (request.resource.data.get('verificadoPorProfessor', false) == resource.data.get('verificadoPorProfessor', false)
+                            && !request.resource.data.diff(resource.data).affectedKeys().hasAny(['titulo', 'materia', 'cursoChave', 'updatedAt']))
+                        || professorDoCurso(request.resource.data.cursoChave)))
+                    || (professorDoCurso(resource.data.cursoChave)
+                        && !resource.data.get('excluindo', false)
+                        && request.resource.data.verificadoPorProfessor == true
+                        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['verificadoPorProfessor'])));
       allow delete: if request.auth != null && resource.data.ownerId == request.auth.uid;
       match /cards/{cardId} {
         allow read: if request.auth != null
@@ -58,9 +74,14 @@ service cloud.firestore {
                         || get(/databases/$(database)/documents/decksMoodle/$(deckId)).data.cursoChave in cursosMoodle());
         allow create, update: if request.auth != null
                               && getAfter(/databases/$(database)/documents/decksMoodle/$(deckId)).data.ownerId == request.auth.uid
-                              && !getAfter(/databases/$(database)/documents/decksMoodle/$(deckId)).data.get('excluindo', false);
+                              && !getAfter(/databases/$(database)/documents/decksMoodle/$(deckId)).data.get('excluindo', false)
+                              && (!getAfter(/databases/$(database)/documents/decksMoodle/$(deckId)).data.get('verificadoPorProfessor', false)
+                                  || professorDoCurso(getAfter(/databases/$(database)/documents/decksMoodle/$(deckId)).data.cursoChave));
         allow delete: if request.auth != null
-                      && get(/databases/$(database)/documents/decksMoodle/$(deckId)).data.ownerId == request.auth.uid;
+                      && get(/databases/$(database)/documents/decksMoodle/$(deckId)).data.ownerId == request.auth.uid
+                      && (get(/databases/$(database)/documents/decksMoodle/$(deckId)).data.get('excluindo', false)
+                          || !getAfter(/databases/$(database)/documents/decksMoodle/$(deckId)).data.get('verificadoPorProfessor', false)
+                          || professorDoCurso(get(/databases/$(database)/documents/decksMoodle/$(deckId)).data.cursoChave));
       }
     }
 

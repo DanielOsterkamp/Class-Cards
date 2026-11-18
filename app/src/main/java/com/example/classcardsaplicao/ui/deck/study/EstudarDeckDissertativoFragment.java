@@ -107,7 +107,7 @@ public class EstudarDeckDissertativoFragment extends Fragment {
 
             // Mostra uma mensagem adequada para sessão vazia, sessão concluída ou card em andamento.
             if (concluida && vm.getResultadoOfensiva() != null) {
-                ConclusaoEstudo.voltarAoDeck(this, vm.getResultadoOfensiva());
+                ConclusaoEstudo.voltarAoDeck(this, vm.getResultadoOfensiva(), vm.getResumoEstudo());
                 return;
             }
             if (concluida) {

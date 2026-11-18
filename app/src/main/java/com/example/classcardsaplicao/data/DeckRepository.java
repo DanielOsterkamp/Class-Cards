@@ -107,12 +107,52 @@ public class DeckRepository {
 
                     deck.setId(documentSnapshot.getId());
 
-                    callback.onSuccess(deck);
+                    // Decks antigos do próprio professor ganham o selo ao serem abertos.
+                    if (!documentSnapshot.contains("verificadoPorProfessor")
+                            && deck.getOwnerId() != null
+                            && deck.getOwnerId().equals(FirebaseAuth.getInstance().getUid())
+                            && BolhaMoodle.COLECAO_DECKS_MOODLE.equals(BolhaMoodle.colecaoDoDeck(deckId))) {
+                        FirebaseAuth.getInstance().getCurrentUser().getIdToken(false)
+                                .addOnSuccessListener(token -> {
+                                    if (!professorNoCurso(token.getClaims(), deck.getCursoChave())) {
+                                        callback.onSuccess(deck); return;
+                                    }
+                                    verificarDeck(deckId, new AtualizarDeckCallback() {
+                                        @Override public void onSuccess() {
+                                            deck.setVerificadoPorProfessor(true); callback.onSuccess(deck);
+                                        }
+                                        @Override public void onError(Exception erro) { callback.onSuccess(deck); }
+                                    });
+                                }).addOnFailureListener(erro -> callback.onSuccess(deck));
+                    } else callback.onSuccess(deck);
                 })
                 .addOnFailureListener(callback::onError);
     }
 
     public void criarDeck(Deck deck, List<Flashcard> flashcards, DeckCallback callback) {
+        if (!BolhaMoodle.ehMoodle()) {
+            criarDeckAutorizado(deck, flashcards, false, callback);
+            return;
+        }
+        com.google.firebase.auth.FirebaseUser usuario = FirebaseAuth.getInstance().getCurrentUser();
+        if (usuario == null) { callback.onError(new Exception("Entre novamente.")); return; }
+        usuario.getIdToken(false).addOnSuccessListener(token -> {
+            if (!usuario.getUid().equals(FirebaseAuth.getInstance().getUid())) {
+                callback.onError(new Exception("A conta mudou. Entre novamente.")); return;
+            }
+            criarDeckAutorizado(deck, flashcards, professorNoCurso(token.getClaims(),
+                    BolhaMoodle.chaveDaMateria(deck.getMateria())), callback);
+        }).addOnFailureListener(callback::onError);
+    }
+
+    static boolean professorNoCurso(Map<String, Object> claims, String curso) {
+        Object moodle = claims.get("moodle");
+        Object professores = moodle instanceof Map ? ((Map<?, ?>) moodle).get("prof") : null;
+        return curso != null && professores instanceof List && ((List<?>) professores).contains(curso);
+    }
+
+    private void criarDeckAutorizado(Deck deck, List<Flashcard> flashcards,
+                                     boolean professor, DeckCallback callback) {
 
 
         // Bolha Moodle: o baralho vai para "decksMoodle", preso ao curso da matéria (Fase 9)
@@ -140,7 +180,10 @@ public class DeckRepository {
         // aqui ele salva as o deck e seus atributos nessa referencia
         // Metadados e índice usam uma única escrita dentro do mesmo lote dos flashcards.
         Map<String, Object> dados = dadosDeck(deck);
-        if (moodle) dados.put("cursoChave", cursoChave);
+        if (moodle) {
+            dados.put("cursoChave", cursoChave);
+            dados.put("verificadoPorProfessor", professor);
+        }
         batch.set(deckRef, dados);
 
         // aqui salva os flashcards na subcoleção cards
@@ -191,6 +234,22 @@ public class DeckRepository {
 
 
     public void atualizarDeck(Deck deck, List<Flashcard> flashcards, AtualizarDeckCallback callback) {
+        if (!BolhaMoodle.COLECAO_DECKS_MOODLE.equals(BolhaMoodle.colecaoDoDeck(deck.getId()))) {
+            atualizarDeckAutorizado(deck, flashcards, false, callback); return;
+        }
+        com.google.firebase.auth.FirebaseUser usuario = FirebaseAuth.getInstance().getCurrentUser();
+        if (usuario == null) { callback.onError(new Exception("Entre novamente.")); return; }
+        usuario.getIdToken(false).addOnSuccessListener(token -> {
+            if (!usuario.getUid().equals(FirebaseAuth.getInstance().getUid())) {
+                callback.onError(new Exception("A conta mudou.")); return;
+            }
+            atualizarDeckAutorizado(deck, flashcards, professorNoCurso(token.getClaims(),
+                    BolhaMoodle.chaveDaMateria(deck.getMateria())), callback);
+        }).addOnFailureListener(callback::onError);
+    }
+
+    private void atualizarDeckAutorizado(Deck deck, List<Flashcard> flashcards,
+                                         boolean professor, AtualizarDeckCallback callback) {
 
         DocumentReference deckRef = firestore.collection(BolhaMoodle.colecaoDoDeck(deck.getId())).document(deck.getId());
 
@@ -214,6 +273,8 @@ public class DeckRepository {
                     if (BolhaMoodle.COLECAO_DECKS_MOODLE.equals(BolhaMoodle.colecaoDoDeck(deck.getId()))) {
                         String cursoChave = BolhaMoodle.chaveDaMateria(deck.getMateria());
                         if (cursoChave != null) batch.update(deckRef, "cursoChave", cursoChave);
+                        // Uma edição do conteúdo exige nova validação; o professor pode confirmar novamente.
+                        batch.update(deckRef, "verificadoPorProfessor", professor);
                     }
 
                     // aqui salvamos os ids dos cards que vão continuar iguais, fazemos isso pra não perder as informações sobre a repetição espaçada
@@ -371,6 +432,21 @@ public class DeckRepository {
         }
     }
 
+    /** Altera somente o selo. As regras conferem a claim de professor no curso do documento. */
+    public void verificarDeck(String deckId, AtualizarDeckCallback callback) {
+        if (!BolhaMoodle.COLECAO_DECKS_MOODLE.equals(BolhaMoodle.colecaoDoDeck(deckId))) {
+            callback.onError(new Exception("A verificação exige um curso do Moodle.")); return;
+        }
+        DocumentReference referencia = firestore.collection(BolhaMoodle.COLECAO_DECKS_MOODLE).document(deckId);
+        firestore.runTransaction(transacao -> {
+            DocumentSnapshot atual = transacao.get(referencia);
+            if (!atual.exists() || Boolean.TRUE.equals(atual.getBoolean("excluindo")))
+                throw new IllegalStateException("Este deck não está disponível para verificação.");
+            transacao.update(referencia, "verificadoPorProfessor", true);
+            return null;
+        }).addOnSuccessListener(ignorado -> callback.onSuccess()).addOnFailureListener(callback::onError);
+    }
+
     public interface BuscarDeckCallback {
 
         void onSuccess(Deck deck);
@@ -397,4 +473,3 @@ public class DeckRepository {
         void onError(Exception exception);
     }
 }
-

@@ -2,6 +2,8 @@ package com.example.classcardsaplicao.data;
 
 import com.example.classcardsaplicao.model.FsrsScheduler;
 import com.example.classcardsaplicao.model.ResultadoOfensiva;
+import com.example.classcardsaplicao.model.ResultadoRevisao;
+import com.example.classcardsaplicao.model.ResumoEstudo;
 import com.example.classcardsaplicao.model.ProgressoFlashcard;
 import com.example.classcardsaplicao.model.Rating;
 import com.example.classcardsaplicao.model.RegrasGamificacao;
@@ -17,7 +19,18 @@ import java.util.TimeZone;
 
 // salva os pontos de flashcard, flashcard estudados e ofensivas no firebase
 public class GamificacaoRepository {
-    private final FirebaseFirestore firestore = FirebaseFirestore.getInstance();
+    private final FirebaseFirestore firestore;
+    private final Runnable atualizarRanking;
+
+    public GamificacaoRepository() {
+        this(FirebaseFirestore.getInstance(), RankingRepository::atualizarEmSegundoPlano);
+    }
+
+    // Permite exercitar a transação no emulador, sem publicar dados em um projeto real.
+    GamificacaoRepository(FirebaseFirestore firestore, Runnable atualizarRanking) {
+        this.firestore = firestore;
+        this.atualizarRanking = atualizarRanking;
+    }
 
     public void confirmarRevisao(String uid, String deckId, String flashcardId,
             String tentativaId, Rating rating, Callback callback) {
@@ -59,8 +72,14 @@ public class GamificacaoRepository {
 
             DocumentSnapshot recibo = transaction.get(evento);
             if (recibo.exists()) {
-                return new ResultadoOfensiva(numero(recibo, "ofensivaAnterior"),
+                ResultadoOfensiva ofensiva = new ResultadoOfensiva(numero(recibo, "ofensivaAnterior"),
                         numero(recibo, "ofensivaAtual"), Boolean.TRUE.equals(recibo.getBoolean("ofensivaConquistada")));
+                // Reenviar a mesma tentativa recupera os totais originais, sem conceder pontos de novo.
+                ResumoEstudo totais = recibo.contains("xpAnterior") && recibo.contains("xpAtual")
+                        && recibo.contains("cardsEstudadosAnterior") && recibo.contains("cardsEstudadosAtual")
+                        ? new ResumoEstudo(numero(recibo, "cardsEstudadosAnterior"), numero(recibo, "cardsEstudadosAtual"),
+                                numero(recibo, "xpAnterior"), numero(recibo, "xpAtual")) : null;
+                return new ResultadoRevisao(ofensiva, totais);
             }
 
             DocumentSnapshot stats = transaction.get(resumo);
@@ -74,13 +93,15 @@ public class GamificacaoRepository {
             // recalcula a próxima revisão com a classificação confirmada pelo estudante.
             new FsrsScheduler().revisar(progressoFlashcard, rating);
             long xp = numero(stats, "xp");
+            long cardsAntes = numero(stats, "cardsEstudados");
+            ResumoEstudo totais = new ResumoEstudo(cardsAntes, cardsAntes + (primeiroEstudo ? 1 : 0), xp, xp + xpGanho);
             ResultadoOfensiva resultado = ResultadoOfensiva.calcular(numero(stats, "ofensiva"),
                     stats.getString("ultimoDiaEstudo"), hoje, ontem, ultimaRevisao);
 
             Map<String, Object> valores = new HashMap<>();
-            valores.put("xp", xp + xpGanho);
+            valores.put("xp", totais.pontosAgora);
             valores.put("fusoHorario", zona.getID());
-            valores.put("cardsEstudados", numero(stats, "cardsEstudados") + (primeiroEstudo ? 1 : 0)); // fazemos isso porque o firebase não entende booleano, temos que passar 1 ou 0
+            valores.put("cardsEstudados", totais.cardsAgora);
             valores.put("versaoEstudos", numero(stats, "versaoEstudos") + 1);
 
             if (resultado.conquistada) {
@@ -93,6 +114,10 @@ public class GamificacaoRepository {
             registro.put("flashcardId", flashcardId);
             registro.put("rating", rating.name());
             registro.put("xp", xpGanho);
+            registro.put("xpAnterior", totais.pontosAntes);
+            registro.put("xpAtual", totais.pontosAgora);
+            registro.put("cardsEstudadosAnterior", totais.cardsAntes);
+            registro.put("cardsEstudadosAtual", totais.cardsAgora);
             registro.put("sessaoConcluida", ultimaRevisao);
             registro.put("ofensivaAnterior", resultado.anterior);
             registro.put("ofensivaAtual", resultado.atual);
@@ -102,9 +127,9 @@ public class GamificacaoRepository {
             transaction.set(progresso, progressoFlashcard);
             transaction.set(resumo, valores, SetOptions.merge());
             transaction.set(evento, registro);
-            return resultado;
+            return new ResultadoRevisao(resultado, totais);
         }).addOnSuccessListener(resultado -> {
-            RankingRepository.atualizarEmSegundoPlano();
+            atualizarRanking.run();
             callback.onSuccess(resultado);
         })
                 .addOnFailureListener(callback::onError);
@@ -119,6 +144,8 @@ public class GamificacaoRepository {
         void onSuccess();
 
         default void onSuccess(ResultadoOfensiva resultado) { onSuccess(); }
+
+        default void onSuccess(ResultadoRevisao resultado) { onSuccess(resultado.ofensiva); }
 
         void onError(Exception erro);
     }

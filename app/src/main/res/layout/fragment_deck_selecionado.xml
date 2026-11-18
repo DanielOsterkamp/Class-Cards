@@ -42,6 +42,14 @@
                     android:layout_weight="1"
                     android:text="Deck" />
 
+                <androidx.appcompat.widget.AppCompatImageButton
+                    android:id="@+id/btnVerificarDeck"
+                    android:layout_width="48dp" android:layout_height="48dp"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:contentDescription="@string/deck_verificar"
+                    android:padding="12dp" android:visibility="gone"
+                    app:srcCompat="@drawable/ic_deck_verificado" />
+
                 <!-- Ações do dono ficam no cabeçalho, com área de toque de 48dp. -->
                 <androidx.appcompat.widget.AppCompatImageButton
                     android:id="@+id/btnEditarDeck"
@@ -103,6 +111,34 @@
                 android:textSize="@dimen/text_body"
                 tools:text="Biologia" />
 
+
+            <!-- O grupo controla a visibilidade; ícone e texto podem ser ajustados separadamente. -->
+            <LinearLayout
+                android:id="@+id/containerDeckVerificado"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <androidx.appcompat.widget.AppCompatImageView
+                    android:id="@+id/imgDeckVerificado"
+                    android:layout_width="34dp"
+                    android:layout_height="47dp"
+                    android:importantForAccessibility="no"
+                    app:srcCompat="@drawable/ic_deck_verificado" />
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/txtDeckVerificado"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:layout_weight="1"
+                    android:text="@string/deck_verificado"
+                    android:textColor="#FFFFFFFF"
+                    android:textSize="16sp" />
+
+            </LinearLayout>
 
             <!-- INFORMAÇÕES -->
 

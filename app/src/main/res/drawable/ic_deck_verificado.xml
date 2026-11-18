@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+
+    <!-- O segundo contorno recorta o V: transparente sobre qualquer fundo. -->
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:fillType="evenOdd"
+        android:pathData="M3.85,8.62 a4,4 0,0 1,4.78,-4.77 a4,4 0,0 1,6.74,0 a4,4 0,0 1,4.78,4.78 a4,4 0,0 1,0,6.74 a4,4 0,0 1,-4.77,4.78 a4,4 0,0 1,-6.75,0 a4,4 0,0 1,-4.78,-4.77 a4,4 0,0 1,0,-6.76 Z M7.401,12.849 A1.2,1.2 0,0 1,9.099,11.151 L10.35,12.403 L13.701,9.051 A1.2,1.2 0,0 1,15.399,10.749 L11.199,14.949 A1.2,1.2 0,0 1,9.501,14.949 Z" />
+</vector>

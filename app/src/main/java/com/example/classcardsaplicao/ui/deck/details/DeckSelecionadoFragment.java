@@ -19,6 +19,7 @@ import com.google.firebase.auth.FirebaseAuth;
 
 public class DeckSelecionadoFragment extends Fragment {
     private FirebaseAuth.AuthStateListener listenerAuth;
+    private DialogosConclusaoEstudo dialogosConclusao;
 
     public DeckSelecionadoFragment() { super(R.layout.fragment_deck_selecionado); }
 
@@ -26,6 +27,8 @@ public class DeckSelecionadoFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         DeckSelecionadoViewModel viewModel = new ViewModelProvider(this).get(DeckSelecionadoViewModel.class);
         String deckId = requireArguments().getString("deckId");
+        dialogosConclusao = new DialogosConclusaoEstudo(this, NavHostFragment.findNavController(this)
+                .getBackStackEntry(R.id.deckSelecionadoFragment).getSavedStateHandle());
         view.findViewById(R.id.btnVoltar).setOnClickListener(v -> NavHostFragment.findNavController(this).popBackStack());
 
         OnBackPressedCallback aguardarExclusao = new OnBackPressedCallback(false) {
@@ -36,10 +39,28 @@ public class DeckSelecionadoFragment extends Fragment {
         requireActivity().getOnBackPressedDispatcher().addCallback(getViewLifecycleOwner(), aguardarExclusao);
 
         Runnable atualizarAcoes = () -> {
-            boolean ocupado = Boolean.TRUE.equals(viewModel.getExcluindo().getValue());
+            boolean ocupado = Boolean.TRUE.equals(viewModel.getExcluindo().getValue())
+                    || Boolean.TRUE.equals(viewModel.getVerificando().getValue());
             aguardarExclusao.setEnabled(ocupado);
             boolean dono = viewModel.usuarioEhDono();
             boolean pendente = viewModel.getDeck().getValue() != null && viewModel.getDeck().getValue().isExcluindo();
+            com.example.classcardsaplicao.model.Deck atual = viewModel.getDeck().getValue();
+            boolean professor = false;
+            if (atual != null) {
+                String uid = FirebaseAuth.getInstance().getUid();
+                String siteCurso = atual.getCursoChave();
+                String siteUid = uid != null && uid.startsWith("moodle-") && uid.lastIndexOf('-') > 7
+                        ? uid.substring(7, uid.lastIndexOf('-')) : "";
+                for (com.example.classcardsaplicao.data.moodle.CursoMoodle curso :
+                        com.example.classcardsaplicao.data.moodle.MoodleSessao.cursos(requireContext(), uid)) {
+                    if (curso.isProfessor() && (siteUid + ":" + curso.getId()).equals(siteCurso)) professor = true;
+                }
+            }
+            view.findViewById(R.id.btnVerificarDeck).setVisibility(
+                    professor && atual != null && !atual.isVerificadoPorProfessor() && !pendente ? View.VISIBLE : View.GONE);
+            view.findViewById(R.id.btnVerificarDeck).setEnabled(!ocupado);
+            view.findViewById(R.id.containerDeckVerificado).setVisibility(
+                    atual != null && atual.isVerificadoPorProfessor() ? View.VISIBLE : View.GONE);
             view.findViewById(R.id.btnEditarDeck).setVisibility(dono && !pendente ? View.VISIBLE : View.GONE);
             view.findViewById(R.id.btnExcluirDeck).setVisibility(dono ? View.VISIBLE : View.GONE);
             view.findViewById(R.id.btnEstudar).setEnabled(viewModel.getDeck().getValue() != null && !ocupado && !pendente);
@@ -60,6 +81,16 @@ public class DeckSelecionadoFragment extends Fragment {
         });
         viewModel.getNomeCriador().observe(getViewLifecycleOwner(), nome ->
                 ((TextView) view.findViewById(R.id.txtCriadorDeck)).setText(getString(R.string.deck_criador, nome)));
+        viewModel.getVerificando().observe(getViewLifecycleOwner(), valor -> atualizarAcoes.run());
+        view.findViewById(R.id.btnVerificarDeck).setOnClickListener(v -> {
+            if (!v.isEnabled()) return;
+            new MaterialAlertDialogBuilder(requireContext())
+                    .setTitle(R.string.deck_verificar)
+                    .setMessage(R.string.deck_verificar_confirmacao)
+                    .setNegativeButton(R.string.deck_cancelar, null)
+                    .setPositiveButton(R.string.deck_verificar_sim, (dialog, botao) -> viewModel.verificarDeck())
+                    .show();
+        });
         viewModel.getExcluindo().observe(getViewLifecycleOwner(), valor -> atualizarAcoes.run());
         listenerAuth = auth -> atualizarAcoes.run();
         FirebaseAuth.getInstance().addAuthStateListener(listenerAuth);
@@ -105,17 +136,7 @@ public class DeckSelecionadoFragment extends Fragment {
 
     @Override public void onResume() {
         super.onResume();
-        androidx.lifecycle.SavedStateHandle estado = NavHostFragment.findNavController(this)
-                .getBackStackEntry(R.id.deckSelecionadoFragment).getSavedStateHandle();
-        Bundle conquista = estado.get(com.example.classcardsaplicao.ui.deck.study.ConclusaoEstudo.CHAVE);
-        if (conquista != null) {
-            if (getChildFragmentManager().findFragmentByTag(OfensivaConquistadaDialog.TAG) == null) {
-                OfensivaConquistadaDialog dialog = new OfensivaConquistadaDialog();
-                dialog.setArguments(conquista);
-                dialog.showNow(getChildFragmentManager(), OfensivaConquistadaDialog.TAG);
-            }
-            estado.remove(com.example.classcardsaplicao.ui.deck.study.ConclusaoEstudo.CHAVE);
-        }
+        if (dialogosConclusao != null) dialogosConclusao.agendar();
         // Recarrega título e quantidade ao retornar da edição.
         new ViewModelProvider(this).get(DeckSelecionadoViewModel.class)
                 .carregarDeck(requireArguments().getString("deckId"));
@@ -124,6 +145,7 @@ public class DeckSelecionadoFragment extends Fragment {
     @Override public void onDestroyView() {
         if (listenerAuth != null) FirebaseAuth.getInstance().removeAuthStateListener(listenerAuth);
         listenerAuth = null;
+        dialogosConclusao = null;
         super.onDestroyView();
     }
 }

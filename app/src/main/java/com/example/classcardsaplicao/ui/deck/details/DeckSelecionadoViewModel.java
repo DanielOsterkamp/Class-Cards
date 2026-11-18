@@ -21,6 +21,30 @@ public class DeckSelecionadoViewModel extends ViewModel {
     private final MutableLiveData<String> nomeCriador = new MutableLiveData<>("Carregando criador...");
     private final MutableLiveData<Boolean> excluindo = new MutableLiveData<>(false);
     private final MutableLiveData<String> excluido = new MutableLiveData<>();
+    private final MutableLiveData<Boolean> verificando = new MutableLiveData<>(false);
+    public LiveData<Boolean> getVerificando() { return verificando; }
+
+    public void verificarDeck() {
+        Deck atual = deck.getValue();
+        String uid = usuarioAtual.get();
+        if (encerrado || atual == null || uid == null || atual.isExcluindo()
+                || Boolean.TRUE.equals(verificando.getValue()) || Boolean.TRUE.equals(excluindo.getValue())) return;
+        verificando.setValue(true);
+        repository.verificarDeck(atual.getId(), new DeckRepository.AtualizarDeckCallback() {
+            @Override public void onSuccess() {
+                if (encerrado) return;
+                verificando.setValue(false);
+                if (!uid.equals(usuarioAtual.get())) return;
+                carregarDeck(atual.getId());
+            }
+            @Override public void onError(Exception exception) {
+                if (encerrado) return;
+                verificando.setValue(false);
+                if (uid.equals(usuarioAtual.get())) erro.setValue("Não foi possível verificar o deck. Confira sua permissão e conexão.");
+            }
+        });
+    }
+
     private int versao;
     private boolean encerrado;
 

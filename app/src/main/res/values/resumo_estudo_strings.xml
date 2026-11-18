@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="resumo_estudo_titulo">Resumo do Estudo</string>
+    <string name="resumo_cards_estudados">Cards estudados</string>
+    <string name="resumo_pontos">Pontos</string>
+    <string name="resumo_valor_antes">Antes: %1$s</string>
+    <string name="resumo_valor_agora">Agora: %1$s</string>
+    <string name="resumo_fechar">Fechar resumo do estudo</string>
+</resources>

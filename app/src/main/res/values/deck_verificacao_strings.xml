@@ -1,0 +1,7 @@
+<resources>
+    <string name="deck_verificado">Deck verificado por professor</string>
+    <string name="deck_verificar">Verificar deck como professor</string>
+    <string name="deck_verificar_confirmacao">Você, como professor, deseja tornar esse deck verificado?</string>
+    <string name="deck_verificar_sim">Sim, verificar</string>
+    <string name="deck_verificado_sucesso">Deck verificado com sucesso.</string>
+</resources>

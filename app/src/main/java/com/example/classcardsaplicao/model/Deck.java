@@ -15,6 +15,14 @@ public class Deck {
 
     private int quantidadeCards;
     private boolean excluindo;
+    private boolean verificadoPorProfessor;
+    private String cursoChave;
+
+    public boolean isVerificadoPorProfessor() { return verificadoPorProfessor; }
+    public void setVerificadoPorProfessor(boolean valor) { verificadoPorProfessor = valor; }
+    public String getCursoChave() { return cursoChave; }
+    public void setCursoChave(String valor) { cursoChave = valor; }
+
 
     public boolean isExcluindo() { return excluindo; }
     public void setExcluindo(boolean excluindo) { this.excluindo = excluindo; }

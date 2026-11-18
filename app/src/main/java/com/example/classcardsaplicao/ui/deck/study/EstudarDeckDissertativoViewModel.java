@@ -76,6 +76,10 @@ public class EstudarDeckDissertativoViewModel extends ViewModel {
         return resultado == null ? null : ConclusaoEstudo.ler(resultado);
     }
 
+    public ResumoEstudo getResumoEstudo() {
+        return ConclusaoEstudo.lerResumo(salvo.get("resumoEstudoSessao"));
+    }
+
     private boolean ultimaRevisao() {
         for (int i = getIndice() + 1; i < cards.size(); i++)
             if (cards.get(i) != null) return false;
@@ -371,6 +375,16 @@ public class EstudarDeckDissertativoViewModel extends ViewModel {
         estado.setValue(Estado.SALVANDO);
         gamificacao.confirmarRevisao(salvo.get("uid"), salvo.get("deckId"), getAtual().getId(),
                 salvo.get("tentativaId"), rating, ultimaRevisao(), new GamificacaoRepository.Callback() {
+            @Override
+            public void onSuccess(ResultadoRevisao resultado) {
+                if (autenticado() && resultado.resumo != null) {
+                    ResumoEstudo anterior = getResumoEstudo();
+                    salvo.set("resumoEstudoSessao", ConclusaoEstudo.dadosResumo(anterior == null
+                            ? resultado.resumo : anterior.ate(resultado.resumo)));
+                }
+                onSuccess(resultado.ofensiva);
+            }
+
             @Override
             public void onSuccess(ResultadoOfensiva resultado) {
                 if (ultimaRevisao()) salvo.set("conclusaoOfensiva", ConclusaoEstudo.dados(resultado));

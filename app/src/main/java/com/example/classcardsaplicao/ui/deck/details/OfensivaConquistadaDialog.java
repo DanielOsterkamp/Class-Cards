@@ -6,12 +6,14 @@ import android.view.View;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.fragment.app.DialogFragment;
 import com.example.classcardsaplicao.R;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
-public class OfensivaConquistadaDialog extends DialogFragment {
+public class OfensivaConquistadaDialog extends DialogConclusaoEstudo {
     public static final String TAG = "ofensivaConquistada";
+    public static final String FECHADO = "ofensivaConquistadaFechada";
+
+    @Override protected String resultadoFechamento() { return FECHADO; }
 
     @NonNull @Override public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
         View view = getLayoutInflater().inflate(R.layout.dialog_ofensiva_conquistada, null);

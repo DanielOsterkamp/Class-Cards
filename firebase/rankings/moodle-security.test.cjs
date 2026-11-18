@@ -122,3 +122,30 @@ test('a bolha de fora continua como antes (regras de decks não mudaram)', async
   await assertSucceeds(getDocs(query(collection(db(DE_FORA), 'decks'), where('tituloBusca', '>=', 'bio'))));
   await assertSucceeds(setDoc(doc(db(DE_FORA), 'decks/novoPublico'), { ownerId: DE_FORA.uid, titulo: 'Química' }));
 });
+
+
+test('selo: professor cria verificado; aluno não pode forjar o selo', async () => {
+  await assertSucceeds(setDoc(doc(db(PROF_LPI), 'decksMoodle/moodle-prof'),
+    { ownerId: PROF_LPI.uid, cursoChave: LPI, verificadoPorProfessor: true }));
+  await assertFails(setDoc(doc(db(ALUNA_LPI), 'decksMoodle/moodle-forjado'),
+    { ownerId: ALUNA_LPI.uid, cursoChave: LPI, verificadoPorProfessor: true }));
+});
+
+test('selo: professor do curso verifica deck de aluno, sem poder alterar seu conteúdo', async () => {
+  await assertSucceeds(updateDoc(doc(db(PROF_LPI), 'decksMoodle/moodle-d1'), { verificadoPorProfessor: true }));
+  await assertFails(updateDoc(doc(db(ALUNA_LPI), 'decksMoodle/moodle-d1'), { verificadoPorProfessor: true, titulo: 'Forjado' }));
+  await assertFails(updateDoc(doc(db(PROF_LPI), 'decksMoodle/moodle-d1'), { titulo: 'Alterado' }));
+  await assertFails(updateDoc(doc(db(PROF_LPI), 'decksMoodle/moodle-d2'), { verificadoPorProfessor: true }));
+  await assertFails(updateDoc(doc(db(DE_FORA), 'decksMoodle/moodle-d1'), { verificadoPorProfessor: true }));
+});
+
+test('selo: editar cards de aluno exige retirar a verificação no mesmo lote', async () => {
+  await updateDoc(doc(db(PROF_LPI), 'decksMoodle/moodle-d1'), { verificadoPorProfessor: true });
+  await assertFails(updateDoc(doc(db(ALUNA_LPI), 'decksMoodle/moodle-d1/cards/c1'), { resposta: 'Alterada' }));
+  await assertFails(deleteDoc(doc(db(ALUNA_LPI), 'decksMoodle/moodle-d1/cards/c1')));
+  const banco = db(ALUNA_LPI);
+  const lote = writeBatch(banco);
+  lote.update(doc(banco, 'decksMoodle/moodle-d1'), { verificadoPorProfessor: false, updatedAt: 123 });
+  lote.update(doc(banco, 'decksMoodle/moodle-d1/cards/c1'), { resposta: 'Alterada' });
+  await assertSucceeds(lote.commit());
+});

@@ -2,6 +2,8 @@ package com.example.classcardsaplicao.ui.deck.study;
 
 import androidx.lifecycle.LiveData;
 import com.example.classcardsaplicao.model.ResultadoOfensiva;
+import com.example.classcardsaplicao.model.ResultadoRevisao;
+import com.example.classcardsaplicao.model.ResumoEstudo;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
@@ -55,6 +57,8 @@ public class EstudarDeckViewModel extends ViewModel {
     private final MutableLiveData<Boolean> salvandoProgresso = new MutableLiveData<>(false);
 
     private ResultadoOfensiva resultadoOfensiva;
+    private ResumoEstudo resumoEstudo;
+    public ResumoEstudo getResumoEstudo() { return resumoEstudo; }
     public ResultadoOfensiva getResultadoOfensiva() { return resultadoOfensiva; }
 
     private String deckIdAtual;
@@ -113,6 +117,8 @@ public class EstudarDeckViewModel extends ViewModel {
         }
 
         this.deckIdAtual = deckId;
+        resumoEstudo = null;
+        resultadoOfensiva = null;
 
         deckRepository.buscarDeckPorId(
                 deckId,
@@ -399,6 +405,18 @@ public class EstudarDeckViewModel extends ViewModel {
                 progresso.getUserId(), progresso.getDeckId(), progresso.getFlashcardId(),
                 tentativaIdAtual, rating, indiceAtual == flashcards.getValue().size() - 1,
                 new GamificacaoRepository.Callback() {
+
+                    @Override
+                    public void onSuccess(ResultadoRevisao resultado) {
+                        if (!progresso.getUserId().equals(FirebaseAuth.getInstance().getUid())) {
+                            salvandoProgresso.setValue(false);
+                            erro.setValue("A conta mudou. Reinicie o estudo.");
+                            return;
+                        }
+                        if (resultado.resumo != null) resumoEstudo = resumoEstudo == null
+                                ? resultado.resumo : resumoEstudo.ate(resultado.resumo);
+                        onSuccess(resultado.ofensiva);
+                    }
 
                     @Override
                     public void onSuccess(ResultadoOfensiva resultado) {

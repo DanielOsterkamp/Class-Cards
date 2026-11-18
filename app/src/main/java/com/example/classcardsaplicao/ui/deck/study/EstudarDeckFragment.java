@@ -141,7 +141,7 @@ public class EstudarDeckFragment extends Fragment {
                         return;
                     }
 
-                    ConclusaoEstudo.voltarAoDeck(this, viewModel.getResultadoOfensiva());
+                    ConclusaoEstudo.voltarAoDeck(this, viewModel.getResultadoOfensiva(), viewModel.getResumoEstudo());
                 }
         );
 
