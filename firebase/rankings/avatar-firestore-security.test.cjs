@@ -1,0 +1,27 @@
+const { before,beforeEach,after,test }=require('node:test');
+const assert=require('node:assert/strict');
+const {readFileSync}=require('node:fs');
+const {join}=require('node:path');
+const {initializeTestEnvironment,assertFails,assertSucceeds}=require('@firebase/rules-unit-testing');
+const {doc,collection,getDoc,getDocs,setDoc,writeBatch,Bytes,serverTimestamp}=require('firebase/firestore');
+const projectId='demo-classcards-foto';let env;
+const versao='12345678-1234-1234-1234-123456789abc';
+const jpeg=Bytes.fromUint8Array(new Uint8Array([255,216,255,217]));
+const stats={xp:42,ofensiva:3,cardsEstudados:7,ultimoDiaEstudo:'2026-11-18',fusoHorario:'America/Sao_Paulo'};
+const refAvatar=(uid,v=versao)=>`avatar-firestore:${uid}/${v}`;
+const publica=(uid,foto)=>({uid,nome:'Ana',fotoUrl:foto,...stats,atualizadoEm:serverTimestamp()});
+const avatar=(uid,extra={})=>({uid,versao,conteudo:jpeg,mimeType:'image/jpeg',atualizadoEm:serverTimestamp(),...extra});
+const db=uid=>env.authenticatedContext(uid).firestore();
+before(async()=>{assert.ok(process.env.FIRESTORE_EMULATOR_HOST?.startsWith('127.0.0.1:'));const [host,port]=process.env.FIRESTORE_EMULATOR_HOST.split(':');env=await initializeTestEnvironment({projectId,firestore:{host,port:Number(port),rules:readFileSync(join(__dirname,'../firestore.rules'),'utf8')}});});
+beforeEach(async()=>{await env.clearFirestore();await env.withSecurityRulesDisabled(async c=>{const d=c.firestore();const lote=writeBatch(d);for(const uid of ['aluno','outro']){lote.set(doc(d,`users/${uid}`),{nome:'Ana',fotoUrl:'https://antiga'});lote.set(doc(d,`users/${uid}/gamificacao/resumo`),stats);}await lote.commit();});});
+after(async()=>{await env?.cleanup();});
+function salvar(d,uid,extra={}){const lote=writeBatch(d);const r=refAvatar(uid,extra.versao||versao);lote.set(doc(d,`avatares/${uid}`),avatar(uid,extra));lote.update(doc(d,`users/${uid}`),{fotoUrl:r});lote.set(doc(d,`rankings/${uid}`),publica(uid,r));return lote.commit();}
+test('dono salva avatar em documento separado e referências pequenas no perfil/ranking',async()=>{const d=db('aluno');await assertSucceeds(salvar(d,'aluno'));const pub=(await getDoc(doc(d,'rankings/aluno'))).data();assert.equal(pub.fotoUrl,refAvatar('aluno'));assert.equal(pub.xp,42);assert.equal(pub.conteudo,undefined);assert.equal((await getDoc(doc(d,'avatares/aluno'))).get('conteudo').toUint8Array().length,4);});
+test('outra conta não altera o avatar do aluno',async()=>{await assertFails(salvar(db('outro'),'aluno'));});
+test('apenas contas autenticadas leem avatar; não há listagem',async()=>{await salvar(db('aluno'),'aluno');await assertSucceeds(getDoc(doc(db('outro'),'avatares/aluno')));await assertFails(getDoc(doc(env.unauthenticatedContext().firestore(),'avatares/aluno')));await assertFails(getDocs(collection(db('aluno'),'avatares')));});
+test('exige JPEG, bytes não vazios, até 50 KB e metadados esperados',async()=>{const d=db('aluno');for(const extra of [{conteudo:Bytes.fromUint8Array(new Uint8Array(0))},{conteudo:Bytes.fromUint8Array(new Uint8Array(51201))},{conteudo:'base64'},{mimeType:'image/png'},{email:'privado'}])await assertFails(salvar(d,'aluno',extra));await assertSucceeds(salvar(d,'aluno',{conteudo:Bytes.fromUint8Array(new Uint8Array(51200))}));});
+test('a foto nova exige nova versão e pode substituir o único documento',async()=>{const d=db('aluno');await salvar(d,'aluno');await assertFails(salvar(d,'aluno'));await assertSucceeds(salvar(d,'aluno',{versao:'87654321-1234-1234-1234-123456789abc'}));});
+test('avatar sem atualizar perfil e ranking é recusado',async()=>{const d=db('aluno');await assertFails(setDoc(doc(d,'avatares/aluno'),avatar('aluno')));});
+test('não permite publicar referência inexistente ou avatar de outro UID',async()=>{const d=db('aluno');await assertFails(setDoc(doc(d,'rankings/aluno'),publica('aluno',refAvatar('aluno'))));await salvar(db('outro'),'outro');await assertFails(setDoc(doc(d,'rankings/aluno'),publica('aluno',refAvatar('outro'))));});
+test('falha no lote mantém a foto anterior e não cria avatar',async()=>{const d=db('aluno');await assertFails(salvar(d,'aluno',{mimeType:'errado'}));assert.equal((await getDoc(doc(d,'users/aluno'))).get('fotoUrl'),'https://antiga');assert.equal((await getDoc(doc(d,'avatares/aluno'))).exists(),false);});
+test('fotos HTTPS e registros antigos do ranking continuam válidos',async()=>{const d=db('aluno');await assertSucceeds(setDoc(doc(d,'rankings/aluno'),publica('aluno','https://foto-existente.invalid/a.jpg')));});

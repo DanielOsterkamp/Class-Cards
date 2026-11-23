@@ -22,7 +22,7 @@ public final class UsuarioRanking {
         if (uid == null || uid.trim().isEmpty()) throw new IllegalArgumentException("Usuário inválido.");
         this.uid = uid;
         this.nome = nome == null || nome.trim().isEmpty() ? "Estudante" : nome.trim();
-        this.fotoUrl = fotoUrl == null ? "" : fotoUrl.trim();
+        this.fotoUrl = ReferenciaAvatar.validarPara(uid, fotoUrl == null ? "" : fotoUrl.trim());
         this.xp = Math.max(0, xp);
         this.ofensiva = Math.max(0, ofensiva);
         this.cardsEstudados = Math.max(0, cardsEstudados);

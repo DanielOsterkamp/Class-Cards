@@ -32,3 +32,6 @@ local.properties
 /firebase/pesquisa/firestore-debug.log
 /firebase/pesquisa/ui-debug.log
 /firebase/pesquisa/.firebase/
+
+/firebase/relatorios/node_modules/
+/firebase/relatorios/*-debug.log

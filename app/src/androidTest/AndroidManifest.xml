@@ -1,0 +1,7 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <application>
+        <!-- Somente no APK de testes: fornece imagens sintéticas ao seletor/preparador. -->
+        <provider android:name="com.example.classcardsaplicao.data.FotoTesteProvider"
+            android:authorities="com.example.classcardsaplicao.test.fotos" android:exported="true" />
+    </application>
+</manifest>

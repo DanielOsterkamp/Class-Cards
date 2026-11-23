@@ -47,10 +47,12 @@ public class EditarDeckFragment extends Fragment {
                         viewModel.editarFlashcard(posicao, novaPergunta, novaResposta)));
         viewModel.getFlashcards().observe(getViewLifecycleOwner(), adapter::atualizarFlashcards);
         viewModel.getDeck().observe(getViewLifecycleOwner(), deck -> {
+            formulario.mostrarAssunto(deck.getId() != null && deck.getId().startsWith("moodle-"));
             // Na recriação, o Android restaura os campos, incluindo alterações ainda não salvas.
             if (!camposPreenchidos) {
                 nome.setText(deck.getTitulo());
                 materia.setText(deck.getMateria());
+                ((EditText) view.findViewById(R.id.inputAssuntoDeck)).setText(deck.getAssunto());
                 camposPreenchidos = true;
             }
         });
@@ -61,7 +63,8 @@ public class EditarDeckFragment extends Fragment {
                 materia.getText().toString(), descricao.getText().toString(), quantidade.getText().toString(),
                 SeletorMaterialMoodle.selecionado(view)));
         view.findViewById(R.id.btnSalvarDeck).setOnClickListener(v -> viewModel.salvarAlteracoes(
-                nome.getText().toString(), materia.getText().toString()));
+                nome.getText().toString(), materia.getText().toString(),
+                ((EditText) view.findViewById(R.id.inputAssuntoDeck)).getText().toString()));
         view.findViewById(R.id.btnCriarFlashcard).setOnClickListener(v -> {
             String p = pergunta.getText().toString().trim();
             String r = resposta.getText().toString().trim();

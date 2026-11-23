@@ -182,6 +182,7 @@ public class DeckRepository {
         Map<String, Object> dados = dadosDeck(deck);
         if (moodle) {
             dados.put("cursoChave", cursoChave);
+            dados.put("assunto", deck.getAssunto());
             dados.put("verificadoPorProfessor", professor);
         }
         batch.set(deckRef, dados);
@@ -273,6 +274,7 @@ public class DeckRepository {
                     if (BolhaMoodle.COLECAO_DECKS_MOODLE.equals(BolhaMoodle.colecaoDoDeck(deck.getId()))) {
                         String cursoChave = BolhaMoodle.chaveDaMateria(deck.getMateria());
                         if (cursoChave != null) batch.update(deckRef, "cursoChave", cursoChave);
+                        batch.update(deckRef, "assunto", deck.getAssunto());
                         // Uma edição do conteúdo exige nova validação; o professor pode confirmar novamente.
                         batch.update(deckRef, "verificadoPorProfessor", professor);
                     }

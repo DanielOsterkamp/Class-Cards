@@ -35,6 +35,8 @@ import java.util.Map;
 
 public class PesquisaFragment extends Fragment {
 
+    private long versaoFoto = com.example.classcardsaplicao.data.FotoPerfilRepository.getVersaoFoto();
+
     private final Map<PesquisaViewModel.Aba, Parcelable> posicoes = new EnumMap<>(PesquisaViewModel.Aba.class);
     private PesquisaViewModel viewModel;
     private PesquisaViewModel.Aba abaExibida;
@@ -307,6 +309,12 @@ public class PesquisaFragment extends Fragment {
         outState.putParcelable("pesquisa_posicao_decks", posicoes.get(PesquisaViewModel.Aba.FLASHCARDS));
         outState.putParcelable("pesquisa_posicao_usuarios", posicoes.get(PesquisaViewModel.Aba.USUARIOS));
         super.onSaveInstanceState(outState);
+    }
+
+    @Override public void onResume() {
+        super.onResume();
+        long atual = com.example.classcardsaplicao.data.FotoPerfilRepository.getVersaoFoto();
+        if (versaoFoto != atual && viewModel != null) { versaoFoto = atual; viewModel.buscarAgora(); }
     }
 
     @Override

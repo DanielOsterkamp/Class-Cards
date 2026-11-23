@@ -22,6 +22,12 @@
         android:title="@string/titulo_rankings" />
 
     <item
+        android:id="@+id/menuRelatorios"
+        android:icon="@drawable/ic_menu_relatorios"
+        android:title="@string/relatorios_titulo"
+        android:visible="false" />
+
+    <item
         android:id="@+id/menuSair"
         android:icon="@drawable/ic_menu_sair"
         android:title="Sair" />

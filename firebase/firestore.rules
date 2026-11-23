@@ -13,11 +13,29 @@ service cloud.firestore {
     match /users/{uid}/gamificacao/resumo {
       allow read, create, update: if request.auth != null && request.auth.uid == uid;
     }
+    function metadadosRelatorioValidos() {
+      let d = request.resource.data;
+      let r = d.relatorio;
+      let deck = get(/databases/$(database)/documents/decksMoodle/$(d.deckId)).data;
+      return d.deckId.matches('moodle-.*')
+        && d.createdAt == request.time
+        && d.rating in ['AGAIN', 'HARD', 'GOOD', 'EASY']
+        && r.keys().hasOnly(['cursoChave', 'materia', 'assunto', 'titulo', 'verificado'])
+        && r.cursoChave == deck.cursoChave
+        && (r.cursoChave in cursosMoodle() || deck.ownerId == request.auth.uid)
+        && r.assunto == deck.get('assunto', '') && r.materia == deck.get('materia', '')
+        && r.titulo == deck.get('titulo', '') && r.verificado == deck.get('verificadoPorProfessor', false)
+        && exists(/databases/$(database)/documents/decksMoodle/$(d.deckId)/cards/$(d.flashcardId));
+    }
     match /users/{uid}/revisoesTradicionais/{revisaoId} {
-      allow get, create: if request.auth != null && request.auth.uid == uid;
+      allow get: if request.auth != null && request.auth.uid == uid;
+      allow create: if request.auth != null && request.auth.uid == uid
+                    && (!('relatorio' in request.resource.data) || metadadosRelatorioValidos());
     }
     match /users/{uid}/revisoesDissertativas/{revisaoId} {
-      allow get, create: if request.auth != null && request.auth.uid == uid;
+      allow get: if request.auth != null && request.auth.uid == uid;
+      allow create: if request.auth != null && request.auth.uid == uid
+                    && (!('relatorio' in request.resource.data) || metadadosRelatorioValidos());
     }
 
     match /decks/{deckId} {
@@ -49,11 +67,15 @@ service cloud.firestore {
       allow create: if request.auth != null && deckId.matches('moodle-.*')
                     && request.resource.data.ownerId == request.auth.uid
                     && request.resource.data.cursoChave in cursosMoodle()
+                    && request.resource.data.get('assunto', '') is string
+                    && request.resource.data.get('assunto', '').size() <= 120
                     && request.resource.data.get('verificadoPorProfessor', false) is bool
                     && (!request.resource.data.get('verificadoPorProfessor', false)
                         || professorDoCurso(request.resource.data.cursoChave));
       // Mudar de curso só para um curso da pessoa; manter o curso vale mesmo se ela saiu dele (ex.: excluir).
       allow update: if request.auth != null
+                    && request.resource.data.get('assunto', '') is string
+                    && request.resource.data.get('assunto', '').size() <= 120
                     && request.resource.data.get('verificadoPorProfessor', false) is bool
                     && ((resource.data.ownerId == request.auth.uid
                     && request.resource.data.ownerId == request.auth.uid
@@ -61,7 +83,7 @@ service cloud.firestore {
                         || request.resource.data.cursoChave in cursosMoodle())
                     && (!request.resource.data.get('verificadoPorProfessor', false)
                         || (request.resource.data.get('verificadoPorProfessor', false) == resource.data.get('verificadoPorProfessor', false)
-                            && !request.resource.data.diff(resource.data).affectedKeys().hasAny(['titulo', 'materia', 'cursoChave', 'updatedAt']))
+                            && !request.resource.data.diff(resource.data).affectedKeys().hasAny(['titulo', 'materia', 'assunto', 'cursoChave', 'updatedAt']))
                         || professorDoCurso(request.resource.data.cursoChave)))
                     || (professorDoCurso(resource.data.cursoChave)
                         && !resource.data.get('excluindo', false)
@@ -85,6 +107,40 @@ service cloud.firestore {
       }
     }
 
+    match /relatoriosCursos/{curso}/resumos/{resumo} {
+      allow read: if request.auth != null && professorDoCurso(curso);
+      allow write: if false;
+    }
+    match /relatoriosProcessados/{recibo} {
+      allow read, write: if false;
+    }
+
+    // O avatar é pequeno e separado: consultas ao ranking nunca baixam o conteúdo da imagem.
+    match /avatares/{uid} {
+      allow get: if request.auth != null;
+      allow create, update: if request.auth != null && request.auth.uid == uid
+        && request.resource.data.keys().hasAll(['uid', 'versao', 'conteudo', 'mimeType', 'atualizadoEm'])
+        && request.resource.data.keys().hasOnly(['uid', 'versao', 'conteudo', 'mimeType', 'atualizadoEm'])
+        && request.resource.data.uid == uid
+        && (!exists(/databases/$(database)/documents/avatares/$(uid))
+            || request.resource.data.versao != resource.data.versao)
+        && request.resource.data.versao is string
+        && request.resource.data.versao.matches('[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}')
+        && request.resource.data.conteudo is bytes
+        && request.resource.data.conteudo.size() > 0 && request.resource.data.conteudo.size() <= 51200
+        && request.resource.data.mimeType == 'image/jpeg'
+        && request.resource.data.atualizadoEm == request.time
+        && getAfter(/databases/$(database)/documents/users/$(uid)).data.fotoUrl
+            == 'avatar-firestore:' + uid + '/' + request.resource.data.versao
+        && getAfter(/databases/$(database)/documents/rankings/$(uid)).data.fotoUrl
+            == 'avatar-firestore:' + uid + '/' + request.resource.data.versao;
+    }
+    function fotoPublicaValida(uid, foto) {
+      return foto == '' || foto.matches('https://.*')
+        || foto == 'avatar-firestore:' + uid + '/'
+          + getAfter(/databases/$(database)/documents/avatares/$(uid)).data.versao;
+    }
+
     // A projeção publica apenas o que aparece no ranking; nunca e-mail ou respostas.
     function rankingPublicoValido(uid) {
       let d = request.resource.data;
@@ -101,7 +157,7 @@ service cloud.firestore {
         && d.uid == uid
         && d.nome is string && d.nome.size() > 0 && d.nome.size() <= 120
         && d.fotoUrl is string && d.fotoUrl.size() <= 4096
-        && (d.fotoUrl == '' || d.fotoUrl.matches('https://.*'))
+        && fotoPublicaValida(uid, d.fotoUrl)
         && d.xp is int && d.xp >= 0
         && d.ofensiva is int && d.ofensiva >= 0
         && d.cardsEstudados is int && d.cardsEstudados >= 0

@@ -61,7 +61,8 @@ public class CriarDeckFragment extends Fragment {
                 Toast.makeText(requireContext(), "Usuário não autenticado.", Toast.LENGTH_SHORT).show();
                 return;
             }
-            viewModel.salvarDeck(uid, nome.getText().toString(), materia.getText().toString());
+            viewModel.salvarDeck(uid, nome.getText().toString(), materia.getText().toString(),
+                    ((EditText) view.findViewById(R.id.inputAssuntoDeck)).getText().toString());
         });
 
         Runnable atualizar = () -> {

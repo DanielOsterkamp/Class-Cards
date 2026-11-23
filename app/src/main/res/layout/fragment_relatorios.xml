@@ -1,0 +1,61 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent" android:layout_height="match_parent"
+    android:orientation="vertical" android:background="@color/background" android:padding="16dp">
+    <LinearLayout style="@style/Widget.ClassCards.HeaderRow">
+        <androidx.appcompat.widget.AppCompatImageButton android:id="@+id/btnVoltar" style="@style/Widget.ClassCards.BackButton" />
+        <TextView style="@style/Widget.ClassCards.HeaderTitle" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="@string/relatorios_titulo" />
+        <androidx.appcompat.widget.AppCompatImageButton android:id="@+id/btnAtualizarRelatorios"
+            android:layout_width="48dp" android:layout_height="48dp" android:padding="12dp"
+            android:background="?attr/selectableItemBackgroundBorderless" android:contentDescription="@string/relatorios_atualizar"
+            app:srcCompat="@android:drawable/ic_popup_sync" app:tint="@color/text_primary" />
+    </LinearLayout>
+    <androidx.core.widget.NestedScrollView android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:fillViewport="true">
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:paddingTop="24dp" android:paddingBottom="32dp">
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/filtroTurmaRelatorios"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:minHeight="48dp"
+                android:textAllCaps="false"
+                android:textColor="@color/button_text"
+                app:backgroundTint="@color/button_primary"
+                app:cornerRadius="@dimen/button_radius"
+                app:strokeColor="@color/button_border"
+                app:strokeWidth="1dp" />
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/filtroPeriodoRelatorios"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:minHeight="48dp"
+                android:textAllCaps="false"
+                android:textColor="@color/button_text"
+                app:backgroundTint="@color/button_primary"
+                app:cornerRadius="@dimen/button_radius"
+                app:strokeColor="@color/button_border"
+                app:strokeWidth="1dp" />
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/filtroModoRelatorios"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:minHeight="48dp"
+                android:textAllCaps="false"
+                android:textColor="@color/button_text"
+                app:backgroundTint="@color/button_primary"
+                app:cornerRadius="@dimen/button_radius"
+                app:strokeColor="@color/button_border"
+                app:strokeWidth="1dp" />
+            <com.google.android.material.switchmaterial.SwitchMaterial android:id="@+id/filtroVerificadosRelatorios" android:layout_width="match_parent" android:layout_height="wrap_content" android:minHeight="48dp" android:text="@string/relatorios_selo" android:textColor="@color/text_primary" />
+
+            <ProgressBar android:id="@+id/progressRelatorios" android:layout_width="40dp" android:layout_height="40dp" android:layout_gravity="center_horizontal" android:layout_marginTop="24dp" android:indeterminateTint="@color/ranking_accent" android:contentDescription="@string/relatorios_carregando" android:visibility="gone" />
+            <TextView android:id="@+id/erroRelatorios" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="16dp" android:textColor="@color/text_secondary" android:accessibilityLiveRegion="polite" android:visibility="gone" />
+            <com.google.android.material.button.MaterialButton android:id="@+id/btnTentarRelatorios" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/relatorios_tentar" android:textColor="@color/text_primary" app:backgroundTint="@color/card_background" android:visibility="gone" />
+            <LinearLayout android:id="@+id/conteudoRelatorios" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:visibility="gone">
+                <LinearLayout android:id="@+id/metricasRelatorios" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="24dp" android:orientation="vertical" />
+                <TextView android:id="@+id/vazioRelatorios" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="16dp" android:text="@string/relatorios_vazio" android:textColor="@color/text_secondary" />
+                <TextView android:id="@+id/avisoMatriculasRelatorios" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="16dp" android:textColor="@color/text_secondary" />
+                <LinearLayout android:id="@+id/secoesRelatorios" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" />
+            </LinearLayout>
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+</LinearLayout>

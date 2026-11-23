@@ -105,6 +105,37 @@ public class MoodleApi {
         return objeto(chamar("local_classcards_set_course_authorization", tokenMoodle, p)).optBoolean("autorizado");
     }
 
+    /** Lista real de matriculados. Requer a função core_enrol_get_enrolled_users no serviço mobile. */
+    public List<AlunoRelatorio> listarAlunos(String tokenMoodle, long cursoId, String site) throws MoodleException {
+        Map<String, String> parametros = new HashMap<>();
+        parametros.put("courseid", String.valueOf(cursoId));
+        Object resposta = chamar("core_enrol_get_enrolled_users", tokenMoodle, parametros);
+        if (!(resposta instanceof JSONArray)) throw new MoodleException("Lista de alunos indisponível.", "json_alunos");
+        List<AlunoRelatorio> alunos = new ArrayList<>();
+        try {
+            JSONArray lista = (JSONArray) resposta;
+            for (int i = 0; i < lista.length(); i++) {
+                JSONObject aluno = lista.getJSONObject(i);
+                JSONArray papeis = aluno.optJSONArray("roles");
+                boolean professor = false;
+                if (papeis != null) for (int j = 0; j < papeis.length(); j++) {
+                    String papel = papeis.getJSONObject(j).optString("shortname");
+                    if (papel.equals("teacher") || papel.equals("editingteacher") || papel.equals("manager")) professor = true;
+                }
+                if (!professor) alunos.add(new AlunoRelatorio("moodle-" + site + "-" + aluno.getLong("id"),
+                        aluno.optString("fullname", "Estudante"), aluno.optString("profileimageurl", "")));
+            }
+        } catch (JSONException e) { throw new MoodleException("Lista de alunos inválida.", "json_alunos", e); }
+        return alunos;
+    }
+
+    public static final class AlunoRelatorio {
+        public final String uid, nome, foto;
+        public AlunoRelatorio(String uid, String nome, String foto) {
+            this.uid=uid; this.nome=nome; this.foto=foto.startsWith("https://") ? foto : "";
+        }
+    }
+
     /** PDFs de um curso liberado. */
     public List<MaterialMoodle> listarMateriais(String tokenMoodle, long cursoId) throws MoodleException {
         Map<String, String> p = new HashMap<>();

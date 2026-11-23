@@ -11,8 +11,7 @@ public final class ResultadoUsuarioPesquisa {
     public ResultadoUsuarioPesquisa(String uid, String nome, String fotoUrl) {
         this.uid = uid == null ? "" : uid;
         this.nome = nome == null || nome.trim().isEmpty() ? "Estudante" : nome.trim();
-        this.fotoUrl = fotoUrl != null && fotoUrl.startsWith("https://") && fotoUrl.length() <= 4096
-                ? fotoUrl : "";
+        this.fotoUrl = ReferenciaAvatar.validarPara(this.uid, fotoUrl);
     }
 
     public String getUid() { return uid; }

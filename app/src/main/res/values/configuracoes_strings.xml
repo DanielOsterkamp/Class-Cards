@@ -1,0 +1,16 @@
+<resources>
+    <string name="configuracoes_titulo">Configurações</string>
+    <string name="configuracoes_foto_titulo">Foto do perfil</string>
+    <string name="configuracoes_foto_descricao">Escolha uma foto para aparecer no seu perfil, na pesquisa e no ranking.</string>
+    <string name="configuracoes_foto_atual">Foto do perfil</string>
+    <string name="configuracoes_foto_previa">Prévia da nova foto</string>
+    <string name="configuracoes_escolher">Escolher foto</string>
+    <string name="configuracoes_salvar">Salvar foto</string>
+    <string name="configuracoes_descartar">Descartar alteração</string>
+    <string name="configuracoes_preparando">Preparando foto…</string>
+    <string name="configuracoes_salvando">Salvando foto…</string>
+    <string name="configuracoes_carregando">Carregando sua foto…</string>
+    <string name="configuracoes_sucesso">Foto atualizada com sucesso.</string>
+    <string name="configuracoes_aguardar">Aguarde o salvamento da foto.</string>
+    <string name="configuracoes_tentar">Tentar novamente</string>
+</resources>

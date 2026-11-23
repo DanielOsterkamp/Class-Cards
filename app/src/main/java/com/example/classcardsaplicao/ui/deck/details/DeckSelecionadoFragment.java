@@ -72,6 +72,9 @@ public class DeckSelecionadoFragment extends Fragment {
         };
         viewModel.getDeck().observe(getViewLifecycleOwner(), deck -> {
             if (deck != null) {
+                TextView assunto = view.findViewById(R.id.txtAssuntoDeck);
+                assunto.setVisibility(deck.getId().startsWith("moodle-") && !deck.getAssunto().isEmpty() ? View.VISIBLE : View.GONE);
+                assunto.setText(getString(R.string.deck_assunto_valor, deck.getAssunto()));
                 ((TextView) view.findViewById(R.id.txtNomeDeck)).setText(deck.getTitulo());
                 ((TextView) view.findViewById(R.id.txtMateriaDeck)).setText(deck.getMateria());
                 ((TextView) view.findViewById(R.id.txtQuantidadeCards)).setText(getResources().getQuantityString(

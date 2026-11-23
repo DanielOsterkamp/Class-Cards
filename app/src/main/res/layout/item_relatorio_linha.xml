@@ -1,0 +1,13 @@
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="8dp"
+    android:clickable="true" android:focusable="true" android:foreground="?attr/selectableItemBackground"
+    app:cardCornerRadius="16dp" app:cardElevation="0dp" app:cardBackgroundColor="@color/card_background" app:strokeWidth="0dp">
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical" android:padding="16dp">
+        <com.google.android.material.imageview.ShapeableImageView android:id="@+id/fotoRelatorio" android:layout_width="40dp" android:layout_height="40dp" android:layout_marginEnd="12dp" android:scaleType="centerCrop" android:importantForAccessibility="no" app:shapeAppearanceOverlay="@style/CircleImage" />
+        <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical">
+            <TextView android:id="@+id/nomeRelatorio" android:layout_width="match_parent" android:layout_height="wrap_content" android:textSize="16sp" android:textStyle="bold" android:textColor="@color/text_primary" />
+            <TextView android:id="@+id/dadosRelatorio" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:textSize="14sp" android:textColor="@color/text_primary" />
+            <ProgressBar android:id="@+id/barraErroRelatorio" style="?android:attr/progressBarStyleHorizontal" android:layout_width="match_parent" android:layout_height="4dp" android:layout_marginTop="8dp" android:max="100" android:progressTint="@android:color/white" android:progressBackgroundTint="@color/background" android:importantForAccessibility="no" />
+        </LinearLayout>
+    </LinearLayout>
+</com.google.android.material.card.MaterialCardView>

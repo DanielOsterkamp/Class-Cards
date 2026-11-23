@@ -23,7 +23,13 @@ public final class FormularioDeck {
         SeletorMateriaMoodle.aplicar(raiz.findViewById(R.id.inputMateriaDeck));
         // quem entrou pelo Moodle pode usar um PDF do curso na geração automática (opcional)
         seletorMaterial = SeletorMaterialMoodle.aplicar(raiz);
+        mostrarAssunto(com.example.classcardsaplicao.data.moodle.BolhaMoodle.ehMoodle()
+                && !com.example.classcardsaplicao.data.moodle.BolhaMoodle.minhasChaves().isEmpty());
         apresentarModo();
+    }
+
+    public void mostrarAssunto(boolean vinculado) {
+        raiz.findViewById(R.id.inputAssuntoDeck).setVisibility(vinculado ? View.VISIBLE : View.GONE);
     }
 
     public void apresentarModo() {
@@ -39,7 +45,7 @@ public final class FormularioDeck {
 
     public void atualizar(boolean gerando, boolean salvando, boolean pronto) {
         boolean habilitado = pronto && !gerando && !salvando;
-        for (int id : new int[]{R.id.inputNomeDeck, R.id.inputMateriaDeck, R.id.inputPergunta,
+        for (int id : new int[]{R.id.inputNomeDeck, R.id.inputMateriaDeck, R.id.inputAssuntoDeck, R.id.inputPergunta,
                 R.id.inputResposta, R.id.inputNumeroCards, R.id.inputDescricaoIA,
                 R.id.btnCriarFlashcard, R.id.btnGerarFlashcards, R.id.btnSalvarDeck, R.id.switchModoCriacao}) {
             raiz.findViewById(id).setEnabled(habilitado);
@@ -51,4 +57,6 @@ public final class FormularioDeck {
         if (gerando) modo.setChecked(true);
         apresentarModo();
     }
+
+
 }

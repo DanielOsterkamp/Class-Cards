@@ -1,0 +1,25 @@
+<resources>
+    <string name="deck_assunto">Assunto do deck (Moodle)</string>
+    <string name="deck_assunto_valor">Assunto: %1$s</string>
+    <string name="relatorios_titulo">Relatórios</string>
+    <string name="relatorios_atualizar">Atualizar relatórios</string>
+    <string name="relatorios_curso">Turma: %1$s</string>
+    <string name="relatorios_todos">Todas as minhas turmas</string>
+    <string name="relatorios_periodo">Período: %1$s a %2$s (UTC)</string>
+    <string name="relatorios_selo">Somente decks verificados</string>
+    <string name="relatorios_carregando">Carregando relatórios…</string>
+    <string name="relatorios_vazio">Nenhuma revisão nos filtros selecionados.</string>
+    <string name="relatorios_alunos">Alunos ativos</string>
+    <string name="relatorios_cards">Cards distintos</string>
+    <string name="relatorios_revisoes">Revisões</string>
+    <string name="relatorios_erros">Errei</string>
+    <string name="relatorios_atencao">Alunos que precisam de atenção</string>
+    <string name="relatorios_atividade">Alunos com mais atividade</string>
+    <string name="relatorios_turmas">Turmas que precisam de atenção</string>
+    <string name="relatorios_assuntos">Assuntos que precisam de atenção</string>
+    <string name="relatorios_sem_atividade">Sem revisões nos filtros</string>
+    <string name="relatorios_sem_amostra">Sem alunos com dificuldade e pelo menos 10 revisões.</string>
+    <string name="relatorios_tentar">Tentar novamente</string>
+    <string name="relatorios_fechar">Fechar</string>
+    <string name="relatorios_ver_todos">Ver todos (%1$d)</string>
+</resources>

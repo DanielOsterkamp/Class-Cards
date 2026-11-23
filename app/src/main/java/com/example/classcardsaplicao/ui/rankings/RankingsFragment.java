@@ -16,6 +16,16 @@ import com.example.classcardsaplicao.R;
 import com.example.classcardsaplicao.ui.moodle.FiltroCursoMoodle;
 
 public class RankingsFragment extends Fragment {
+    private long versaoFoto = com.example.classcardsaplicao.data.FotoPerfilRepository.getVersaoFoto();
+    @Override public void onResume() {
+        super.onResume();
+        long atual = com.example.classcardsaplicao.data.FotoPerfilRepository.getVersaoFoto();
+        if (atual != versaoFoto) {
+            versaoFoto = atual;
+            new ViewModelProvider(this).get(RankingsViewModel.class).atualizar();
+        }
+    }
+
 
     public RankingsFragment() {
         super(R.layout.fragment_rankings);

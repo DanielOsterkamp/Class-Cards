@@ -63,6 +63,11 @@ public class CriarDeckViewModel extends ViewModel {
             String nome,
             String materia
     ) {
+        salvarDeck(ownerId, nome, materia, "");
+    }
+
+    public void salvarDeck(String ownerId, String nome, String materia, String assunto) {
+        if (assunto != null && assunto.trim().length() > 120) { erro.setValue("O assunto deve ter até 120 caracteres."); return; }
         if (Boolean.TRUE.equals(salvando.getValue())) return;
         if (Boolean.TRUE.equals(getGerandoFlashcards().getValue())) {
             erro.setValue("Aguarde a criação dos flashcards antes de salvar o deck.");
@@ -99,6 +104,7 @@ public class CriarDeckViewModel extends ViewModel {
                 agora
         );
 
+        deck.setAssunto(assunto);
         salvando.setValue(true);
         deckRepository.criarDeck(
                 deck,

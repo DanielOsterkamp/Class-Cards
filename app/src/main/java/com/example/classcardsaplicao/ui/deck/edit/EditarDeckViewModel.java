@@ -146,6 +146,11 @@ public class EditarDeckViewModel extends ViewModel {
     }
 
     public void salvarAlteracoes(String titulo, String materia) {
+        salvarAlteracoes(titulo, materia, deck.getValue() == null ? "" : deck.getValue().getAssunto());
+    }
+
+    public void salvarAlteracoes(String titulo, String materia, String assunto) {
+        if (assunto != null && assunto.trim().length() > 120) { erro.setValue("O assunto deve ter até 120 caracteres."); return; }
         if (!podeAlterar()) return;
         if (titulo == null || titulo.trim().isEmpty()) { erro.setValue("Informe o nome do deck."); return; }
         if (materia == null || materia.trim().isEmpty()) { erro.setValue("Informe a matéria."); return; }
@@ -154,6 +159,7 @@ public class EditarDeckViewModel extends ViewModel {
         Deck atual = deck.getValue();
         Deck atualizado = new Deck(atual.getId(), atual.getOwnerId(), titulo.trim(), materia.trim(),
                 atual.getDescricao(), lista.size(), atual.getCreatedAt(), System.currentTimeMillis());
+        atualizado.setAssunto(assunto);
         int carga = versao;
         String uid = usuarioAtual.get();
         salvando.setValue(true);

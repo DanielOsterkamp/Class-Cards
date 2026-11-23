@@ -222,4 +222,10 @@
             android:defaultValue="true" />
     </fragment>
 
+    <fragment android:id="@+id/relatoriosFragment"
+        android:name="com.example.classcardsaplicao.ui.relatorios.RelatoriosFragment"
+        android:label="@string/relatorios_titulo" />
+    <fragment android:id="@+id/configuracoesFragment"
+        android:name="com.example.classcardsaplicao.ui.configuracoes.ConfiguracoesFragment"
+        android:label="@string/configuracoes_titulo" />
 </navigation>

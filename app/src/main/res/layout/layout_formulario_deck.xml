@@ -49,6 +49,16 @@
         android:inputType="textCapSentences"
         android:maxLines="1" />
 
+    <EditText
+        android:id="@+id/inputAssuntoDeck"
+        style="@style/Widget.ClassCards.DeckInput"
+        android:layout_marginTop="@dimen/spacing_md"
+        android:hint="@string/deck_assunto"
+        android:inputType="textCapSentences"
+        android:maxLength="120"
+        android:singleLine="true"
+        android:visibility="gone" />
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

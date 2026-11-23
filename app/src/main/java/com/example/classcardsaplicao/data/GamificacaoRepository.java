@@ -82,6 +82,8 @@ public class GamificacaoRepository {
                 return new ResultadoRevisao(ofensiva, totais);
             }
 
+            DocumentSnapshot deckMoodle = deckId.startsWith("moodle-")
+                    ? transaction.get(firestore.collection("decksMoodle").document(deckId)) : null;
             DocumentSnapshot stats = transaction.get(resumo);
             DocumentSnapshot anterior = transaction.get(progresso);
             ProgressoFlashcard progressoFlashcard = anterior.toObject(ProgressoFlashcard.class);
@@ -123,6 +125,15 @@ public class GamificacaoRepository {
             registro.put("ofensivaAtual", resultado.atual);
             registro.put("ofensivaConquistada", resultado.conquistada);
             registro.put("createdAt", FieldValue.serverTimestamp());
+            if (deckMoodle != null && deckMoodle.exists()) {
+                Map<String, Object> relatorio = new HashMap<>();
+                relatorio.put("cursoChave", deckMoodle.getString("cursoChave"));
+                relatorio.put("materia", deckMoodle.getString("materia") == null ? "" : deckMoodle.getString("materia"));
+                relatorio.put("assunto", deckMoodle.getString("assunto") == null ? "" : deckMoodle.getString("assunto"));
+                relatorio.put("titulo", deckMoodle.getString("titulo") == null ? "" : deckMoodle.getString("titulo"));
+                relatorio.put("verificado", Boolean.TRUE.equals(deckMoodle.getBoolean("verificadoPorProfessor")));
+                registro.put("relatorio", relatorio);
+            }
 
             transaction.set(progresso, progressoFlashcard);
             transaction.set(resumo, valores, SetOptions.merge());

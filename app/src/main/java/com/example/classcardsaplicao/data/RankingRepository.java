@@ -193,6 +193,7 @@ public class RankingRepository {
         return "Estudante";
     }
     private static String fotoValida(String valor) {
-        return valor != null && valor.startsWith("https://") && valor.length() <= 4096 ? valor : "";
+        return com.example.classcardsaplicao.model.ReferenciaAvatar.https(valor)
+                || com.example.classcardsaplicao.model.ReferenciaAvatar.valida(valor) ? valor : "";
     }
 }

@@ -17,6 +17,10 @@ public class Deck {
     private boolean excluindo;
     private boolean verificadoPorProfessor;
     private String cursoChave;
+    private String assunto;
+    public String getAssunto() { return assunto == null ? "" : assunto; }
+    public void setAssunto(String valor) { assunto = valor == null ? "" : valor.trim(); }
+
 
     public boolean isVerificadoPorProfessor() { return verificadoPorProfessor; }
     public void setVerificadoPorProfessor(boolean valor) { verificadoPorProfessor = valor; }
