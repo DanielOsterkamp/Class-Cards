@@ -45,7 +45,7 @@ public class AvaliacaoRespostaRepository {
                 FirebaseAI.getInstance(GenerativeBackend.googleAI())
                 .generativeModel("gemini-3.5-flash", config.build()));
 
-        // Agrupa o conteúdo do estudo para enviá-lo separado das instruções do tutor.
+        // agrupa o conteúdo do estudo para enviar separado das instruções
         JSONObject dados = new JSONObject();
         dados.put("pergunta", card.getPergunta());
         dados.put("respostaEsperada", card.getResposta());
@@ -86,7 +86,7 @@ public class AvaliacaoRespostaRepository {
         return requisicao;
     }
 
-    // Separada da chamada de rede para testar JSON inválido e classificações desconhecidas.
+
     static AvaliacaoDissertativa interpretarResposta(String text) throws Exception {
         if (text == null || text.trim().isEmpty()) {
             throw new IllegalArgumentException("A IA não retornou uma avaliação.");
@@ -96,7 +96,6 @@ public class AvaliacaoRespostaRepository {
                 Rating.valueOf(json.getString("sugestao")));
     }
 
-    // Não confunde falhas de configuração do Firebase com uma simples falta de internet.
     static String mensagemFalha(Throwable erro) {
         if (erro instanceof TimeoutException) {
             return "A avaliação demorou demais. Tente novamente.";

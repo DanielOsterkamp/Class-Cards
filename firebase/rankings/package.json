@@ -5,7 +5,8 @@
   "description": "Migração e testes locais das regras do ranking do Class Cards",
   "scripts": {
     "test:security": "firebase emulators:exec --only firestore --project demo-classcards-ranking --config ../../firebase.json \"node --test security.test.cjs\"",
-    "test:decks": "firebase emulators:exec --only firestore --project demo-classcards-decks --config ../../firebase.json \"node --test deck-security.test.cjs\""
+    "test:decks": "firebase emulators:exec --only firestore --project demo-classcards-decks --config ../../firebase.json \"node --test deck-security.test.cjs\"",
+    "test:relatorios": "firebase emulators:exec --only firestore --project demo-classcards-relatorios-spark --config ../../firebase.json \"node --test relatorios-spark-security.test.cjs\""
   },
   "dependencies": {
     "firebase-admin": "^14.5.0"

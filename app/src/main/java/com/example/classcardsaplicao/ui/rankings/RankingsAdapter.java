@@ -121,6 +121,7 @@ public class RankingsAdapter extends RecyclerView.Adapter<RankingsAdapter.SecaoH
 
     // esse metodo adiciona a linha separando o top 5 de você, caso não esteja nele
     private void adicionarSeparador(LinearLayout container) {
+
         Context context = container.getContext();
         View divisor = new View(context);
         LinearLayout.LayoutParams linha = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(context, 1));

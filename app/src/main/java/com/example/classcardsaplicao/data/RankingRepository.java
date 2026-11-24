@@ -27,7 +27,6 @@ import java.util.TimeZone;
 public class RankingRepository {
     private final FirebaseFirestore firestore = FirebaseFirestore.getInstance();
 
-    /** Lê apenas a projeção pública do usuário escolhido, sem acessar seu documento privado. */
     public Task<UsuarioRanking> buscarUsuario(String uid) {
         if (uid == null || uid.trim().isEmpty() || uid.contains("/")) {
             return Tasks.forException(new IllegalArgumentException("Usuário inválido."));
@@ -143,7 +142,7 @@ public class RankingRepository {
                     publicacao.put("fusoHorario", fuso);
                     publicacao.put("cardsEstudados", cardsEstudados);
                     publicacao.put("atualizadoEm", FieldValue.serverTimestamp());
-                    // Bolha Moodle (Fase 9): cursos da pessoa, para o filtro por curso do ranking
+
                     if (BolhaMoodle.contaMoodle(uid)) publicacao.put("cursosChave", BolhaMoodle.minhasChaves());
 
                     transaction.set(resumo, canonico, SetOptions.merge());
@@ -173,7 +172,7 @@ public class RankingRepository {
         return false;
     }
     private static final class VersaoAlterada extends RuntimeException { }
-    // Bolha Moodle (Fase 9): lê uma lista de textos (ex.: cursosChave) com segurança
+
     private static List<String> lista(DocumentSnapshot doc, String campo) {
         List<String> lista = new ArrayList<>();
         Object valor = doc.get(campo);

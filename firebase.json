@@ -11,16 +11,5 @@
       "enabled": false
     },
     "singleProjectMode": true
-  },
-  "functions": [
-    {
-      "source": "firebase/relatorios",
-      "codebase": "relatorios",
-      "ignore": [
-        "node_modules",
-        ".git",
-        "*.test.cjs"
-      ]
-    }
-  ]
+  }
 }

@@ -13,11 +13,8 @@ import com.google.firebase.auth.FirebaseAuth;
 import java.util.List;
 import java.util.function.Consumer;
 
-/**
- * Filtro "Curso: Todos / <curso>" (Fase 9, bolhas), usado na pesquisa e no ranking.
- * Só aparece para quem entrou pelo Moodle. Ao escolher, avisa a tela com a chave do curso
- * ("<site>:<courseid>"), ou null para "Todos".
- */
+
+
 public final class FiltroCursoMoodle {
 
     private static final String PREFIXO = "Curso: ";
@@ -25,10 +22,8 @@ public final class FiltroCursoMoodle {
     private FiltroCursoMoodle() {
     }
 
-    /**
-     * Liga o filtro num campo (que deve começar escondido). Se a conta não for da bolha Moodle,
-     * o campo continua escondido e nada acontece. Começa sempre em "Todos".
-     */
+
+
     public static void aplicar(EditText campo, Consumer<String> aoMudar) {
         if (campo == null) {
             return;

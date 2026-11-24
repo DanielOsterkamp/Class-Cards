@@ -16,7 +16,7 @@ import com.bumptech.glide.RequestManager;
 import com.example.classcardsaplicao.R;
 import com.example.classcardsaplicao.model.ResultadoUsuarioPesquisa;
 
-/** Utiliza somente os dados públicos do participante: UID, nome e foto. */
+
 public class PesquisaUsuarioAdapter extends ListAdapter<ResultadoUsuarioPesquisa, PesquisaUsuarioAdapter.UsuarioHolder> {
 
     private OnUsuarioClickListener onUsuarioClickListener;
@@ -76,7 +76,7 @@ public class PesquisaUsuarioAdapter extends ListAdapter<ResultadoUsuarioPesquisa
 
     @Override
     public void onViewRecycled(@NonNull UsuarioHolder holder) {
-        // Reutiliza o gerenciador existente: a Activity pode já estar encerrando ao reciclar a linha.
+
         holder.imagens.clear(holder.foto);
         super.onViewRecycled(holder);
     }

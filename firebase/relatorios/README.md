@@ -1,4 +1,6 @@
-# Relatórios do professor
+# Relatórios do professor no plano Spark
+
+Os relatórios são calculados pelo aplicativo Android. Não é necessário publicar Cloud Functions, contratar o Blaze ou instalar outro aplicativo.
 
 ## Entrega
 
@@ -12,52 +14,60 @@
 
 ## Ativar no ambiente real
 
-O código está pronto, mas não executa publicação automática nem modifica dados de produção.
+1. Compare `firebase/firestore.rules` com as regras atualmente publicadas. Preserve regras adicionais que existam no projeto compartilhado. As novas regras de relatório devem ser publicadas junto com as alterações nas regras de criação de revisões; somente abrir a coleção não é suficiente.
+2. Publique **apenas as regras do Firestore** pelo Console ou, após conferir o projeto, com `firebase deploy --only firestore:rules --project SEU_PROJECT_ID`. Isso não exige Cloud Functions.
+3. Instale esta versão do aplicativo nos aparelhos de aluno e professor. Clientes antigos continuam estudando, mas não publicam os registros novos dos relatórios.
+4. Entre pelo Moodle. O token precisa conter `moodle.cursos`; o professor precisa ter a turma em `moodle.prof`. Se papéis ou matrículas mudaram, entre novamente para renovar o token.
+5. Como aluno matriculado, revise um deck da coleção `decksMoodle`, com matéria/turma selecionada. Depois de a revisão ser salva, como professor da mesma turma abra Relatórios e toque em atualizar.
+6. Para a lista de alunos sem atividade, o serviço Moodle precisa permitir `core_enrol_get_enrolled_users`. Uma falha nessa consulta não transforma ausência de matrícula em ausência de estudo: a tela mostra o aviso existente.
 
-1. Na raiz do projeto, execute `npm ci --prefix firebase/relatorios` para instalar as dependências fixadas no lockfile.
-2. Confira o projeto Firebase e a região `us-central1` em `firebase/relatorios/index.js`. Confirme as condições de implantação de Cloud Functions no seu projeto (incluindo o plano exigido pelo serviço).
-3. Publique as regras e a codebase: `firebase deploy --only "firestore:rules,functions:relatorios" --project SEU_PROJECT_ID`.
-4. No Moodle, confirme que o serviço utilizado pelo login mobile contém `core_enrol_get_enrolled_users` e que o professor possui permissão para visualizar os participantes. O aplicativo utiliza o token da própria pessoa; não utiliza conta administrativa.
-5. Entre novamente no aplicativo com professor/aluno para renovar cursos e claims, se a configuração de papéis foi alterada.
-6. Com um aluno matriculado, estude um deck Moodle; depois consulte o relatório como professor da mesma turma. O processamento é assíncrono: aguarde alguns instantes e toque em atualizar.
+O Moodle continua dependendo da configuração já existente de URL, plugin e login. Não é necessário alterar o plugin para este novo fluxo de relatórios.
 
-O módulo Moodle permanece sujeito à configuração existente do projeto: habilitado em debug e desligado em release. Para um lançamento com Moodle, a URL HTTPS e o interruptor de release precisam ser configurados pelo responsável pelo ambiente.
+## Como os dados são gravados
 
-## Coleta e proteção
+`GamificacaoRepository` mantém a transação de progresso, FSRS, pontuação, ofensiva e recibo da tentativa. Somente para um aluno matriculado na turma de um deck Moodle, a mesma transação cria uma projeção compacta em:
 
-`GamificacaoRepository` acrescenta um snapshot `relatorio` somente aos eventos de decks Moodle. Copia curso, matéria, assunto, título e selo dentro da transação da revisão. As regras validam esses valores contra o deck e o card e exigem data do servidor. O dono que saiu da turma mantém o direito de revisar seu próprio deck, mas o processamento não o inclui como aluno matriculado. A pontuação, o FSRS e a conclusão de sessão mantêm as regras existentes.
+`relatoriosCursos/{cursoChave}/revisoes/{id}`
 
-As funções `relatorioTradicional` e `relatorioDissertativo` processam novos eventos. O servidor confirma a matrícula nas claims do Firebase Auth e exclui do relatório de alunos as revisões de quem tem papel de professor naquele curso. Perfil de apresentação vem de `rankings`; não são publicados e-mail, resposta do estudante ou histórico privado completo.
+O ID é estável para usuário, modo e tentativa. A projeção contém UID, nome/foto já públicos, identificação do deck/card, assunto, título, selo, classificação, modo e horário do servidor. Ela não inclui resposta digitada, pergunta/resposta do flashcard, e-mail, XP nem o progresso privado completo.
 
-Os resumos ficam em `relatoriosCursos/{cursoChave}/resumos/{hash}`. Cada resumo reúne repetições de um aluno/card/dia/assunto/modo/selo. O recibo em `relatoriosProcessados` é gravado na mesma transação. Isso evita duplicação em novas entregas do mesmo evento e mantém contadores corretos com concorrência ou entrega fora de ordem.
+Cada projeção representa exatamente uma revisão; não recebe contadores editáveis. O recibo privado aponta para sua projeção e a projeção aponta para o recibo. As regras exigem o vínculo, a classificação, o contexto e a data correspondentes. Novas tentativas são publicadas junto com o recibo; falha em qualquer gravação desfaz toda a transação. Reenviar uma tentativa confirmada recupera o recibo existente, sem outra revisão ou XP.
 
-Somente professores com a claim do curso leem os resumos. Clientes não escrevem resumos ou recibos. O dashboard não abre o histórico privado dos alunos.
+As projeções são imutáveis para clientes: aluno e professor não podem editar ou apagar. Somente professores da turma leem ou listam esses documentos. O professor continua sem permissão de leitura dos históricos privados em `users/{uid}`.
 
-## Significado dos indicadores
+Contas comuns, professores estudando na própria turma e donos que já saíram da turma não publicam atividade de aluno. O dono mantém o direito anterior de revisar seu deck. Os papéis são conferidos nas claims autenticadas; campos editáveis do perfil não concedem acesso.
 
-- Datas e fronteiras dos dias usam UTC, explicitado na tela.
-- Cards distintos: cada par aluno/deck/card conta uma vez no intervalo, mesmo se repetido em vários dias ou modos. Ao somar turmas, isso representa cards estudados por aluno, não o tamanho do catálogo.
-- Revisões: todas as revisões confirmadas, inclusive repetições.
-- Errei: percentual ponderado, soma dos Errei dividida pelo total de revisões.
-- Difícil: aparece separado, sem ser convertido automaticamente em erro.
-- Mínimo de 10 revisões para incluir um aluno na lista de atenção. Turmas/assuntos com menos dados são identificados como Poucos dados.
-- A classificação é a confirmada pelo estudante. Não é uma nota de prova.
-- Alunos sem revisões: comparação da lista de matriculados com os filtros selecionados. Usar somente verificados ou um modo específico pode excluir atividade que aconteceu fora desse filtro.
-- Matrículas são consultadas no momento da consulta; não representam a composição histórica da turma. A identificação pelo serviço padrão exclui os papéis Moodle `teacher`, `editingteacher` e `manager`; instituições com papéis personalizados devem conferir o retorno desse serviço.
+O processamento anterior em `firebase/relatorios/*.cjs` foi preservado como legado e para regressão. A entrada `functions` foi retirada de `firebase.json`. O processador antigo ignora eventos com `relatorioPublicoId`. Não execute deploy das Functions para ativar esta versão.
 
-## Histórico e escala
+## Cálculo e consultas
 
-Não é feita reconstrução artificial de revisões antigas sem snapshot. Os dados de relatórios começam com a nova coleta e a ativação das funções. Assunto ausente aparece como Sem assunto informado. Edições posteriores ou exclusão do deck não reescrevem os dados históricos já registrados no evento.
+`RelatoriosRepository` consulta as projeções das turmas do professor por horário do servidor, em páginas de 250 documentos, limitadas ao intervalo escolhido. A consulta usa apenas `createdAt`, sem exigir um índice composto adicional. O último dia é incluído inteiro por um limite final exclusivo em UTC. O cursor usa o documento completo para não perder registros com o mesmo horário.
 
-O aplicativo consulta resumos diários paginados em lotes de 250 documentos, por turma, limitados ao período. Não baixa todas as tentativas individuais. Para instituições com grande volume de alunos/cards e períodos longos, o próximo passo de escala é criar agregações adicionais por aluno/assunto e consultas no servidor; a implementação atual preserva a contagem exata de cards distintos em intervalos personalizados.
+O aplicativo monta os indicadores com `ResumoRelatorio`: quantidade de revisões, percentual ponderado de Errei, cards distintos por aluno, alunos com dificuldade, atividade, turmas e assuntos. As listas, filtros de modo/selo, detalhes e visual atual são preservados. Filtros de modo e selo reaproveitam os dados já consultados. O período máximo continua sendo 93 dias.
 
-Referências oficiais: https://firebase.google.com/docs/functions/firestore-events e https://firebase.google.com/docs/functions/get-started
+- Cards distintos: um par aluno/deck/card conta uma vez no período, mesmo com repetições e nos dois modos.
+- Revisões: cada tentativa confirmada conta uma vez.
+- Errei: soma dos Errei dividida pelo total de revisões; Difícil aparece separado.
+- Atenção: exige pelo menos 10 revisões e ocorrência de Errei ou Difícil.
+- Assuntos: somente os dos decks vinculados a uma turma Moodle; o mesmo assunto de turmas diferentes permanece separado.
+- Dias e períodos: UTC, conforme indicado na tela.
+- As classificações são as confirmadas pelo estudante, não uma nota de prova.
 
-## Validação
+## Histórico, limites e custo
 
-- Testes unitários Java para contagem distinta, repetição entre dias, ordenação, amostra mínima, assuntos por turma e detalhes por aluno.
-- Testes Node dos metadados, classificações, dia UTC, separação por modo/selo e exclusão de professores.
-- Testes de segurança no emulador e testes do processamento real em transações do Firestore, incluindo concorrência, repetição e exclusão do deck.
-- Testes Android da tela com uma fonte de dados substituída, sem chamadas reais à IA.
+Não é feita reconstrução automática de revisões anteriores à atualização. Estudar novamente com a nova versão produz novos registros. Os agregados antigos em `resumos` e recibos em `relatoriosProcessados` não são apagados, mas não são somados aos registros novos para evitar duplicidade.
 
-Resultado da execução local: 62 testes unitários Java, 75 testes Android, 7 testes Node de cálculo e 32 testes de segurança/transações passaram. Os 9 testes específicos de relatórios foram repetidos após o ajuste de compatibilidade com o dono que saiu da turma e passaram novamente. Compilação e lint concluídos; lint com 0 erros (avisos existentes e de textos/estilos não impedem a compilação). Nenhuma chamada real à IA nem login real no Moodle foi executado. A tela foi conferida no emulador com dados de teste.
+O Spark continua sujeito às cotas do Firestore. Cada revisão elegível acrescenta uma gravação compacta, leitura do perfil público e as leituras de validação das regras. Consultar relatórios lê as projeções correspondentes ao período; a paginação evita consultas sem limite de página, mas o total de leituras cresce com as revisões. Em turmas grandes ou períodos extensos, prefira períodos menores e acompanhe o uso no Console. Esta implementação não promete capacidade ilimitada nem migração automática para o Blaze.
+
+## Validação local
+
+- Testes Java da elegibilidade, identidade da tentativa, projeção sem dados privados e cálculos dos indicadores.
+- Testes de regras reais no Firestore Emulator para atomicidade, repetição/concorrência, acesso por curso, imutabilidade, perfil, datas e bloqueio de campos privados ou contadores forjados.
+- Testes Android contra Auth/Firestore locais: gravação real nos dois modos, leitura real pelo professor, paginação, exclusão de professor/ex-aluno/estudo comum e cancelamento de consultas.
+- Os testes usam projetos `demo-*`, sem contas reais, IA paga ou Functions.
+
+Para executar a integração Android, suba Auth e Firestore com as regras atuais e com `--project demo-classcards-relatorios-android`. Execute `node firebase/rankings/test-relatorios-spark-android.cjs` com `FIRESTORE_EMULATOR_HOST` e `FIREBASE_AUTH_EMULATOR_HOST` apontando para `127.0.0.1`. O teste cria somente contas fictícias do emulador. O Android Emulator precisa estar em execução e os APKs debug e androidTest instalados. O projeto do emulador Auth precisa corresponder ao configurado no teste; o script recusa um projeto diferente.
+
+Resultado em 23/11/2026: 73 testes Java, 89 testes Android de regressão, 61 testes de regras/transações, 8 testes Node de cálculo e 9 integrações Android reais com Auth/Firestore locais passaram (240 testes no total). Compilação debug e APK de testes passaram; lint sem erros. As integrações incluem duas confirmações concorrentes da mesma tentativa, recuperação do recibo sem XP duplicado e uma falha de permissão que não pode ser convertida em sucesso.
+
+Referências: https://firebase.google.com/docs/firestore/manage-data/transactions e https://firebase.google.com/docs/firestore/security/rules-fields

@@ -24,6 +24,7 @@ public class FotoPerfilRepository implements FotoPerfilFonte {
     public static long getVersaoFoto() { return versaoFoto; }
     public FotoPerfilRepository(Context context) { this.context = context.getApplicationContext(); }
     @Override public String uidAtual() { return auth.getUid(); }
+
     @Override public void carregar(String uid, Callback<String> callback) {
         FirebaseUser usuario = auth.getCurrentUser();
         String fallback = usuario != null && uid.equals(usuario.getUid()) && usuario.getPhotoUrl() != null ? usuario.getPhotoUrl().toString() : "";
@@ -32,6 +33,7 @@ public class FotoPerfilRepository implements FotoPerfilFonte {
             callback.sucesso(foto.isEmpty() ? fallback : foto);
         }).addOnFailureListener(callback::erro);
     }
+
     @Override public void preparar(Uri origem, Callback<File> callback) {
         executor.execute(() -> {
             try {
@@ -42,22 +44,41 @@ public class FotoPerfilRepository implements FotoPerfilFonte {
     }
     @Override public void salvar(String uid, File imagem, Callback<String> callback) {
         FirebaseUser usuario = auth.getCurrentUser();
-        if (usuario == null || !uid.equals(usuario.getUid())) { callback.erro(new IllegalStateException("A conta mudou.")); return; }
+
+        if (usuario == null || !uid.equals(usuario.getUid())) {
+            callback.erro(new IllegalStateException("A conta mudou."));
+            return;
+        }
+
         int operacao = ++versaoOperacao;
+
         executor.execute(() -> {
             try {
                 byte[] jpeg = lerImagem(imagem);
                 principal.post(() -> {
-                    if (!valida(operacao, uid)) return;
+
+                    if (!valida(operacao, uid))
+                        return;
+
                     usuario.getIdToken(false).addOnSuccessListener(token -> {
-                        if (!valida(operacao, uid)) return;
+                        if (!valida(operacao, uid))
+                            return;
+
                         List<String> cursos = new ArrayList<>();
                         Object moodle = token.getClaims().get("moodle");
                         Object lista = moodle instanceof Map ? ((Map<?, ?>) moodle).get("cursos") : null;
-                        if (lista instanceof List) for (Object curso : (List<?>) lista) if (curso instanceof String) cursos.add((String) curso);
+
+                        if (lista instanceof List)
+                            for (Object curso : (List<?>) lista)
+                                if (curso instanceof String)
+                                    cursos.add((String) curso);
+
                         new FotoPerfilPublicacao(db, auth::getUid).salvar(uid, jpeg, usuario.getDisplayName(), cursos)
                                 .addOnSuccessListener(referencia -> {
-                                    if (!valida(operacao, uid)) return;
+
+                                    if (!valida(operacao, uid))
+                                        return;
+
                                     ++versaoFoto;
                                     callback.sucesso(referencia);
                                 }).addOnFailureListener(erro -> { if (valida(operacao,uid)) callback.erro(erro); });
@@ -70,11 +91,15 @@ public class FotoPerfilRepository implements FotoPerfilFonte {
     private static byte[] lerImagem(File arquivo) throws IOException {
         try (InputStream entrada = new FileInputStream(arquivo); ByteArrayOutputStream saida = new ByteArrayOutputStream()) {
             byte[] bloco = new byte[4096]; int quantidade;
+
             while ((quantidade = entrada.read(bloco)) != -1) {
-                if (saida.size() + quantidade > FotoPerfilPublicacao.MAX_BYTES) throw new IOException("Escolha uma imagem menor.");
+                if (saida.size() + quantidade > FotoPerfilPublicacao.MAX_BYTES)
+                    throw new IOException("Escolha uma imagem menor.");
                 saida.write(bloco, 0, quantidade);
             }
-            if (saida.size() == 0) throw new IOException("Imagem vazia.");
+
+            if (saida.size() == 0)
+                throw new IOException("Imagem vazia.");
             return saida.toByteArray();
         }
     }

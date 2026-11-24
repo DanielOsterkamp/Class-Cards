@@ -27,15 +27,26 @@ service cloud.firestore {
         && r.titulo == deck.get('titulo', '') && r.verificado == deck.get('verificadoPorProfessor', false)
         && exists(/databases/$(database)/documents/decksMoodle/$(d.deckId)/cards/$(d.flashcardId));
     }
+    // Clientes antigos continuam gravando revisões; clientes novos vinculam a projeção na mesma operação.
+    function publicacaoDaRevisaoValida(uid, revisaoId, modo) {
+      let e = request.resource.data;
+      return !('relatorioPublicoId' in e)
+        || (e.relatorioPublicoId is string && e.relatorioPublicoId.matches('[a-f0-9]{64}')
+            && getAfter(/databases/$(database)/documents/relatoriosCursos/$(e.relatorio.cursoChave)/revisoes/$(e.relatorioPublicoId)).data.uid == uid
+            && getAfter(/databases/$(database)/documents/relatoriosCursos/$(e.relatorio.cursoChave)/revisoes/$(e.relatorioPublicoId)).data.eventoId == revisaoId
+            && getAfter(/databases/$(database)/documents/relatoriosCursos/$(e.relatorio.cursoChave)/revisoes/$(e.relatorioPublicoId)).data.modo == modo);
+    }
     match /users/{uid}/revisoesTradicionais/{revisaoId} {
       allow get: if request.auth != null && request.auth.uid == uid;
       allow create: if request.auth != null && request.auth.uid == uid
-                    && (!('relatorio' in request.resource.data) || metadadosRelatorioValidos());
+                    && (!('relatorio' in request.resource.data) || metadadosRelatorioValidos())
+                    && publicacaoDaRevisaoValida(uid, revisaoId, 'tradicional');
     }
     match /users/{uid}/revisoesDissertativas/{revisaoId} {
       allow get: if request.auth != null && request.auth.uid == uid;
       allow create: if request.auth != null && request.auth.uid == uid
-                    && (!('relatorio' in request.resource.data) || metadadosRelatorioValidos());
+                    && (!('relatorio' in request.resource.data) || metadadosRelatorioValidos())
+                    && publicacaoDaRevisaoValida(uid, revisaoId, 'dissertativo');
     }
 
     match /decks/{deckId} {
@@ -107,6 +118,40 @@ service cloud.firestore {
       }
     }
 
+    // Um registro imutável por tentativa. O app do professor calcula os totais sem Functions.
+    // O vínculo de ida e volta impede republicar uma revisão antiga com outro identificador.
+    function revisaoPublicaValida(curso, publicacaoId) {
+      let d = request.resource.data;
+      let colecao = d.modo == 'tradicional' ? 'revisoesTradicionais' : 'revisoesDissertativas';
+      let caminhoEvento = /databases/$(database)/documents/users/$(d.uid)/$(colecao)/$(d.eventoId);
+      let e = getAfter(caminhoEvento).data;
+      let perfil = exists(/databases/$(database)/documents/rankings/$(d.uid))
+        ? get(/databases/$(database)/documents/rankings/$(d.uid)).data : {};
+      let campos = ['uid', 'eventoId', 'modo', 'nome', 'fotoUrl', 'deckId', 'flashcardId',
+                    'rating', 'createdAt', 'assunto', 'titulo', 'verificado'];
+      return d.keys().hasAll(campos) && d.keys().hasOnly(campos)
+        && d.uid == request.auth.uid && d.uid.matches('moodle-.*')
+        && curso in cursosMoodle() && !professorDoCurso(curso)
+        && publicacaoId.matches('[a-f0-9]{64}')
+        && d.eventoId is string && d.eventoId.matches('[^/]{1,512}')
+        && d.modo in ['tradicional', 'dissertativo']
+        && e.relatorioPublicoId == publicacaoId
+        && e.relatorio.cursoChave == curso
+        && d.deckId == e.deckId && d.flashcardId == e.flashcardId
+        && d.rating == e.rating && d.rating in ['AGAIN', 'HARD', 'GOOD', 'EASY']
+        && d.createdAt is timestamp && d.createdAt == request.time && d.createdAt == e.createdAt
+        && d.assunto == e.relatorio.assunto && d.titulo == e.relatorio.titulo
+        && d.verificado == e.relatorio.verificado
+        && d.nome is string && d.nome.size() > 0 && d.nome.size() <= 120
+        && d.nome == perfil.get('nome', 'Estudante')
+        && d.fotoUrl is string && d.fotoUrl == perfil.get('fotoUrl', '');
+    }
+    match /relatoriosCursos/{curso}/revisoes/{publicacaoId} {
+      allow read: if request.auth != null && professorDoCurso(curso);
+      allow create: if request.auth != null && revisaoPublicaValida(curso, publicacaoId);
+      // Nenhum cliente edita ou apaga tentativas já publicadas.
+    }
+    // Agregados do processamento antigo são preservados, sem novas escritas pelo cliente.
     match /relatoriosCursos/{curso}/resumos/{resumo} {
       allow read: if request.auth != null && professorDoCurso(curso);
       allow write: if false;

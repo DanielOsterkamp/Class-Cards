@@ -27,7 +27,7 @@ public class RankingsViewModel extends ViewModel {
 
     // a versão faz não mostrarmos dados antigos
     private int versao;
-    // Bolha Moodle (Fase 9): curso escolhido no filtro (null = todos)
+
     private String filtroCurso;
 
     // o recalcular faz com que a cada minuto atualiza tabela automaticamente
@@ -52,7 +52,7 @@ public class RankingsViewModel extends ViewModel {
         return estado;
     }
 
-    /** Bolha Moodle (Fase 9): mostra só os participantes de um curso (null = ranking global). */
+
     public void filtrar(String chaveCurso) {
         filtroCurso = chaveCurso;
         if (carregado && uidAtual != null)

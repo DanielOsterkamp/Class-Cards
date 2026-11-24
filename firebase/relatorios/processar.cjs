@@ -2,6 +2,8 @@ const { preparar } = require('./calculo.cjs');
 /** Recebe dependências para testes contra o mesmo Firestore, sem credenciais reais. */
 async function processar(db, auth, snapshot, uid) {
   const revisao = snapshot.data();
+  // Clientes Spark já publicam a revisão atomicamente; uma Function antiga não deve reprocessá-la.
+  if (revisao?.relatorioPublicoId) return false;
   if (!revisao?.relatorio) return false;
   let usuario;
   try { usuario = await auth.getUser(uid); }

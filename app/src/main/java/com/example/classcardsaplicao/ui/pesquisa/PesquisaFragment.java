@@ -65,7 +65,7 @@ public class PesquisaFragment extends Fragment {
         recycler = view.findViewById(R.id.recyclerPesquisa);
         campo = view.findViewById(R.id.campoPesquisa);
         toggle = view.findViewById(R.id.togglePesquisa);
-        // Filtro por curso da bolha Moodle (Fase 9): começa em "Todos"; ao mudar, pesquisa de novo
+
         BolhaMoodle.definirFiltroPesquisa(null);
         FiltroCursoMoodle.aplicar(view.findViewById(R.id.filtroCursoPesquisa), chave -> {
             BolhaMoodle.definirFiltroPesquisa(chave);
@@ -82,7 +82,7 @@ public class PesquisaFragment extends Fragment {
             });
         }
 
-        // Envia somente o ID do resultado; a tela de destino carrega os dados correspondentes.
+
         decksAdapter.setOnDeckClickListener(deck -> {
             Bundle argumentos = new Bundle();
             argumentos.putString("deckId", deck.getId());

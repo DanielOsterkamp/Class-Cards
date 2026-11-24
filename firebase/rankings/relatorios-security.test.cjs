@@ -63,6 +63,9 @@ async function gravar(id,rating='AGAIN',colecao='revisoesTradicionais') {
  const d=db(aluno,claims),ref=doc(d,`users/${aluno}/${colecao}/${id}`);await setDoc(ref,evento({rating}));return admin.doc(ref.path).get();
 }
 const auth={getUser:async()=>({customClaims:claims,disabled:false})};
+test('processador antigo ignora revisões publicadas atomicamente pelo cliente Spark',async()=>{
+ assert.equal(await processar({}, {}, {data:()=>({relatorioPublicoId:'ja-publicado'})}, aluno),false);
+});
 test('transação real: entregas repetidas e concorrentes contam uma única revisão',async()=>{
  await admin.doc('relatoriosCursos/site:2/resumos/resumo').delete();
  const s=await gravar('duplicado');await Promise.all([processar(admin,auth,s,aluno),processar(admin,auth,s,aluno)]);

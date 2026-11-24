@@ -13,14 +13,13 @@ import com.google.firebase.firestore.Source;
 import java.util.ArrayList;
 import java.util.List;
 
-/** Consultas por prefixo com índice e cursor, sem baixar a coleção inteira para filtrar no Android. */
 public class PesquisaRepository implements PesquisaFonte {
     public static final int TAMANHO_PAGINA = 24;
     private final FirebaseFirestore firestore = FirebaseFirestore.getInstance();
 
     @Override public void buscarDecks(String termo, Object cursor, Callback<ResultadoDeckPesquisa> callback) {
         Query base = firestore.collection("decks");
-        // Bolha Moodle (Fase 9): só baralhos dos cursos da pessoa (ou do curso do filtro), em "decksMoodle"
+
         if (BolhaMoodle.ehMoodle()) {
             List<String> cursos = BolhaMoodle.chavesDaPesquisa();
             if (cursos.isEmpty()) {
@@ -34,7 +33,7 @@ public class PesquisaRepository implements PesquisaFonte {
     }
 
     @Override public void buscarUsuarios(String termo, Object cursor, Callback<ResultadoUsuarioPesquisa> callback) {
-        // Bolhas (Fase 9): quem é do Moodle vê só colegas de curso; quem é de fora, só contas de fora
+
         boolean moodle = BolhaMoodle.ehMoodle();
         List<String> cursos = BolhaMoodle.chavesDaPesquisa();
         Filtro filtro = doc -> moodle
@@ -49,29 +48,39 @@ public class PesquisaRepository implements PesquisaFonte {
             Conversor<T> conversor, Callback<T> callback) {
         String uid = FirebaseAuth.getInstance().getUid();
         String chave = TextoPesquisa.normalizar(termo);
+
         if (uid == null) {
             callback.onError(new IllegalStateException("Entre na sua conta para pesquisar."));
             return;
         }
+
         if (chave.length() < 2 || chave.length() > 80 || (cursor != null && !(cursor instanceof DocumentSnapshot))) {
             callback.onError(new IllegalArgumentException("Informe entre 2 e 80 caracteres para pesquisar."));
             return;
         }
 
-        // O limite superior atende prefixos dos títulos/nomes latinos, incluindo português normalizado.
         Query query = base.orderBy(campo)
                 .startAt(chave).endAt(chave + "\uf8ff").limit(TAMANHO_PAGINA + 1);
-        if (cursor != null) query = query.startAfter((DocumentSnapshot) cursor);
+        if (cursor != null)
+            query = query.startAfter((DocumentSnapshot) cursor);
 
         query.get(Source.SERVER).addOnSuccessListener(snapshot -> {
-            if (!mesmaConta(uid, callback)) return;
+
+            if (!mesmaConta(uid, callback))
+                return;
+
             List<T> itens = new ArrayList<>();
+
             List<DocumentSnapshot> documentos = snapshot.getDocuments();
+
             int quantidade = Math.min(TAMANHO_PAGINA, documentos.size());
+
             for (int i = 0; i < quantidade; i++)
                 if (filtro.aceita(documentos.get(i))) itens.add(conversor.converter(documentos.get(i)));
+
             Object proximo = quantidade == 0 ? null : documentos.get(quantidade - 1);
             callback.onSuccess(itens, proximo, documentos.size() > TAMANHO_PAGINA);
+
         }).addOnFailureListener(erro -> {
             if (mesmaConta(uid, callback)) callback.onError(erro);
         });

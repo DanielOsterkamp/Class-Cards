@@ -20,7 +20,8 @@ public class ConfiguracoesFragment extends Fragment {
     private ConfiguracoesViewModel vm;
     private FirebaseAuth.AuthStateListener authListener;
     private Object imagemExibida;
-    // O contrato usa o seletor nativo e faz fallback em aparelhos mais antigos.
+
+
     private final ActivityResultLauncher<PickVisualMediaRequest> seletor = registerForActivityResult(
             new ActivityResultContracts.PickVisualMedia(), uri -> {
                 if (vm == null) vm = new ViewModelProvider(this).get(ConfiguracoesViewModel.class);

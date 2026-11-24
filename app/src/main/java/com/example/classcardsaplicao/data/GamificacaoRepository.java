@@ -12,7 +12,11 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.SetOptions;
+import com.google.firebase.firestore.Source;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.TimeZone;
@@ -21,15 +25,16 @@ import java.util.TimeZone;
 public class GamificacaoRepository {
     private final FirebaseFirestore firestore;
     private final Runnable atualizarRanking;
+    private final FirebaseAuth auth;
 
     public GamificacaoRepository() {
         this(FirebaseFirestore.getInstance(), RankingRepository::atualizarEmSegundoPlano);
     }
 
-    // Permite exercitar a transação no emulador, sem publicar dados em um projeto real.
     GamificacaoRepository(FirebaseFirestore firestore, Runnable atualizarRanking) {
         this.firestore = firestore;
         this.atualizarRanking = atualizarRanking;
+        this.auth = FirebaseAuth.getInstance(firestore.getApp());
     }
 
     public void confirmarRevisao(String uid, String deckId, String flashcardId,
@@ -55,6 +60,31 @@ public class GamificacaoRepository {
 
     private void confirmar(String uid, String deckId, String flashcardId, String tentativaId,
             Rating rating, String colecaoEventos, boolean ultimaRevisao, Callback callback) {
+        if (!deckId.startsWith("moodle-")) {
+            confirmarComClaims(uid, deckId, flashcardId, tentativaId, rating, colecaoEventos,
+                    ultimaRevisao, Collections.emptyMap(), callback);
+            return;
+        }
+
+        FirebaseUser user = auth.getCurrentUser();
+        if (user == null || !uid.equals(user.getUid())) {
+            callback.onError(new IllegalStateException("Entre novamente para salvar sua revisão."));
+            return;
+        }
+
+        user.getIdToken(false).addOnSuccessListener(token -> {
+            if (!uid.equals(auth.getUid())) {
+                callback.onError(new IllegalStateException("A conta mudou. Entre novamente."));
+                return;
+            }
+            confirmarComClaims(uid, deckId, flashcardId, tentativaId, rating, colecaoEventos,
+                    ultimaRevisao, token.getClaims(), callback);
+        }).addOnFailureListener(callback::onError);
+    }
+
+    private void confirmarComClaims(String uid, String deckId, String flashcardId, String tentativaId,
+            Rating rating, String colecaoEventos, boolean ultimaRevisao,
+            Map<String, Object> claims, Callback callback) {
         long xpGanho = "revisoesDissertativas".equals(colecaoEventos) ? RegrasGamificacao.xpPorRevisao(rating) : 0;
         DocumentReference usuario = firestore.collection("users").document(uid);
         DocumentReference evento = usuario.collection(colecaoEventos).document(tentativaId);
@@ -72,20 +102,16 @@ public class GamificacaoRepository {
 
             DocumentSnapshot recibo = transaction.get(evento);
             if (recibo.exists()) {
-                ResultadoOfensiva ofensiva = new ResultadoOfensiva(numero(recibo, "ofensivaAnterior"),
-                        numero(recibo, "ofensivaAtual"), Boolean.TRUE.equals(recibo.getBoolean("ofensivaConquistada")));
-                // Reenviar a mesma tentativa recupera os totais originais, sem conceder pontos de novo.
-                ResumoEstudo totais = recibo.contains("xpAnterior") && recibo.contains("xpAtual")
-                        && recibo.contains("cardsEstudadosAnterior") && recibo.contains("cardsEstudadosAtual")
-                        ? new ResumoEstudo(numero(recibo, "cardsEstudadosAnterior"), numero(recibo, "cardsEstudadosAtual"),
-                                numero(recibo, "xpAnterior"), numero(recibo, "xpAtual")) : null;
-                return new ResultadoRevisao(ofensiva, totais);
+                return resultadoDoRecibo(recibo);
             }
 
             DocumentSnapshot deckMoodle = deckId.startsWith("moodle-")
                     ? transaction.get(firestore.collection("decksMoodle").document(deckId)) : null;
             DocumentSnapshot stats = transaction.get(resumo);
             DocumentSnapshot anterior = transaction.get(progresso);
+            String curso = deckMoodle != null && deckMoodle.exists() ? deckMoodle.getString("cursoChave") : null;
+            boolean publicar = PublicacaoRelatorio.alunoDoCurso(uid, claims, curso);
+            DocumentSnapshot perfil = publicar ? transaction.get(firestore.collection("rankings").document(uid)) : null;
             ProgressoFlashcard progressoFlashcard = anterior.toObject(ProgressoFlashcard.class);
             if (progressoFlashcard == null)
                 progressoFlashcard = new ProgressoFlashcard(uid, deckId, flashcardId);
@@ -135,6 +161,15 @@ public class GamificacaoRepository {
                 registro.put("relatorio", relatorio);
             }
 
+            if (publicar) {
+                String publicacaoId = PublicacaoRelatorio.id(uid, colecaoEventos, tentativaId);
+                registro.put("relatorioPublicoId", publicacaoId);
+                transaction.set(firestore.collection("relatoriosCursos").document(curso)
+                                .collection("revisoes").document(publicacaoId),
+                        PublicacaoRelatorio.dados(uid, colecaoEventos, tentativaId, registro,
+                                perfil.exists() ? perfil.getData() : Collections.emptyMap()));
+            }
+
             transaction.set(progresso, progressoFlashcard);
             transaction.set(resumo, valores, SetOptions.merge());
             transaction.set(evento, registro);
@@ -143,7 +178,32 @@ public class GamificacaoRepository {
             atualizarRanking.run();
             callback.onSuccess(resultado);
         })
-                .addOnFailureListener(callback::onError);
+                .addOnFailureListener(erro -> {
+                    if (!uid.equals(auth.getUid())) {
+                        callback.onError(erro);
+                        return;
+                    }
+
+                    evento.get(Source.SERVER).addOnSuccessListener(recibo -> {
+                        if (uid.equals(auth.getUid()) && recibo.exists()
+                                && deckId.equals(recibo.getString("deckId"))
+                                && flashcardId.equals(recibo.getString("flashcardId"))
+                                && rating.name().equals(recibo.getString("rating"))) {
+                            atualizarRanking.run();
+                            callback.onSuccess(resultadoDoRecibo(recibo));
+                        } else callback.onError(erro);
+                    }).addOnFailureListener(ignorado -> callback.onError(erro));
+                });
+    }
+
+    private static ResultadoRevisao resultadoDoRecibo(DocumentSnapshot recibo) {
+        ResultadoOfensiva ofensiva = new ResultadoOfensiva(numero(recibo, "ofensivaAnterior"),
+                numero(recibo, "ofensivaAtual"), Boolean.TRUE.equals(recibo.getBoolean("ofensivaConquistada")));
+        ResumoEstudo totais = recibo.contains("xpAnterior") && recibo.contains("xpAtual")
+                && recibo.contains("cardsEstudadosAnterior") && recibo.contains("cardsEstudadosAtual")
+                ? new ResumoEstudo(numero(recibo, "cardsEstudadosAnterior"), numero(recibo, "cardsEstudadosAtual"),
+                        numero(recibo, "xpAnterior"), numero(recibo, "xpAtual")) : null;
+        return new ResultadoRevisao(ofensiva, totais);
     }
 
     public static long numero(DocumentSnapshot doc, String campo) {

@@ -158,7 +158,7 @@ public class PerfilViewModel extends ViewModel {
     }
 
     private void carregarPerfilPublico(String uidPerfil, String uidSessao, int carga) {
-        // A projeção do ranking já contém nome, foto e estatísticas que podem ser mostrados a outros usuários.
+
         rankingRepository.buscarUsuario(uidPerfil).addOnSuccessListener(perfil -> {
             if (!cargaValida(carga, uidSessao)) return;
             nome.setValue(perfil.getNome());
@@ -174,7 +174,7 @@ public class PerfilViewModel extends ViewModel {
             concluirCarregamento();
         });
 
-        // Os decks são consultados pelo dono selecionado, independentemente da conta conectada.
+
         deckRepository.buscarDecksDoUsuario(uidPerfil, new DeckRepository.BuscarDecksCallback() {
             @Override
             public void onSuccess(List<Deck> listaDecks) {
@@ -222,7 +222,7 @@ public class PerfilViewModel extends ViewModel {
                             GamificacaoRepository.numero(doc, "ofensiva"), doc.getString("ultimoDiaEstudo"),
                             RegrasGamificacao.dia(agora, zona, 0), RegrasGamificacao.dia(agora, zona, -1)));
                 });
-        // A contagem inclui cards distintos já revisados nos dois modos.
+
         listenerCards = usuario.collection("progressoFlashcards").addSnapshotListener((snapshot, exception) -> {
             if (authRepository.getUsuarioAtual() == null
                     || !uid.equals(authRepository.getUsuarioAtual().getUid())) return;
@@ -242,8 +242,11 @@ public class PerfilViewModel extends ViewModel {
     }
 
     private void removerListeners() {
-        if (listenerGamificacao != null) listenerGamificacao.remove();
-        if (listenerCards != null) listenerCards.remove();
+        if (listenerGamificacao != null)
+            listenerGamificacao.remove();
+
+        if (listenerCards != null)
+            listenerCards.remove();
         listenerGamificacao = null;
         listenerCards = null;
     }

@@ -151,7 +151,7 @@ public class PerfilFragment extends Fragment {
 
     @Override public void onResume() {
         super.onResume();
-        // Recalcula a ofensiva ao voltar ao perfil, inclusive após a mudança do dia.
+
         String uid = getArguments() == null ? null : getArguments().getString("uid");
         new ViewModelProvider(this).get(PerfilViewModel.class).carregarPerfil(uid);
     }

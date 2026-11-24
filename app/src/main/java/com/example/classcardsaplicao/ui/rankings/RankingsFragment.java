@@ -46,7 +46,7 @@ public class RankingsFragment extends Fragment {
                 NavHostFragment.findNavController(this).popBackStack());
         view.findViewById(R.id.btnAtualizarRankings).setOnClickListener(v -> viewModel.atualizar());
         view.findViewById(R.id.btnTentarRankings).setOnClickListener(v -> viewModel.atualizar());
-        // Filtro por curso da bolha Moodle (Fase 9): começa em "Todos" (ranking global)
+
         viewModel.filtrar(null);
         FiltroCursoMoodle.aplicar(view.findViewById(R.id.filtroCursoRankings), viewModel::filtrar);
 

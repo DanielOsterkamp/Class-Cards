@@ -27,7 +27,7 @@ import java.util.Objects;
 import java.util.function.LongSupplier;
 import java.util.function.Supplier;
 
-/** Mantém as duas buscas independentes e reaproveita seus resultados ao alternar a aba. */
+
 public class PesquisaViewModel extends ViewModel {
 
     public enum Aba { FLASHCARDS, USUARIOS }
@@ -89,7 +89,7 @@ public class PesquisaViewModel extends ViewModel {
         auth.addAuthStateListener(listenerAuth);
     }
 
-    // A fonte e a conta podem ser substituídas nos testes, sem consultar o Firebase real.
+
     PesquisaViewModel(SavedStateHandle salvo, PesquisaFonte fonte, Supplier<String> usuarioAtual) {
         this(salvo, fonte, usuarioAtual, SystemClock::elapsedRealtime);
     }
@@ -114,7 +114,7 @@ public class PesquisaViewModel extends ViewModel {
     public LiveData<EstadoTela> getEstado() { return estado; }
     public String getTermo() { return termo; }
 
-    /** Remove um deck excluído sem perder o termo, a aba ou os resultados de usuários. */
+
     public void removerDeckExcluido(String id) {
         if (id == null || id.isEmpty() || encerrado) return;
         decksExcluidos.add(id);
@@ -137,7 +137,7 @@ public class PesquisaViewModel extends ViewModel {
         termo = texto == null ? "" : texto.substring(0, Math.min(texto.length(), 80));
         salvo.set(CHAVE_TERMO, termo);
         String novo = TextoPesquisa.normalizar(termo);
-        // A mesma consulta só é reaproveitada enquanto seus resultados ainda são recentes.
+
         if (novo.equals(normalizado) && consulta != null
                 && (emAndamento() || tempo.getAsLong() - consulta.atualizadoEm < VALIDADE_CACHE_MS)) return;
 
@@ -176,13 +176,13 @@ public class PesquisaViewModel extends ViewModel {
         relogio.postDelayed(pendente, PAUSA_DIGITACAO_MS);
     }
 
-    /** Bolha Moodle (Fase 9): o filtro por curso mudou, então os resultados guardados não valem mais. */
+
     public void filtroMudou() {
         cache.clear();
         buscarAgora();
     }
 
-    /** A busca explícita antecipa a digitação pendente ou renova resultados já carregados. */
+
     public void buscarAgora() {
         if (encerrado) return;
         verificarConta();
@@ -194,7 +194,7 @@ public class PesquisaViewModel extends ViewModel {
         } else if (selecionada().erro != null) {
             tentarNovamente();
         } else if (!emAndamento()) {
-            // Uma resposta vazia também pode mudar depois que outros perfis forem indexados.
+
             cache.remove(normalizado);
             versao++;
             consulta = new Consulta();
@@ -239,7 +239,7 @@ public class PesquisaViewModel extends ViewModel {
         verificarConta();
         if (consulta == null || consulta.iniciada || encerrado) return;
         consulta.iniciada = true;
-        // Nenhuma fonte espera a outra terminar. Falhar em uma aba não apaga o resultado da outra.
+
         requisitar(Aba.FLASHCARDS, false);
         requisitar(Aba.USUARIOS, false);
     }

@@ -29,7 +29,7 @@ public class DeckRepository {
     }
 
     public void buscarDecksDoUsuario(String userId, BuscarDecksCallback callback) {
-        // Bolha Moodle: os baralhos de curso ficam em "decksMoodle" (Fase 9)
+
         if (BolhaMoodle.ehMoodle()) {
             buscarDecksMoodleDoUsuario(userId, callback);
             return;
@@ -46,7 +46,7 @@ public class DeckRepository {
                     for (DocumentSnapshot documento : querySnapshot.getDocuments()) {
                         Deck deck = documento.toObject(Deck.class);
                         if (deck != null) {
-                            // O ID do documento também funciona para decks antigos sem o campo id.
+
                             deck.setId(documento.getId());
                             decks.add(deck);
                         }
@@ -60,7 +60,7 @@ public class DeckRepository {
         // igual em outros lugares, aqui ele passa a resposta pela interface do callback, que o codigo tá lá em baixo
     }
 
-    /** Bolha Moodle: os próprios baralhos, ou os de outra pessoa só dos cursos em comum. */
+
     private void buscarDecksMoodleDoUsuario(String userId, BuscarDecksCallback callback) {
         Query query = firestore.collection(BolhaMoodle.COLECAO_DECKS_MOODLE).whereEqualTo("ownerId", userId);
         if (!userId.equals(FirebaseAuth.getInstance().getUid())) {
@@ -107,7 +107,6 @@ public class DeckRepository {
 
                     deck.setId(documentSnapshot.getId());
 
-                    // Decks antigos do próprio professor ganham o selo ao serem abertos.
                     if (!documentSnapshot.contains("verificadoPorProfessor")
                             && deck.getOwnerId() != null
                             && deck.getOwnerId().equals(FirebaseAuth.getInstance().getUid())
@@ -155,7 +154,6 @@ public class DeckRepository {
                                      boolean professor, DeckCallback callback) {
 
 
-        // Bolha Moodle: o baralho vai para "decksMoodle", preso ao curso da matéria (Fase 9)
         boolean moodle = BolhaMoodle.ehMoodle();
         String cursoChave = moodle ? BolhaMoodle.chaveDaMateria(deck.getMateria()) : null;
         if (moodle && cursoChave == null) {
@@ -178,7 +176,6 @@ public class DeckRepository {
         // o batch ele serve pra juntar varias informações pro firebase e evniar de uma vez, sem precisar vazer um milhão de card1Ref.set(card1)
 
         // aqui ele salva as o deck e seus atributos nessa referencia
-        // Metadados e índice usam uma única escrita dentro do mesmo lote dos flashcards.
         Map<String, Object> dados = dadosDeck(deck);
         if (moodle) {
             dados.put("cursoChave", cursoChave);
@@ -270,7 +267,7 @@ public class DeckRepository {
                             "updatedAt", System.currentTimeMillis()
                     );
 
-                    // Bolha Moodle: se a matéria mudou, o baralho passa para o curso novo (Fase 9)
+
                     if (BolhaMoodle.COLECAO_DECKS_MOODLE.equals(BolhaMoodle.colecaoDoDeck(deck.getId()))) {
                         String cursoChave = BolhaMoodle.chaveDaMateria(deck.getMateria());
                         if (cursoChave != null) batch.update(deckRef, "cursoChave", cursoChave);
@@ -402,7 +399,6 @@ public class DeckRepository {
         return dados;
     }
 
-    /** Aproveita a consulta do próprio usuário e corrige somente os índices que estão desatualizados. */
     private void indexarDecksAntigos(String uid, List<DocumentSnapshot> documentos) {
         if (!uid.equals(FirebaseAuth.getInstance().getUid())) return;
         List<DocumentReference> pendentes = new ArrayList<>();
@@ -413,21 +409,28 @@ public class DeckRepository {
             }
         }
         for (int inicio = 0; inicio < pendentes.size(); inicio += 100) {
-            List<DocumentReference> lote = new ArrayList<>(pendentes.subList(inicio,
-                    Math.min(inicio + 100, pendentes.size())));
+
+            List<DocumentReference> lote = new ArrayList<>(pendentes.subList(inicio, Math.min(inicio + 100, pendentes.size())));
+
             firestore.runTransaction(transaction -> {
+
                 if (!uid.equals(FirebaseAuth.getInstance().getUid())) return null;
+
                 List<DocumentSnapshot> atuais = new ArrayList<>();
-                // Relê os títulos para não publicar uma chave antiga se o deck foi editado nesse intervalo.
+
                 for (DocumentReference referencia : lote) atuais.add(transaction.get(referencia));
+
                 for (DocumentSnapshot atual : atuais) {
                     if (!atual.exists() || !uid.equals(atual.getString("ownerId"))) continue;
                     String titulo = atual.get("titulo") instanceof String ? (String) atual.get("titulo") : "";
                     String chave = TextoPesquisa.normalizar(titulo);
+
                     if (!chave.equals(atual.get("tituloBusca"))) {
                         transaction.update(atual.getReference(), "tituloBusca", chave);
                     }
+
                 }
+
                 return null;
             }).addOnFailureListener(erro -> Log.w("PESQUISA", "Indexação pendente: "
                     + erro.getClass().getSimpleName()));
